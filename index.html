@@ -160,6 +160,11 @@ tr:hover td{background:#FAFCFF}
   <div class="dots-menu-item" onclick="moveRow('reception')">Réception</div>
   <div class="dots-menu-item" onclick="moveRow('commerciaux')">Commerciaux</div>
   <div class="dots-menu-item" onclick="moveRow('comptabilite')">Comptabilité</div>
+  <div class="dots-menu-sep"></div>
+  <div class="dots-menu-label">Envoyer un mail à</div>
+  <div class="dots-menu-item" onclick="sendMail('reception')">✉ Réception</div>
+  <div class="dots-menu-item" onclick="sendMail('commerciaux')">✉ Commerciaux</div>
+  <div class="dots-menu-item" onclick="sendMail('comptabilite')">✉ Comptabilité</div>
 </div>
 
 <script>
@@ -503,6 +508,59 @@ function moveRow(svc) {
 document.addEventListener('click', () => {
   document.getElementById('dots-menu-global').classList.remove('open');
 });
+
+// ═══════════════════════════════════════════════════════
+// MAIL
+// ═══════════════════════════════════════════════════════
+const MAIL_DEST = {
+  reception:    { to: 'h1103-om1@accor.com', cc: 'h1103-om@accor.com',  label: 'Réception' },
+  commerciaux:  { to: 'h1103-sb@accor.com',  cc: 'h1103-re2@accor.com', label: 'Service Commercial' },
+  comptabilite: { to: 'h1103-gl@accor.com',  cc: '',                    label: 'Comptabilité' },
+};
+
+function sendMail(svc) {
+  document.getElementById('dots-menu-global').classList.remove('open');
+  if (!activeDotsId || !state[activeDotsId]) return;
+  const row = state[activeDotsId];
+  const dest = MAIL_DEST[svc];
+
+  const subject = encodeURIComponent(
+    `Suivi encours — ${row.client} (N°${row.nc}) — Demande de mise à jour`
+  );
+
+  const notePrev = row.notePrev ? `Note précédente : ${row.notePrev}` : '';
+  const commentaire = row.commentaire ? `Commentaire en cours : ${row.commentaire}` : '';
+  const statut = row.statut || 'En attente';
+  const montant = Number(row.montant).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  const body = encodeURIComponent(
+`Bonjour,
+
+Dans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante qui nécessite une mise à jour :
+
+─────────────────────────────────
+Client       : ${row.client}
+N° Client    : ${row.nc}
+Montant      : ${montant} €
+Statut actuel: ${statut}
+${notePrev}
+${commentaire}
+─────────────────────────────────
+
+Pourriez-vous me faire un retour sur cette ligne et m'indiquer :
+  • Où en est ce dossier ?
+  • Y a-t-il un séjour, un événement ou un remboursement prévu ?
+  • Quelle est l'échéance estimée ?
+
+Merci de me tenir informé(e) afin de pouvoir mettre à jour notre suivi.
+
+Bien cordialement,`
+  );
+
+  const cc = dest.cc ? `&cc=${encodeURIComponent(dest.cc)}` : '';
+  const mailto = `mailto:${encodeURIComponent(dest.to)}${cc}&subject=${subject}&body=${body}`;
+  window.location.href = mailto;
+}
 
 // ═══════════════════════════════════════════════════════
 // DRAG & DROP
