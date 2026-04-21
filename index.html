@@ -6,6 +6,7 @@
 <title>Suivi des encours — Novotel Nice</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFGMzg2NCIvPgogIDxyZWN0IHg9IjYiIHk9IjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiBmaWxsPSIjZmZmIi8+CiAgPHJlY3QgeD0iNiIgeT0iMTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiByeD0iMSIgZmlsbD0iIzlGRTFDQiIvPgogIDxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHJlY3QgeD0iMTQuNSIgeT0iMTciIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIHJ4PSIwLjUiIGZpbGw9IiMxRjM4NjQiLz4KICA8cmVjdCB4PSIyMCIgeT0iMTciIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIHJ4PSIwLjUiIGZpbGw9IiMxRjM4NjQiLz4KICA8cmVjdCB4PSI5IiB5PSIyMiIgd2lkdGg9IjMiIGhlaWdodD0iNCIgcng9IjAuNSIgZmlsbD0iIzFGMzg2NCIvPgogIDxyZWN0IHg9IjE0LjUiIHk9IjIyIiB3aWR0aD0iMyIgaGVpZ2h0PSI0IiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHJlY3QgeD0iMjAiIHk9IjIyIiB3aWR0aD0iMyIgaGVpZ2h0PSI0IiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHBvbHlnb24gcG9pbnRzPSIxNiw0IDUsMTMgMjcsMTMiIGZpbGw9IiMyRjU0OTYiLz4KPC9zdmc+">
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -524,17 +525,13 @@ function sendMail(svc) {
   const row = state[activeDotsId];
   const dest = MAIL_DEST[svc];
 
-  const subject = encodeURIComponent(
-    `Suivi encours — ${row.client} (N°${row.nc}) — Demande de mise à jour`
-  );
-
-  const notePrev = row.notePrev ? `Note précédente : ${row.notePrev}` : '';
-  const commentaire = row.commentaire ? `Commentaire en cours : ${row.commentaire}` : '';
-  const statut = row.statut || 'En attente';
   const montant = Number(row.montant).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const notePrev = row.notePrev ? 'Note précédente : ' + row.notePrev : '';
+  const commentaire = row.commentaire ? 'Commentaire en cours : ' + row.commentaire : '';
 
-  const body = encodeURIComponent(
-`Bonjour,
+  const subject = 'Suivi encours — ' + row.client + ' (N°' + row.nc + ') — Demande de mise à jour';
+
+  const message = `Bonjour,
 
 Dans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante qui nécessite une mise à jour :
 
@@ -542,7 +539,7 @@ Dans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens
 Client       : ${row.client}
 N° Client    : ${row.nc}
 Montant      : ${montant} €
-Statut actuel: ${statut}
+Statut actuel: ${row.statut || 'En attente'}
 ${notePrev}
 ${commentaire}
 ─────────────────────────────────
@@ -554,12 +551,38 @@ Pourriez-vous me faire un retour sur cette ligne et m'indiquer :
 
 Merci de me tenir informé(e) afin de pouvoir mettre à jour notre suivi.
 
-Bien cordialement,`
-  );
+Bien cordialement,`;
 
-  const cc = dest.cc ? `&cc=${encodeURIComponent(dest.cc)}` : '';
-  const mailto = `mailto:${encodeURIComponent(dest.to)}${cc}&subject=${subject}&body=${body}`;
-  window.location.href = mailto;
+  // Show sending indicator
+  const btn = document.querySelector('#row-' + activeDotsId + ' .btn-dots');
+  if (btn) { btn.textContent = '...'; btn.disabled = true; }
+
+  emailjs.send('service_dd2nn5g', 'template_3aeinef', {
+    to_email:   dest.to,
+    cc_email:   dest.cc || '',
+    to_name:    dest.label,
+    subject:    subject,
+    message:    message,
+    client:     row.client,
+    nc:         row.nc,
+    montant:    montant + ' €',
+    statut:     row.statut || 'En attente',
+  })
+  .then(() => {
+    if (btn) { btn.textContent = '···'; btn.disabled = false; }
+    alert('✓ Mail envoyé à ' + dest.label + ' (' + dest.to + ')');
+    // Log dans Firebase
+    if (state[activeDotsId]) {
+      state[activeDotsId].dernierMail = 'Envoyé à ' + dest.label + ' le ' + new Date().toLocaleDateString('fr-FR');
+      state[activeDotsId].dateMaj = new Date().toLocaleDateString('fr-FR');
+      saveToFirebase();
+    }
+  })
+  .catch((err) => {
+    if (btn) { btn.textContent = '···'; btn.disabled = false; }
+    console.error('EmailJS error:', err);
+    alert('Erreur envoi mail : ' + JSON.stringify(err) + '\nVérifiez la configuration du template EmailJS.');
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -586,6 +609,12 @@ function updateLive() {
 window.addEventListener('load', () => {
   const lastImport = localStorage.getItem('last_import');
   if (lastImport) document.getElementById('last-import-label').textContent = 'Importé le ' + lastImport;
+
+  // Init EmailJS
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init({ publicKey: 'IOJCHQiqGloMl8p4k' });
+    console.log('[SUIVI] EmailJS initialisé');
+  }
 
   // Firebase pré-configuré
   const fbConfig = {
