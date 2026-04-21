@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi des encours — Novotel Nice</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  window._fbImports = { initializeApp, getDatabase, ref, set, onValue, update };
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:13px;background:#F0F4FA;color:#222}
+#app{max-width:1400px;margin:0 auto;padding:16px}
+
+/* TOPBAR */
+.topbar{background:#1F3864;border-radius:10px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar h1{color:#fff;font-size:15px;font-weight:600}
+.live{display:flex;align-items:center;gap:7px;font-size:11px;color:#9FE1CB}
+.live-dot{width:8px;height:8px;background:#4CAF50;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* UPLOAD */
+.upload-bar{background:#fff;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px;border:1px solid #E0E6EF;flex-wrap:wrap}
+.drop-zone{border:2px dashed #7EB3E8;border-radius:8px;padding:10px 20px;cursor:pointer;background:#F0F6FF;text-align:center;transition:background .2s;min-width:220px}
+.drop-zone:hover,.drop-zone.drag{background:#DAEEFF;border-color:#378ADD}
+.drop-zone p{font-size:12px;color:#185FA5;font-weight:600;margin:0}
+.drop-zone span{font-size:10px;color:#88AAC8}
+.last-import{font-size:11px;color:#AAA}
+.stats{display:flex;gap:10px;margin-left:auto}
+.stat{background:#F4F6FA;border-radius:8px;padding:6px 14px;text-align:center}
+.stat-val{font-size:16px;font-weight:700;color:#1F3864}
+.stat-label{font-size:9px;color:#888;margin-top:2px}
+
+/* SECTIONS */
+.section{margin-bottom:16px}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:0 4px}
+.section-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.3px}
+.badge-green{background:#E2EFDA;color:#2E7D32}
+.badge-purple{background:#EDE7F6;color:#4527A0}
+.badge-amber{background:#FFF3CD;color:#856404}
+.section-meta{font-size:11px;color:#999}
+
+/* TABLE */
+.table-wrap{background:#fff;border-radius:10px;border:1px solid #E0E6EF;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
+th{background:#F8FAFD;padding:8px 10px;text-align:left;font-size:10px;color:#888;font-weight:700;border-bottom:1px solid #E8EEF6;white-space:nowrap;position:sticky;top:0}
+td{padding:6px 10px;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFCFF}
+.client-name{font-weight:700;color:#1F3864;white-space:nowrap}
+.amount{font-weight:600;white-space:nowrap;text-align:right}
+.note-prev{font-size:10px;color:#185FA5;font-style:italic;max-width:180px;line-height:1.4}
+.date-mj{font-size:10px;color:#BBB;white-space:nowrap}
+.date-urgent{color:#E24B4A!important}
+
+/* Editable cells */
+.editable{border:1px solid transparent;border-radius:5px;padding:4px 6px;min-height:28px;cursor:text;transition:border-color .15s;outline:none;width:100%;min-width:120px;font-size:12px;font-family:Arial,sans-serif;background:transparent;resize:none;display:block}
+.editable:hover{border-color:#D0DCF0;background:#FAFCFF}
+.editable:focus{border-color:#378ADD;background:#F5F9FF}
+.editable[placeholder]:empty:before{content:attr(placeholder);color:#BCC8DC;font-style:italic;pointer-events:none}
+
+/* Status select */
+.status-sel{border:none;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:18px}
+.s-attente{background:#F3F3F3;color:#666}
+.s-encours{background:#FFF8E1;color:#856404}
+.s-rembours{background:#E3F2FD;color:#1565C0}
+.s-report{background:#F3E5F5;color:#6A1B9A}
+.s-solde{background:#E8F5E9;color:#2E7D32}
+.s-verifier{background:#FFEBEE;color:#C62828}
+
+/* New line attribution */
+.new-badge{display:inline-block;background:#FFECB3;color:#856404;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;vertical-align:middle}
+.assign-btns{display:flex;gap:4px;flex-wrap:wrap}
+.assign-btn{font-size:10px;padding:3px 8px;border:1px solid #D0D7E3;border-radius:5px;background:#fff;cursor:pointer;color:#444;transition:all .15s;white-space:nowrap}
+.assign-btn:hover{background:#1F3864;color:#fff;border-color:#1F3864}
+
+/* Dots menu */
+.dots-wrap{position:relative}
+.btn-dots{background:none;border:1px solid transparent;border-radius:5px;cursor:pointer;padding:4px 8px;font-size:16px;color:#CCC;line-height:1;font-weight:700;letter-spacing:2px;display:block}
+.btn-dots:hover{background:#F0F4FA;color:#555;border-color:#D0D7E3}
+.dots-menu{display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid #D0D7E3;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;min-width:160px;padding:4px 0}
+.dots-menu.open{display:block}
+.dots-menu-item{padding:8px 14px;cursor:pointer;font-size:12px;color:#333;white-space:nowrap}
+.dots-menu-item:hover{background:#F5F8FF;color:#1F3864}
+.dots-menu-sep{height:1px;background:#F0F0F0;margin:3px 0}
+.dots-menu-label{padding:6px 14px 3px;font-size:10px;color:#AAA;font-weight:600;text-transform:uppercase}
+
+/* Footer */
+.footer{background:#fff;border-radius:10px;border:1px solid #E0E6EF;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.footer-total{font-size:13px;font-weight:700;color:#1F3864}
+.footer-info{font-size:10px;color:#AAA}
+
+/* Firebase config modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal h2{font-size:16px;color:#1F3864;margin-bottom:8px}
+.modal p{font-size:12px;color:#666;margin-bottom:14px;line-height:1.6}
+.modal input{width:100%;border:1px solid #D0D7E3;border-radius:6px;padding:8px 10px;font-size:12px;margin-bottom:8px;outline:none}
+.modal input:focus{border-color:#378ADD}
+.modal-btn{background:#1F3864;color:#fff;border:none;border-radius:7px;padding:9px 20px;font-size:13px;cursor:pointer;width:100%;margin-top:4px}
+.modal-btn:hover{background:#2F5496}
+.modal-skip{text-align:center;margin-top:8px;font-size:11px;color:#AAA;cursor:pointer}
+.modal-skip:hover{color:#555}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <h1>Suivi des encours — Novotel Nice Centre Vieux-Nice</h1>
+    <div class="live">
+      <span class="live-dot"></span>
+      <span id="live-label">Chargement...</span>
+    </div>
+  </div>
+
+  <div class="upload-bar">
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <p>Déposer la balance XLS ici</p>
+      <span>ou cliquer pour choisir un fichier</span>
+      <input type="file" id="file-input" accept=".xls,.xlsx" style="display:none" onchange="handleFile(this.files[0])">
+    </div>
+    <span class="last-import" id="last-import-label">Aucune importation</span>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-label">Arrhes à traiter</div></div>
+      <div class="stat"><div class="stat-val" id="stat-new" style="color:#856404">—</div><div class="stat-label">Nouvelles</div></div>
+      <div class="stat"><div class="stat-val" id="stat-amount" style="color:#1F3864">—</div><div class="stat-label">Total €</div></div>
+    </div>
+  </div>
+
+  <div id="sections-container"></div>
+
+  <div class="footer">
+    <span class="footer-total" id="footer-total">Total encours : —</span>
+    <span class="footer-info">Données partagées en temps réel · <span id="firebase-status">Mode local (Firebase non configuré)</span></span>
+  </div>
+</div>
+
+<!-- Firebase config modal -->
+<div class="modal-bg" id="modal-firebase">
+  <div class="modal">
+    <h2>Configurer Firebase (synchronisation temps réel)</h2>
+    <p>Pour partager les données entre tous les utilisateurs, collez ici votre configuration Firebase. Si vous n'en avez pas encore, vous pouvez passer cette étape et utiliser l'outil en mode local.</p>
+    <input id="fb-apiKey" placeholder="apiKey" />
+    <input id="fb-projectId" placeholder="projectId" />
+    <input id="fb-dbUrl" placeholder="databaseURL (ex: https://xxx-default-rtdb.firebaseio.com)" />
+    <button class="modal-btn" onclick="initFirebase()">Connecter Firebase</button>
+    <div class="modal-skip" onclick="skipFirebase()">Passer — utiliser en mode local</div>
+  </div>
+</div>
+
+<!-- Dots context menu (shared) -->
+<div id="dots-menu-global" class="dots-menu">
+  <div class="dots-menu-label">Déplacer vers</div>
+  <div class="dots-menu-item" onclick="moveRow('reception')">Réception</div>
+  <div class="dots-menu-item" onclick="moveRow('commerciaux')">Commerciaux</div>
+  <div class="dots-menu-item" onclick="moveRow('comptabilite')">Comptabilité</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let db = null;
+let state = {}; // { [clientId]: { service, commentaire, action, responsable, echeance, statut, dateMaj, notePrev, client, montant, isNew } }
+let activeDotsId = null;
+const SERVICES = ['reception','commerciaux','comptabilite'];
+const SERVICE_LABELS = { reception:'Réception', commerciaux:'Commerciaux', comptabilite:'Comptabilité' };
+
+function clientId(client, nc) { return `${nc}_${client.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}` }
+
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE (fallback sans Firebase)
+// ═══════════════════════════════════════════════════════
+function saveLocal() { localStorage.setItem('encours_state', JSON.stringify(state)); }
+function loadLocal() {
+  try { const s = localStorage.getItem('encours_state'); if(s) state = JSON.parse(s); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════════════════════════
+function initFirebase() {
+  const apiKey = document.getElementById('fb-apiKey').value.trim();
+  const projectId = document.getElementById('fb-projectId').value.trim();
+  const databaseURL = document.getElementById('fb-dbUrl').value.trim();
+  if (!apiKey || !projectId || !databaseURL) { alert('Veuillez remplir tous les champs.'); return; }
+  const config = { apiKey, projectId, databaseURL, authDomain:`${projectId}.firebaseapp.com`, storageBucket:`${projectId}.appspot.com`, messagingSenderId:'0', appId:'0' };
+  localStorage.setItem('fb_config', JSON.stringify(config));
+  connectFirebase(config);
+  document.getElementById('modal-firebase').classList.remove('open');
+}
+
+function skipFirebase() {
+  document.getElementById('modal-firebase').classList.remove('open');
+  document.getElementById('firebase-status').textContent = 'Mode local (données non partagées)';
+  document.getElementById('live-label').textContent = 'Mode local';
+  loadLocal();
+  render();
+}
+
+function connectFirebase(config) {
+  try {
+    const { initializeApp, getDatabase, ref, onValue, update } = window._fbImports;
+    const app = initializeApp(config, 'encours-app');
+    db = getDatabase(app);
+    const dbRef = ref(db, 'encours');
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) { state = data; render(); }
+    });
+    document.getElementById('firebase-status').textContent = 'Firebase connecté — données partagées en temps réel';
+    document.getElementById('live-label').textContent = 'En direct';
+  } catch(e) {
+    console.error(e);
+    alert('Erreur Firebase : ' + e.message);
+  }
+}
+
+function saveToFirebase() {
+  if (!db) { saveLocal(); return; }
+  const { ref, set } = window._fbImports;
+  set(ref(db, 'encours'), state);
+}
+
+// ═══════════════════════════════════════════════════════
+// FILE PARSING
+// ═══════════════════════════════════════════════════════
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, { type: 'array', cellDates: true });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+    processRows(rows, file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function isBlank(v) {
+  if (v === null || v === undefined || v === '') return true;
+  if (typeof v === 'string' && v.trim() === '') return true;
+  return false;
+}
+
+function processRows(rows, filename) {
+  // Find arrhes section: between "Arrhes" header and next section
+  let inArrhes = false;
+  let arrheRows = [];
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    const col1 = row[1] ? String(row[1]).trim() : '';
+    if (col1 === 'Arrhes') { inArrhes = true; continue; }
+    if (inArrhes && ['Total','Encours Factures Permanentes','Encours Séjours Groupes','Encours Séjours Individuels','Balance de l\'encours'].includes(col1)) break;
+    if (!inArrhes) continue;
+    // Data row = col 9 (index) has a numeric client number
+    const nc = parseFloat(row[9]);
+    if (!isNaN(nc) && nc > 0) {
+      const arriv = row[15]; // arrivée
+      const depart = row[21]; // départ
+      // Keep only rows with NO arrival AND NO departure date
+      if (isBlank(arriv) && isBlank(depart)) {
+        arrheRows.push({
+          client: String(row[1] || '').trim(),
+          nc: Math.round(nc),
+          montant: parseFloat(String(row[25]).replace(',','.')) || 0,
+        });
+      }
+    }
+  }
+
+  // Merge with existing state
+  const importDate = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  let newCount = 0;
+
+  arrheRows.forEach(r => {
+    const id = clientId(r.client, r.nc);
+    const existing = state[id];
+    if (existing) {
+      // Move old commentaire to notePrev (accumulate, no overwrite)
+      const newNote = existing.commentaire && existing.commentaire.trim()
+        ? (existing.notePrev ? existing.notePrev + ' → ' + existing.commentaire : existing.commentaire)
+        : existing.notePrev || '';
+      state[id] = { ...existing, client: r.client, montant: r.montant, notePrev: newNote, commentaire: existing.commentaire, isNew: false };
+    } else {
+      newCount++;
+      state[id] = { client: r.client, nc: r.nc, montant: r.montant, service: null, commentaire: '', action: '', responsable: '', echeance: '', statut: 'En attente', notePrev: '', dateMaj: '', isNew: true };
+    }
+  });
+
+  // Remove rows no longer in balance
+  const activeIds = new Set(arrheRows.map(r => clientId(r.client, r.nc)));
+  Object.keys(state).forEach(id => { if (!activeIds.has(id)) delete state[id]; });
+
+  localStorage.setItem('last_import', importDate);
+  document.getElementById('last-import-label').textContent = 'Importé le ' + importDate;
+  saveToFirebase();
+  render();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+
+  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
+  Object.entries(state).forEach(([id, row]) => {
+    if (!row.service) byService.unassigned.push([id, row]);
+    else byService[row.service].push([id, row]);
+  });
+
+  // Stats
+  const allRows = Object.values(state);
+  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
+  const newCount = allRows.filter(r => r.isNew).length;
+  document.getElementById('stat-total').textContent = allRows.length;
+  document.getElementById('stat-new').textContent = newCount;
+  document.getElementById('stat-amount').textContent = fmtAmt(total);
+  document.getElementById('footer-total').textContent = 'Total encours : ' + fmtAmt(total) + ' €';
+
+  // Unassigned first (if any)
+  if (byService.unassigned.length > 0) {
+    container.appendChild(buildSection('unassigned', byService.unassigned));
+  }
+
+  SERVICES.forEach(svc => {
+    if (byService[svc].length > 0) {
+      container.appendChild(buildSection(svc, byService[svc]));
+    }
+  });
+
+  updateLive();
+}
+
+function buildSection(svc, rows) {
+  const isUnassigned = svc === 'unassigned';
+  const badgeClass = {reception:'badge-green', commerciaux:'badge-purple', comptabilite:'badge-amber', unassigned:''}[svc];
+  const label = isUnassigned ? 'À attribuer' : SERVICE_LABELS[svc];
+  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
+
+  const div = document.createElement('div');
+  div.className = 'section';
+  div.innerHTML = `
+    <div class="section-header">
+      <span class="section-badge ${badgeClass}" style="${isUnassigned?'background:#FFECB3;color:#856404':''}">
+        ${label.toUpperCase()}
+      </span>
+      <span class="section-meta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:18%">Client</th>
+          <th style="width:9%;text-align:right">Montant</th>
+          <th style="width:15%">Note précédente</th>
+          <th style="width:20%">Commentaire / Statut</th>
+          <th style="width:15%">Action requise</th>
+          <th style="width:8%">Échéance</th>
+          <th style="width:10%">Statut</th>
+          <th style="width:5%;text-align:center">MAJ</th>
+          <th style="width:36px"></th>
+        </tr></thead>
+        <tbody id="tbody-${svc}"></tbody>
+      </table>
+    </div>`;
+
+  const tbody = div.querySelector(`#tbody-${svc}`);
+  rows.forEach(([id, row]) => tbody.appendChild(buildRow(id, row, isUnassigned)));
+  return div;
+}
+
+function buildRow(id, row, isUnassigned) {
+  const tr = document.createElement('tr');
+  tr.id = 'row-' + id;
+
+  const statClass = { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier' }[row.statut] || 's-attente';
+
+  if (isUnassigned) {
+    tr.innerHTML = `
+      <td><span class="client-name">${esc(row.client)}</span><span class="new-badge">NOUVEAU</span></td>
+      <td class="amount">${fmtAmt(row.montant)} €</td>
+      <td colspan="5" style="color:#CCC;font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
+      <td></td>
+      <td>
+        <div class="assign-btns">
+          ${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}')">${SERVICE_LABELS[s]}</button>`).join('')}
+        </div>
+      </td>`;
+    return tr;
+  }
+
+  tr.innerHTML = `
+    <td><span class="client-name">${esc(row.client)}</span>${row.isNew?'<span class="new-badge">NOUVEAU</span>':''}</td>
+    <td class="amount">${fmtAmt(row.montant)} €</td>
+    <td><div class="note-prev">${esc(row.notePrev || '—')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
+    <td><input type="date" style="border:1px solid #E0E6EF;border-radius:5px;padding:3px 5px;font-size:11px;color:#555;width:100%" value="${row.echeance||''}" data-id="${id}" data-field="echeance" onchange="saveField(this)"></td>
+    <td>
+      <select class="status-sel ${statClass}" data-id="${id}" data-field="statut" onchange="saveField(this)">
+        ${['En attente','En cours','Remboursement','Report','Soldé','À vérifier'].map(s=>`<option${row.statut===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td class="date-mj${isUrgent(row.echeance)?' date-urgent':''}">${row.dateMaj||'—'}</td>
+    <td>
+      <div class="dots-wrap">
+        <button class="btn-dots" onclick="openDots(event,'${id}')">···</button>
+      </div>
+    </td>`;
+  return tr;
+}
+
+function isUrgent(echeance) {
+  if (!echeance) return false;
+  return new Date(echeance) < new Date();
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+function saveField(el) {
+  const id = el.dataset.id;
+  const field = el.dataset.field;
+  const val = el.tagName === 'DIV' ? el.innerText.trim() : el.value;
+  if (!state[id]) return;
+  state[id][field] = val;
+  state[id].dateMaj = new Date().toLocaleDateString('fr-FR');
+  // Update status select color
+  if (field === 'statut') {
+    const statClass = { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier' }[val] || 's-attente';
+    el.className = 'status-sel ' + statClass;
+  }
+  saveToFirebase();
+  // Update date MAJ in DOM without full re-render
+  const tr = document.getElementById('row-' + id);
+  if (tr) {
+    const dateTd = tr.querySelector('.date-mj');
+    if (dateTd) dateTd.textContent = state[id].dateMaj;
+  }
+}
+
+function assignService(id, svc) {
+  if (!state[id]) return;
+  state[id].service = svc;
+  state[id].isNew = false;
+  saveToFirebase();
+  render();
+}
+
+function openDots(e, id) {
+  e.stopPropagation();
+  activeDotsId = id;
+  const menu = document.getElementById('dots-menu-global');
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const appRect = document.getElementById('app').getBoundingClientRect();
+  menu.style.top = (rect.bottom - appRect.top + 4) + 'px';
+  menu.style.right = (appRect.right - rect.right) + 'px';
+  menu.style.left = 'auto';
+  menu.style.position = 'absolute';
+  document.getElementById('app').style.position = 'relative';
+  menu.classList.toggle('open');
+}
+
+function moveRow(svc) {
+  if (!activeDotsId || !state[activeDotsId]) return;
+  state[activeDotsId].service = svc;
+  document.getElementById('dots-menu-global').classList.remove('open');
+  saveToFirebase();
+  render();
+}
+
+document.addEventListener('click', () => {
+  document.getElementById('dots-menu-global').classList.remove('open');
+});
+
+// ═══════════════════════════════════════════════════════
+// DRAG & DROP
+// ═══════════════════════════════════════════════════════
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function fmtAmt(n) { return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function updateLive() {
+  const n = Object.keys(state).length;
+  if (db) document.getElementById('live-label').textContent = `En direct · ${n} ligne${n>1?'s':''}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  const lastImport = localStorage.getItem('last_import');
+  if (lastImport) document.getElementById('last-import-label').textContent = 'Importé le ' + lastImport;
+
+  const fbConfig = localStorage.getItem('fb_config');
+  if (fbConfig) {
+    try { connectFirebase(JSON.parse(fbConfig)); }
+    catch(e) { skipFirebase(); }
+  } else {
+    document.getElementById('modal-firebase').classList.add('open');
+    loadLocal();
+    render();
+  }
+});
+</script>
+</body>
+</html>
