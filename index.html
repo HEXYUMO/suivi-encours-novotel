@@ -141,7 +141,7 @@ tr:hover td{background:#FAFCFF}
 </div>
 
 <!-- Firebase config modal -->
-<div class="modal-bg" id="modal-firebase">
+<div class="modal-bg" id="modal-firebase" style="display:none!important">
   <div class="modal">
     <h2>Configurer Firebase (synchronisation temps réel)</h2>
     <p>Pour partager les données entre tous les utilisateurs, collez ici votre configuration Firebase. Si vous n'en avez pas encore, vous pouvez passer cette étape et utiliser l'outil en mode local.</p>
@@ -507,15 +507,27 @@ window.addEventListener('load', () => {
   const lastImport = localStorage.getItem('last_import');
   if (lastImport) document.getElementById('last-import-label').textContent = 'Importé le ' + lastImport;
 
-  const fbConfig = localStorage.getItem('fb_config');
-  if (fbConfig) {
-    try { connectFirebase(JSON.parse(fbConfig)); }
-    catch(e) { skipFirebase(); }
-  } else {
-    document.getElementById('modal-firebase').classList.add('open');
-    loadLocal();
-    render();
-  }
+  // Firebase pré-configuré
+  const fbConfig = {
+    apiKey: "AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
+    projectId: "suivi-encours-novotel",
+    databaseURL: "https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
+    authDomain: "suivi-encours-novotel.firebaseapp.com",
+    storageBucket: "suivi-encours-novotel.appspot.com",
+    messagingSenderId: "0",
+    appId: "0"
+  };
+  loadLocal();
+  render();
+  // Attendre que les imports Firebase soient prêts
+  const tryConnect = () => {
+    if (window._fbImports && window._fbImports.initializeApp) {
+      connectFirebase(fbConfig);
+    } else {
+      setTimeout(tryConnect, 200);
+    }
+  };
+  tryConnect();
 });
 </script>
 </body>
