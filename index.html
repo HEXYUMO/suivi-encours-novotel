@@ -9,22 +9,27 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  window._fbImports = { initializeApp, getDatabase, ref, set, onValue, update };
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  window._fbImports = { initializeApp, getDatabase, ref, set, onValue };
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;font-size:13px;background:#F0F4FA;color:#222}
 #app{max-width:1400px;margin:0 auto;padding:16px}
 
-/* TOPBAR */
-.topbar{background:#1F3864;border-radius:10px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar{background:#1F3864;border-radius:10px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap}
 .topbar h1{color:#fff;font-size:15px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:12px}
 .live{display:flex;align-items:center;gap:7px;font-size:11px;color:#9FE1CB}
 .live-dot{width:8px;height:8px;background:#4CAF50;border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* UPLOAD */
+/* NAV TABS */
+.nav-tabs{display:flex;gap:6px}
+.nav-tab{font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);background:transparent;transition:all .15s;white-space:nowrap}
+.nav-tab:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-tab.active{background:#fff;color:#1F3864;border-color:#fff}
+
 .upload-bar{background:#fff;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px;border:1px solid #E0E6EF;flex-wrap:wrap}
 .drop-zone{border:2px dashed #7EB3E8;border-radius:8px;padding:10px 20px;cursor:pointer;background:#F0F6FF;text-align:center;transition:background .2s;min-width:220px}
 .drop-zone:hover,.drop-zone.drag{background:#DAEEFF;border-color:#378ADD}
@@ -36,16 +41,15 @@ body{font-family:Arial,sans-serif;font-size:13px;background:#F0F4FA;color:#222}
 .stat-val{font-size:16px;font-weight:700;color:#1F3864}
 .stat-label{font-size:9px;color:#888;margin-top:2px}
 
-/* SECTIONS */
 .section{margin-bottom:16px}
 .section-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:0 4px}
 .section-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.3px}
 .badge-green{background:#E2EFDA;color:#2E7D32}
 .badge-purple{background:#EDE7F6;color:#4527A0}
 .badge-amber{background:#FFF3CD;color:#856404}
+.badge-blue{background:#E3F2FD;color:#1565C0}
 .section-meta{font-size:11px;color:#999}
 
-/* TABLE */
 .table-wrap{background:#fff;border-radius:10px;border:1px solid #E0E6EF;overflow:auto}
 table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
 th{background:#F8FAFD;padding:8px 10px;text-align:left;font-size:10px;color:#888;font-weight:700;border-bottom:1px solid #E8EEF6;white-space:nowrap;position:sticky;top:0}
@@ -54,17 +58,15 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:#FAFCFF}
 .client-name{font-weight:700;color:#1F3864;white-space:nowrap}
 .amount{font-weight:600;white-space:nowrap;text-align:right}
+.amount-neg{color:#C62828}
 .note-prev{font-size:10px;color:#185FA5;font-style:italic;max-width:180px;line-height:1.4}
 .date-mj{font-size:10px;color:#BBB;white-space:nowrap}
-.date-urgent{color:#E24B4A!important}
 
-/* Editable cells */
 .editable{border:1px solid transparent;border-radius:5px;padding:4px 6px;min-height:28px;cursor:text;transition:border-color .15s;outline:none;width:100%;min-width:120px;font-size:12px;font-family:Arial,sans-serif;background:transparent;resize:none;display:block}
 .editable:hover{border-color:#D0DCF0;background:#FAFCFF}
 .editable:focus{border-color:#378ADD;background:#F5F9FF}
 .editable[placeholder]:empty:before{content:attr(placeholder);color:#BCC8DC;font-style:italic;pointer-events:none}
 
-/* Status select */
 .status-sel{border:none;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:18px}
 .s-attente{background:#F3F3F3;color:#666}
 .s-encours{background:#FFF8E1;color:#856404}
@@ -72,14 +74,14 @@ tr:hover td{background:#FAFCFF}
 .s-report{background:#F3E5F5;color:#6A1B9A}
 .s-solde{background:#E8F5E9;color:#2E7D32}
 .s-verifier{background:#FFEBEE;color:#C62828}
+.s-urgent{background:#C62828;color:#fff;animation:urgentPulse 2s infinite}
+@keyframes urgentPulse{0%,100%{opacity:1}50%{opacity:.75}}
 
-/* New line attribution */
 .new-badge{display:inline-block;background:#FFECB3;color:#856404;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;vertical-align:middle}
 .assign-btns{display:flex;gap:4px;flex-wrap:wrap}
 .assign-btn{font-size:10px;padding:3px 8px;border:1px solid #D0D7E3;border-radius:5px;background:#fff;cursor:pointer;color:#444;transition:all .15s;white-space:nowrap}
 .assign-btn:hover{background:#1F3864;color:#fff;border-color:#1F3864}
 
-/* Dots menu */
 .dots-wrap{position:relative}
 .btn-dots{background:none;border:1px solid transparent;border-radius:5px;cursor:pointer;padding:4px 8px;font-size:16px;color:#CCC;line-height:1;font-weight:700;letter-spacing:2px;display:block}
 .btn-dots:hover{background:#F0F4FA;color:#555;border-color:#D0D7E3}
@@ -90,23 +92,13 @@ tr:hover td{background:#FAFCFF}
 .dots-menu-sep{height:1px;background:#F0F0F0;margin:3px 0}
 .dots-menu-label{padding:6px 14px 3px;font-size:10px;color:#AAA;font-weight:600;text-transform:uppercase}
 
-/* Footer */
 .footer{background:#fff;border-radius:10px;border:1px solid #E0E6EF;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
 .footer-total{font-size:13px;font-weight:700;color:#1F3864}
 .footer-info{font-size:10px;color:#AAA}
 
-/* Firebase config modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:12px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)}
-.modal h2{font-size:16px;color:#1F3864;margin-bottom:8px}
-.modal p{font-size:12px;color:#666;margin-bottom:14px;line-height:1.6}
-.modal input{width:100%;border:1px solid #D0D7E3;border-radius:6px;padding:8px 10px;font-size:12px;margin-bottom:8px;outline:none}
-.modal input:focus{border-color:#378ADD}
-.modal-btn{background:#1F3864;color:#fff;border:none;border-radius:7px;padding:9px 20px;font-size:13px;cursor:pointer;width:100%;margin-top:4px}
-.modal-btn:hover{background:#2F5496}
-.modal-skip{text-align:center;margin-top:8px;font-size:11px;color:#AAA;cursor:pointer}
-.modal-skip:hover{color:#555}
+/* Vue FP : badge urgent dans date */
+.date-urgent-cell{color:#C62828;font-weight:700;font-size:10px}
+.date-ok-cell{font-size:11px;color:#555}
 </style>
 </head>
 <body>
@@ -114,9 +106,15 @@ tr:hover td{background:#FAFCFF}
 
   <div class="topbar">
     <h1>Suivi des encours — Novotel Nice Centre Vieux-Nice</h1>
-    <div class="live">
-      <span class="live-dot"></span>
-      <span id="live-label">Chargement...</span>
+    <div class="topbar-right">
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-arrhes" onclick="switchView('arrhes')">Arrhes sans date</button>
+        <button class="nav-tab" id="tab-fp" onclick="switchView('fp')">Factures Permanentes</button>
+      </div>
+      <div class="live">
+        <span class="live-dot"></span>
+        <span id="live-label">Chargement...</span>
+      </div>
     </div>
   </div>
 
@@ -128,8 +126,8 @@ tr:hover td{background:#FAFCFF}
     </div>
     <span class="last-import" id="last-import-label">Aucune importation</span>
     <div class="stats">
-      <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-label">Arrhes à traiter</div></div>
-      <div class="stat"><div class="stat-val" id="stat-new" style="color:#856404">—</div><div class="stat-label">Nouvelles</div></div>
+      <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-label" id="stat-label-total">Arrhes à traiter</div></div>
+      <div class="stat"><div class="stat-val" id="stat-new" style="color:#856404">—</div><div class="stat-label" id="stat-label-new">Nouvelles</div></div>
       <div class="stat"><div class="stat-val" id="stat-amount" style="color:#1F3864">—</div><div class="stat-label">Total €</div></div>
     </div>
   </div>
@@ -137,26 +135,13 @@ tr:hover td{background:#FAFCFF}
   <div id="sections-container"></div>
 
   <div class="footer">
-    <span class="footer-total" id="footer-total">Total encours : —</span>
-    <span class="footer-info">Données partagées en temps réel · <span id="firebase-status">Mode local (Firebase non configuré)</span></span>
+    <span class="footer-total" id="footer-total">Total : —</span>
+    <span class="footer-info">Données partagées en temps réel · <span id="firebase-status">Connexion...</span></span>
   </div>
 </div>
 
-<!-- Firebase config modal -->
-<div class="modal-bg" id="modal-firebase" style="display:none!important">
-  <div class="modal">
-    <h2>Configurer Firebase (synchronisation temps réel)</h2>
-    <p>Pour partager les données entre tous les utilisateurs, collez ici votre configuration Firebase. Si vous n'en avez pas encore, vous pouvez passer cette étape et utiliser l'outil en mode local.</p>
-    <input id="fb-apiKey" placeholder="apiKey" />
-    <input id="fb-projectId" placeholder="projectId" />
-    <input id="fb-dbUrl" placeholder="databaseURL (ex: https://xxx-default-rtdb.firebaseio.com)" />
-    <button class="modal-btn" onclick="initFirebase()">Connecter Firebase</button>
-    <div class="modal-skip" onclick="skipFirebase()">Passer — utiliser en mode local</div>
-  </div>
-</div>
-
-<!-- Dots context menu (shared) -->
-<div id="dots-menu-global" class="dots-menu">
+<!-- Dots menu Arrhes -->
+<div id="dots-menu-arrhes" class="dots-menu">
   <div class="dots-menu-label">Déplacer vers</div>
   <div class="dots-menu-item" onclick="moveRow('reception')">Réception</div>
   <div class="dots-menu-item" onclick="moveRow('commerciaux')">Commerciaux</div>
@@ -168,70 +153,109 @@ tr:hover td{background:#FAFCFF}
   <div class="dots-menu-item" onclick="sendMail('comptabilite')">✉ Comptabilité</div>
 </div>
 
+<!-- Dots menu FP -->
+<div id="dots-menu-fp" class="dots-menu">
+  <div class="dots-menu-label">Déplacer vers</div>
+  <div class="dots-menu-item" onclick="moveRowFP('reception')">Réception</div>
+  <div class="dots-menu-item" onclick="moveRowFP('commerciaux')">Commerciaux</div>
+  <div class="dots-menu-item" onclick="moveRowFP('comptabilite')">Comptabilité</div>
+  <div class="dots-menu-sep"></div>
+  <div class="dots-menu-label">Envoyer un mail à</div>
+  <div class="dots-menu-item" onclick="sendMailFP('reception')">✉ Réception</div>
+  <div class="dots-menu-item" onclick="sendMailFP('commerciaux')">✉ Commerciaux</div>
+  <div class="dots-menu-item" onclick="sendMailFP('comptabilite')">✉ Comptabilité</div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════
-// STATE
+// GLOBAL STATE
 // ═══════════════════════════════════════════════════════
 let db = null;
-let state = {}; // { [clientId]: { service, commentaire, action, responsable, echeance, statut, dateMaj, notePrev, client, montant, isNew } }
+let stateArrhes = {};
+let stateFP = {};
 let activeDotsId = null;
+let currentView = 'arrhes'; // 'arrhes' | 'fp'
+
 const SERVICES = ['reception','commerciaux','comptabilite'];
 const SERVICE_LABELS = { reception:'Réception', commerciaux:'Commerciaux', comptabilite:'Comptabilité' };
+const MAIL_DEST = {
+  reception:    { to: 'h1103-om1@accor.com', cc: 'h1103-om@accor.com',  label: 'Réception' },
+  commerciaux:  { to: 'h1103-sb@accor.com',  cc: 'h1103-re2@accor.com', label: 'Service Commercial' },
+  comptabilite: { to: 'h1103-gl@accor.com',  cc: '',                    label: 'Comptabilité' },
+};
 
-function clientId(client, nc) { return `${nc}_${client.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}` }
+function clientId(client, nc) {
+  return `${nc}_${String(client).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`;
+}
 
 // ═══════════════════════════════════════════════════════
-// LOCAL STORAGE (fallback sans Firebase)
+// VIEW SWITCHING
 // ═══════════════════════════════════════════════════════
-function saveLocal() { localStorage.setItem('encours_state', JSON.stringify(state)); }
-function loadLocal() {
-  try { const s = localStorage.getItem('encours_state'); if(s) state = JSON.parse(s); } catch(e) {}
+function switchView(view) {
+  currentView = view;
+  document.getElementById('tab-arrhes').classList.toggle('active', view === 'arrhes');
+  document.getElementById('tab-fp').classList.toggle('active', view === 'fp');
+  if (view === 'arrhes') {
+    document.getElementById('stat-label-total').textContent = 'Arrhes à traiter';
+    document.getElementById('stat-label-new').textContent = 'Nouvelles';
+  } else {
+    document.getElementById('stat-label-total').textContent = 'Factures à traiter';
+    document.getElementById('stat-label-new').textContent = 'Urgentes';
+  }
+  render();
 }
 
 // ═══════════════════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════════════════
-function initFirebase() {
-  const apiKey = document.getElementById('fb-apiKey').value.trim();
-  const projectId = document.getElementById('fb-projectId').value.trim();
-  const databaseURL = document.getElementById('fb-dbUrl').value.trim();
-  if (!apiKey || !projectId || !databaseURL) { alert('Veuillez remplir tous les champs.'); return; }
-  const config = { apiKey, projectId, databaseURL, authDomain:`${projectId}.firebaseapp.com`, storageBucket:`${projectId}.appspot.com`, messagingSenderId:'0', appId:'0' };
-  localStorage.setItem('fb_config', JSON.stringify(config));
-  connectFirebase(config);
-  document.getElementById('modal-firebase').classList.remove('open');
-}
-
-function skipFirebase() {
-  document.getElementById('modal-firebase').classList.remove('open');
-  document.getElementById('firebase-status').textContent = 'Mode local (données non partagées)';
-  document.getElementById('live-label').textContent = 'Mode local';
-  loadLocal();
-  render();
-}
-
 function connectFirebase(config) {
   try {
-    const { initializeApp, getDatabase, ref, onValue, update } = window._fbImports;
+    const { initializeApp, getDatabase, ref, onValue } = window._fbImports;
     const app = initializeApp(config, 'encours-app');
     db = getDatabase(app);
-    const dbRef = ref(db, 'encours');
-    onValue(dbRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) { state = data; render(); }
+
+    onValue(ref(db, 'encours'), (snap) => {
+      if (snap.val()) { stateArrhes = snap.val(); if (currentView === 'arrhes') render(); }
     });
+    onValue(ref(db, 'encoursFP'), (snap) => {
+      if (snap.val()) { stateFP = snap.val(); if (currentView === 'fp') render(); }
+    });
+
     document.getElementById('firebase-status').textContent = 'Firebase connecté — données partagées en temps réel';
     document.getElementById('live-label').textContent = 'En direct';
   } catch(e) {
     console.error(e);
-    alert('Erreur Firebase : ' + e.message);
+    document.getElementById('firebase-status').textContent = 'Erreur Firebase : ' + e.message;
   }
 }
 
 function saveToFirebase() {
   if (!db) { saveLocal(); return; }
   const { ref, set } = window._fbImports;
-  set(ref(db, 'encours'), state);
+  if (currentView === 'arrhes') set(ref(db, 'encours'), stateArrhes);
+  else set(ref(db, 'encoursFP'), stateFP);
+}
+
+function saveArrhesToFirebase() {
+  if (!db) return;
+  const { ref, set } = window._fbImports;
+  set(ref(db, 'encours'), stateArrhes);
+}
+
+function saveFPToFirebase() {
+  if (!db) return;
+  const { ref, set } = window._fbImports;
+  set(ref(db, 'encoursFP'), stateFP);
+}
+
+function saveLocal() {
+  localStorage.setItem('encours_state', JSON.stringify(stateArrhes));
+  localStorage.setItem('encours_fp_state', JSON.stringify(stateFP));
+}
+
+function loadLocal() {
+  try { const s = localStorage.getItem('encours_state'); if(s) stateArrhes = JSON.parse(s); } catch(e) {}
+  try { const s = localStorage.getItem('encours_fp_state'); if(s) stateFP = JSON.parse(s); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -244,17 +268,20 @@ function handleFile(file) {
   reader.onerror = () => alert('Erreur de lecture du fichier.');
   reader.onload = (e) => {
     try {
-      if (typeof XLSX === 'undefined') { alert('Librairie XLSX non chargée. Vérifiez votre connexion.'); return; }
+      if (typeof XLSX === 'undefined') { alert('Librairie XLSX non chargée.'); return; }
       const data = new Uint8Array(e.target.result);
       const wb = XLSX.read(data, { type: 'array', cellDates: false });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
       console.log('[SUIVI] Fichier OK, lignes:', rows.length);
-      for (let i = 25; i < Math.min(45, rows.length); i++) {
-        const r = rows[i];
-        if (r) console.log('[SUIVI] L'+i+' col1=', r[1], 'col9=', r[9], 'col15=', r[15], 'col21=', r[21]);
-      }
-      processRows(rows, file.name);
+      parseArrhes(rows);
+      parseFP(rows);
+      const importDate = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      localStorage.setItem('last_import', importDate);
+      document.getElementById('last-import-label').textContent = 'Importé le ' + importDate;
+      saveArrhesToFirebase();
+      saveFPToFirebase();
+      render();
     } catch(err) { console.error('[SUIVI]', err); alert('Erreur parsing: ' + err.message); }
   };
   reader.readAsArrayBuffer(file);
@@ -263,7 +290,6 @@ function handleFile(file) {
 function isBlank(v) {
   return v === null || v === undefined || v === '' || (typeof v === 'string' && !v.trim());
 }
-
 function hasDate(v) {
   if (isBlank(v)) return false;
   if (typeof v === 'number' && v > 1000) return true;
@@ -271,184 +297,265 @@ function hasDate(v) {
   return false;
 }
 
-function processRows(rows, filename) {
+// Fin du mois d'une date Excel serial
+function endOfMonth(excelSerial) {
+  if (!excelSerial || excelSerial < 1000) return '';
+  const date = new Date((excelSerial - 25569) * 86400 * 1000);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  return lastDay.toISOString().split('T')[0]; // yyyy-mm-dd
+}
+
+function fmtExcelDate(v) {
+  if (!v || v < 1000) return '—';
+  const date = new Date((v - 25569) * 86400 * 1000);
+  return date.toLocaleDateString('fr-FR');
+}
+
+// ARRHES
+function parseArrhes(rows) {
   let inArrhes = false;
   let arrheRows = [];
-  const STOPS = ['total', 'encours factures', 'encours s', 'balance de'];
-
+  const STOPS = ['total','encours factures','encours s','balance de'];
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (!Array.isArray(row)) continue;
     const c1 = row[1] != null ? String(row[1]).trim() : '';
     const c1low = c1.toLowerCase();
-
-    if (!inArrhes) {
-      if (c1low === 'arrhes') { inArrhes = true; console.log('[SUIVI] Section Arrhes L'+i); }
-      continue;
-    }
-    if (STOPS.some(s => c1low.startsWith(s))) { console.log('[SUIVI] Fin Arrhes L'+i); break; }
-
+    if (!inArrhes) { if (c1low === 'arrhes') { inArrhes = true; } continue; }
+    if (STOPS.some(s => c1low.startsWith(s))) break;
     const nc = parseFloat(row[9]);
     if (!nc || nc < 1) continue;
-
-    const arriv = row[15];
-    const depart = row[21];
-    console.log('[SUIVI] L'+i+' '+c1+' arr='+arriv+' dep='+depart);
-
-    if (!hasDate(arriv) && !hasDate(depart)) {
+    if (!hasDate(row[15]) && !hasDate(row[21])) {
       const m = parseFloat(String(row[25] != null ? row[25] : 0).replace(',','.')) || 0;
       arrheRows.push({ client: c1, nc: Math.round(nc), montant: m });
     }
   }
-  console.log('[SUIVI] Trouvé', arrheRows.length, 'arrhes sans date');
-  if (arrheRows.length === 0) alert('Aucune arrhe sans date trouvée. Ouvrez la console F12 pour diagnostiquer.');
 
-  // Merge with existing state
-  const importDate = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  let newCount = 0;
-
+  const activeIds = new Set(arrheRows.map(r => clientId(r.client, r.nc)));
+  // Remove gone rows
+  Object.keys(stateArrhes).forEach(id => { if (!activeIds.has(id)) delete stateArrhes[id]; });
+  // Merge
   arrheRows.forEach(r => {
     const id = clientId(r.client, r.nc);
-    const existing = state[id];
-    if (existing) {
-      // Move old commentaire to notePrev (accumulate, no overwrite)
-      const newNote = existing.commentaire && existing.commentaire.trim()
-        ? (existing.notePrev ? existing.notePrev + ' → ' + existing.commentaire : existing.commentaire)
-        : existing.notePrev || '';
-      state[id] = { ...existing, client: r.client, montant: r.montant, notePrev: newNote, commentaire: existing.commentaire, isNew: false };
+    const ex = stateArrhes[id];
+    if (ex) {
+      const newNote = ex.commentaire && ex.commentaire.trim()
+        ? (ex.notePrev ? ex.notePrev + ' → ' + ex.commentaire : ex.commentaire)
+        : ex.notePrev || '';
+      stateArrhes[id] = { ...ex, client: r.client, montant: r.montant, notePrev: newNote, isNew: false };
     } else {
-      newCount++;
-      state[id] = { client: r.client, nc: r.nc, montant: r.montant, service: null, commentaire: '', action: '', responsable: '', echeance: '', statut: 'En attente', notePrev: '', dateMaj: '', isNew: true };
+      stateArrhes[id] = { client: r.client, nc: r.nc, montant: r.montant, service: null, commentaire: '', action: '', echeance: '', statut: 'En attente', notePrev: '', dateMaj: '', isNew: true };
     }
   });
+  console.log('[SUIVI] Arrhes:', arrheRows.length);
+}
 
-  // Remove rows no longer in balance
-  const activeIds = new Set(arrheRows.map(r => clientId(r.client, r.nc)));
-  Object.keys(state).forEach(id => { if (!activeIds.has(id)) delete state[id]; });
+// FACTURES PERMANENTES
+function parseFP(rows) {
+  let inFP = false;
+  let fpRows = [];
+  const STOPS = ['total','encours séjours','encours sejours','balance de'];
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (!Array.isArray(row)) continue;
+    const c1 = row[1] != null ? String(row[1]).trim() : '';
+    const c1low = c1.toLowerCase();
+    if (!inFP) {
+      if (c1low === 'encours factures permanentes') { inFP = true; continue; }
+      continue;
+    }
+    if (STOPS.some(s => c1low.startsWith(s)) || c1low === 'total') break;
+    const nc = parseFloat(row[9]);
+    if (!nc || nc < 1) continue;
+    const m = parseFloat(String(row[25] != null ? row[25] : 0).replace(',','.')) || 0;
+    fpRows.push({ client: c1, nc: Math.round(nc), montant: m, dateCreationSerial: row[15] || null });
+  }
 
-  localStorage.setItem('last_import', importDate);
-  document.getElementById('last-import-label').textContent = 'Importé le ' + importDate;
-  saveToFirebase();
-  render();
+  const activeIds = new Set(fpRows.map(r => clientId(r.client, r.nc)));
+  Object.keys(stateFP).forEach(id => { if (!activeIds.has(id)) delete stateFP[id]; });
+  fpRows.forEach(r => {
+    const id = clientId(r.client, r.nc);
+    const ex = stateFP[id];
+    const dateCreation = fmtExcelDate(r.dateCreationSerial);
+    const echeanceAuto = endOfMonth(r.dateCreationSerial);
+    if (ex) {
+      // Commentaire permanent — jamais déplacé, jamais écrasé
+      stateFP[id] = { ...ex, client: r.client, montant: r.montant, dateCreation, isNew: false };
+    } else {
+      stateFP[id] = {
+        client: r.client, nc: r.nc, montant: r.montant,
+        dateCreation, service: null,
+        commentaire: '', action: '',
+        echeance: echeanceAuto,
+        statut: 'En attente',
+        dateMaj: '', isNew: true
+      };
+    }
+  });
+  console.log('[SUIVI] FP:', fpRows.length);
 }
 
 // ═══════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════
 function render() {
-  const container = document.getElementById('sections-container');
-  container.innerHTML = '';
-
-  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
-  Object.entries(state).forEach(([id, row]) => {
-    if (!row.service) byService.unassigned.push([id, row]);
-    else byService[row.service].push([id, row]);
-  });
-
-  // Stats
-  const allRows = Object.values(state);
-  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
-  const newCount = allRows.filter(r => r.isNew).length;
-  document.getElementById('stat-total').textContent = allRows.length;
-  document.getElementById('stat-new').textContent = newCount;
-  document.getElementById('stat-amount').textContent = fmtAmt(total);
-  document.getElementById('footer-total').textContent = 'Total encours : ' + fmtAmt(total) + ' €';
-
-  // Unassigned first (if any)
-  if (byService.unassigned.length > 0) {
-    container.appendChild(buildSection('unassigned', byService.unassigned));
-  }
-
-  SERVICES.forEach(svc => {
-    if (byService[svc].length > 0) {
-      container.appendChild(buildSection(svc, byService[svc]));
-    }
-  });
-
-  updateLive();
+  if (currentView === 'arrhes') renderArrhes();
+  else renderFP();
 }
 
-function buildSection(svc, rows) {
-  const isUnassigned = svc === 'unassigned';
-  const badgeClass = {reception:'badge-green', commerciaux:'badge-purple', comptabilite:'badge-amber', unassigned:''}[svc];
-  const label = isUnassigned ? 'À attribuer' : SERVICE_LABELS[svc];
-  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
+function renderArrhes() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
+  Object.entries(stateArrhes).forEach(([id, row]) => {
+    (row.service ? byService[row.service] : byService.unassigned).push([id, row]);
+  });
+  const allRows = Object.values(stateArrhes);
+  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
+  document.getElementById('stat-total').textContent = allRows.length;
+  document.getElementById('stat-new').textContent = allRows.filter(r => r.isNew).length;
+  document.getElementById('stat-amount').textContent = fmtAmt(total);
+  document.getElementById('footer-total').textContent = 'Total arrhes : ' + fmtAmt(total) + ' €';
 
+  if (byService.unassigned.length > 0) container.appendChild(buildSectionArrhes('unassigned', byService.unassigned));
+  SERVICES.forEach(svc => { if (byService[svc].length > 0) container.appendChild(buildSectionArrhes(svc, byService[svc])); });
+  updateLive(Object.keys(stateArrhes).length);
+}
+
+function buildSectionArrhes(svc, rows) {
+  const isU = svc === 'unassigned';
+  const badgeClass = {reception:'badge-green',commerciaux:'badge-purple',comptabilite:'badge-amber',unassigned:''}[svc];
+  const label = isU ? 'À attribuer' : SERVICE_LABELS[svc];
+  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
   const div = document.createElement('div');
   div.className = 'section';
   div.innerHTML = `
     <div class="section-header">
-      <span class="section-badge ${badgeClass}" style="${isUnassigned?'background:#FFECB3;color:#856404':''}">
-        ${label.toUpperCase()}
-      </span>
+      <span class="section-badge ${badgeClass}" style="${isU?'background:#FFECB3;color:#856404':''}">${label.toUpperCase()}</span>
       <span class="section-meta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th style="width:18%">Client</th>
-          <th style="width:9%;text-align:right">Montant</th>
-          <th style="width:15%">Note précédente</th>
-          <th style="width:20%">Commentaire / Statut</th>
-          <th style="width:15%">Action requise</th>
-          <th style="width:8%">Échéance</th>
-          <th style="width:10%">Statut</th>
-          <th style="width:5%;text-align:center">MAJ</th>
-          <th style="width:36px"></th>
-        </tr></thead>
-        <tbody id="tbody-${svc}"></tbody>
-      </table>
-    </div>`;
-
-  const tbody = div.querySelector(`#tbody-${svc}`);
-  rows.forEach(([id, row]) => tbody.appendChild(buildRow(id, row, isUnassigned)));
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th style="width:18%">Client</th><th style="width:9%;text-align:right">Montant</th>
+        <th style="width:15%">Note précédente</th><th style="width:20%">Commentaire / Statut</th>
+        <th style="width:15%">Action requise</th><th style="width:8%">Échéance</th>
+        <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
+      </tr></thead>
+      <tbody id="tbody-a-${svc}"></tbody>
+    </table></div>`;
+  const tbody = div.querySelector(`#tbody-a-${svc}`);
+  rows.forEach(([id, row]) => tbody.appendChild(buildRowArrhes(id, row, isU)));
   return div;
 }
 
-function buildRow(id, row, isUnassigned) {
+function buildRowArrhes(id, row, isU) {
   const tr = document.createElement('tr');
   tr.id = 'row-' + id;
-
-  const statClass = { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier' }[row.statut] || 's-attente';
-
-  if (isUnassigned) {
+  const statClass = getStatClass(row.statut);
+  if (isU) {
     tr.innerHTML = `
       <td><span class="client-name">${esc(row.client)}</span><span class="new-badge">NOUVEAU</span></td>
       <td class="amount">${fmtAmt(row.montant)} €</td>
       <td colspan="5" style="color:#CCC;font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
       <td></td>
-      <td>
-        <div class="assign-btns">
-          ${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}')">${SERVICE_LABELS[s]}</button>`).join('')}
-        </div>
-      </td>`;
+      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SERVICE_LABELS[s]}</button>`).join('')}</div></td>`;
     return tr;
   }
-
   tr.innerHTML = `
     <td><span class="client-name">${esc(row.client)}</span>${row.isNew?'<span class="new-badge">NOUVEAU</span>':''}</td>
     <td class="amount">${fmtAmt(row.montant)} €</td>
-    <td><div class="note-prev">${esc(row.notePrev || '—')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
-    <td><input type="date" style="border:1px solid #E0E6EF;border-radius:5px;padding:3px 5px;font-size:11px;color:#555;width:100%" value="${row.echeance||''}" data-id="${id}" data-field="echeance" onchange="saveField(this)"></td>
-    <td>
-      <select class="status-sel ${statClass}" data-id="${id}" data-field="statut" onchange="saveField(this)">
-        ${['En attente','En cours','Remboursement','Report','Soldé','À vérifier'].map(s=>`<option${row.statut===s?' selected':''}>${s}</option>`).join('')}
-      </select>
-    </td>
-    <td class="date-mj${isUrgent(row.echeance)?' date-urgent':''}">${row.dateMaj||'—'}</td>
-    <td>
-      <div class="dots-wrap">
-        <button class="btn-dots" onclick="openDots(event,'${id}')">···</button>
-      </div>
-    </td>`;
+    <td><div class="note-prev">${esc(row.notePrev||'—')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
+    <td><input type="date" style="border:1px solid #E0E6EF;border-radius:5px;padding:3px 5px;font-size:11px;color:#555;width:100%" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td>
+    <td><select class="status-sel ${statClass}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td>
+    <td class="date-mj">${row.dateMaj||'—'}</td>
+    <td><div class="dots-wrap"><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></div></td>`;
   return tr;
 }
 
-function isUrgent(echeance) {
-  if (!echeance) return false;
-  return new Date(echeance) < new Date();
+function renderFP() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
+  Object.entries(stateFP).forEach(([id, row]) => {
+    (row.service ? byService[row.service] : byService.unassigned).push([id, row]);
+  });
+  const allRows = Object.values(stateFP);
+  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
+  const urgentCount = allRows.filter(r => isOverdue(r.echeance)).length;
+  document.getElementById('stat-total').textContent = allRows.length;
+  document.getElementById('stat-new').textContent = urgentCount;
+  document.getElementById('stat-new').style.color = urgentCount > 0 ? '#C62828' : '#856404';
+  document.getElementById('stat-amount').textContent = fmtAmt(total);
+  document.getElementById('footer-total').textContent = 'Total factures permanentes : ' + fmtAmt(total) + ' €';
+
+  if (byService.unassigned.length > 0) container.appendChild(buildSectionFP('unassigned', byService.unassigned));
+  SERVICES.forEach(svc => { if (byService[svc].length > 0) container.appendChild(buildSectionFP(svc, byService[svc])); });
+  updateLive(Object.keys(stateFP).length);
+}
+
+function buildSectionFP(svc, rows) {
+  const isU = svc === 'unassigned';
+  const badgeClass = {reception:'badge-green',commerciaux:'badge-purple',comptabilite:'badge-amber',unassigned:''}[svc];
+  const label = isU ? 'À attribuer' : SERVICE_LABELS[svc];
+  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
+  const div = document.createElement('div');
+  div.className = 'section';
+  div.innerHTML = `
+    <div class="section-header">
+      <span class="section-badge ${badgeClass}" style="${isU?'background:#FFECB3;color:#856404':''}">${label.toUpperCase()}</span>
+      <span class="section-meta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th style="width:16%">Client</th><th style="width:9%;text-align:right">Montant</th>
+        <th style="width:10%">Date création</th><th style="width:22%">Commentaire</th>
+        <th style="width:16%">Action requise</th><th style="width:9%">Échéance</th>
+        <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
+      </tr></thead>
+      <tbody id="tbody-fp-${svc}"></tbody>
+    </table></div>`;
+  const tbody = div.querySelector(`#tbody-fp-${svc}`);
+  rows.forEach(([id, row]) => tbody.appendChild(buildRowFP(id, row, isU)));
+  return div;
+}
+
+function buildRowFP(id, row, isU) {
+  const tr = document.createElement('tr');
+  tr.id = 'row-' + id;
+  const overdue = isOverdue(row.echeance);
+  const statClass = overdue ? 's-urgent' : getStatClass(row.statut);
+  const statutDisplay = overdue ? 'URGENT' : (row.statut || 'En attente');
+  const amtClass = row.montant < 0 ? 'amount amount-neg' : 'amount';
+
+  if (isU) {
+    tr.innerHTML = `
+      <td><span class="client-name">${esc(row.client)}</span><span class="new-badge">NOUVEAU</span></td>
+      <td class="${amtClass}">${fmtAmt(row.montant)} €</td>
+      <td class="date-ok-cell">${esc(row.dateCreation||'—')}</td>
+      <td colspan="4" style="color:#CCC;font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
+      <td></td>
+      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','fp')">${SERVICE_LABELS[s]}</button>`).join('')}</div></td>`;
+    return tr;
+  }
+
+  const echeanceFmt = row.echeance ? new Date(row.echeance).toLocaleDateString('fr-FR') : '—';
+  tr.innerHTML = `
+    <td><span class="client-name">${esc(row.client)}</span>${row.isNew?'<span class="new-badge">NOUVEAU</span>':''}</td>
+    <td class="${amtClass}">${fmtAmt(row.montant)} €</td>
+    <td class="date-ok-cell">${esc(row.dateCreation||'—')}</td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="fp" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="fp" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
+    <td>
+      <input type="date" style="border:1px solid ${overdue?'#C62828':'#E0E6EF'};border-radius:5px;padding:3px 5px;font-size:11px;color:${overdue?'#C62828':'#555'};width:100%;font-weight:${overdue?'700':'400'}"
+        value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="fp" onchange="saveField(this)">
+      ${overdue ? `<div style="font-size:9px;color:#C62828;font-weight:700;margin-top:2px">⚠ Dépassée — ${echeanceFmt}</div>` : ''}
+    </td>
+    <td><select class="status-sel ${statClass}" data-id="${id}" data-field="statut" data-view="fp" onchange="saveField(this)">${statusOptions(overdue ? 'URGENT' : row.statut)}</select></td>
+    <td class="date-mj">${row.dateMaj||'—'}</td>
+    <td><div class="dots-wrap"><button class="btn-dots" onclick="openDots(event,'${id}','fp')">···</button></div></td>`;
+  return tr;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -457,36 +564,41 @@ function isUrgent(echeance) {
 function saveField(el) {
   const id = el.dataset.id;
   const field = el.dataset.field;
+  const view = el.dataset.view;
   const val = el.tagName === 'DIV' ? el.innerText.trim() : el.value;
-  if (!state[id]) return;
-  state[id][field] = val;
-  state[id].dateMaj = new Date().toLocaleDateString('fr-FR');
-  // Update status select color
-  if (field === 'statut') {
-    const statClass = { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier' }[val] || 's-attente';
-    el.className = 'status-sel ' + statClass;
+  const st = view === 'fp' ? stateFP : stateArrhes;
+  if (!st[id]) return;
+  st[id][field] = val;
+  st[id].dateMaj = new Date().toLocaleDateString('fr-FR');
+  if (field === 'statut' && !isOverdue(st[id].echeance)) {
+    el.className = 'status-sel ' + getStatClass(val);
   }
-  saveToFirebase();
-  // Update date MAJ in DOM without full re-render
+  if (view === 'fp') saveFPToFirebase();
+  else saveArrhesToFirebase();
   const tr = document.getElementById('row-' + id);
   if (tr) {
     const dateTd = tr.querySelector('.date-mj');
-    if (dateTd) dateTd.textContent = state[id].dateMaj;
+    if (dateTd) dateTd.textContent = st[id].dateMaj;
   }
 }
 
-function assignService(id, svc) {
-  if (!state[id]) return;
-  state[id].service = svc;
-  state[id].isNew = false;
-  saveToFirebase();
+function assignService(id, svc, view) {
+  const st = view === 'fp' ? stateFP : stateArrhes;
+  if (!st[id]) return;
+  st[id].service = svc;
+  st[id].isNew = false;
+  if (view === 'fp') saveFPToFirebase();
+  else saveArrhesToFirebase();
   render();
 }
 
-function openDots(e, id) {
+function openDots(e, id, view) {
   e.stopPropagation();
   activeDotsId = id;
-  const menu = document.getElementById('dots-menu-global');
+  const menuId = view === 'fp' ? 'dots-menu-fp' : 'dots-menu-arrhes';
+  // Close all menus
+  document.querySelectorAll('.dots-menu').forEach(m => m.classList.remove('open'));
+  const menu = document.getElementById(menuId);
   const btn = e.currentTarget;
   const rect = btn.getBoundingClientRect();
   const appRect = document.getElementById('app').getBoundingClientRect();
@@ -495,93 +607,77 @@ function openDots(e, id) {
   menu.style.left = 'auto';
   menu.style.position = 'absolute';
   document.getElementById('app').style.position = 'relative';
-  menu.classList.toggle('open');
+  menu.classList.add('open');
 }
 
 function moveRow(svc) {
-  if (!activeDotsId || !state[activeDotsId]) return;
-  state[activeDotsId].service = svc;
-  document.getElementById('dots-menu-global').classList.remove('open');
-  saveToFirebase();
+  if (!activeDotsId || !stateArrhes[activeDotsId]) return;
+  stateArrhes[activeDotsId].service = svc;
+  document.getElementById('dots-menu-arrhes').classList.remove('open');
+  saveArrhesToFirebase();
+  render();
+}
+
+function moveRowFP(svc) {
+  if (!activeDotsId || !stateFP[activeDotsId]) return;
+  stateFP[activeDotsId].service = svc;
+  document.getElementById('dots-menu-fp').classList.remove('open');
+  saveFPToFirebase();
   render();
 }
 
 document.addEventListener('click', () => {
-  document.getElementById('dots-menu-global').classList.remove('open');
+  document.querySelectorAll('.dots-menu').forEach(m => m.classList.remove('open'));
 });
 
 // ═══════════════════════════════════════════════════════
 // MAIL
 // ═══════════════════════════════════════════════════════
-const MAIL_DEST = {
-  reception:    { to: 'h1103-om1@accor.com', cc: 'h1103-om@accor.com',  label: 'Réception' },
-  commerciaux:  { to: 'h1103-sb@accor.com',  cc: 'h1103-re2@accor.com', label: 'Service Commercial' },
-  comptabilite: { to: 'h1103-gl@accor.com',  cc: '',                    label: 'Comptabilité' },
-};
-
 function sendMail(svc) {
-  document.getElementById('dots-menu-global').classList.remove('open');
-  if (!activeDotsId || !state[activeDotsId]) return;
-  const row = state[activeDotsId];
+  document.getElementById('dots-menu-arrhes').classList.remove('open');
+  if (!activeDotsId || !stateArrhes[activeDotsId]) return;
+  const row = stateArrhes[activeDotsId];
   const dest = MAIL_DEST[svc];
-
-  const montant = Number(row.montant).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  const notePrev = row.notePrev ? 'Note précédente : ' + row.notePrev : '';
-  const commentaire = row.commentaire ? 'Commentaire en cours : ' + row.commentaire : '';
-
+  const montant = fmtAmt(row.montant);
   const subject = 'Suivi encours — ' + row.client + ' (N°' + row.nc + ') — Demande de mise à jour';
+  const message = `Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${montant} €\nStatut actuel: ${row.statut || 'En attente'}\n${row.notePrev ? 'Note précédente : ' + row.notePrev : ''}\n${row.commentaire ? 'Commentaire : ' + row.commentaire : ''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
+  sendEmailJS(dest, subject, message, row, activeDotsId, 'arrhes');
+}
 
-  const message = `Bonjour,
+function sendMailFP(svc) {
+  document.getElementById('dots-menu-fp').classList.remove('open');
+  if (!activeDotsId || !stateFP[activeDotsId]) return;
+  const row = stateFP[activeDotsId];
+  const dest = MAIL_DEST[svc];
+  const montant = fmtAmt(row.montant);
+  const overdue = isOverdue(row.echeance);
+  const subject = 'Facture Permanente — ' + row.client + ' (N°' + row.nc + ')' + (overdue ? ' ⚠ URGENT' : ' — Demande de mise à jour');
+  const message = `Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${montant} €\nDate de création: ${row.dateCreation || '—'}\nÉchéance        : ${row.echeance ? new Date(row.echeance).toLocaleDateString('fr-FR') : '—'}${overdue ? ' ⚠ DÉPASSÉE' : ''}\nStatut actuel   : ${overdue ? 'URGENT' : (row.statut || 'En attente')}\n${row.commentaire ? 'Commentaire : ' + row.commentaire : ''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
+  sendEmailJS(dest, subject, message, row, activeDotsId, 'fp');
+}
 
-Dans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante qui nécessite une mise à jour :
-
-─────────────────────────────────
-Client       : ${row.client}
-N° Client    : ${row.nc}
-Montant      : ${montant} €
-Statut actuel: ${row.statut || 'En attente'}
-${notePrev}
-${commentaire}
-─────────────────────────────────
-
-Pourriez-vous me faire un retour sur cette ligne et m'indiquer :
-  • Où en est ce dossier ?
-  • Y a-t-il un séjour, un événement ou un remboursement prévu ?
-  • Quelle est l'échéance estimée ?
-
-Merci de me tenir informé(e) afin de pouvoir mettre à jour notre suivi.
-
-Bien cordialement,`;
-
-  // Show sending indicator
-  const btn = document.querySelector('#row-' + activeDotsId + ' .btn-dots');
+function sendEmailJS(dest, subject, message, row, id, view) {
+  const btn = document.querySelector('#row-' + id + ' .btn-dots');
   if (btn) { btn.textContent = '...'; btn.disabled = true; }
-
+  const montant = fmtAmt(row.montant);
   emailjs.send('service_dd2nn5g', 'template_3aeinef', {
-    to_email:   dest.to,
-    cc_email:   dest.cc || '',
-    to_name:    dest.label,
-    subject:    subject,
-    message:    message,
-    client:     row.client,
-    nc:         row.nc,
-    montant:    montant + ' €',
-    statut:     row.statut || 'En attente',
+    to_email: dest.to, cc_email: dest.cc || '', to_name: dest.label,
+    subject, message, client: row.client, nc: row.nc,
+    montant: montant + ' €', statut: row.statut || 'En attente',
   })
   .then(() => {
     if (btn) { btn.textContent = '···'; btn.disabled = false; }
     alert('✓ Mail envoyé à ' + dest.label + ' (' + dest.to + ')');
-    // Log dans Firebase
-    if (state[activeDotsId]) {
-      state[activeDotsId].dernierMail = 'Envoyé à ' + dest.label + ' le ' + new Date().toLocaleDateString('fr-FR');
-      state[activeDotsId].dateMaj = new Date().toLocaleDateString('fr-FR');
-      saveToFirebase();
+    const st = view === 'fp' ? stateFP : stateArrhes;
+    if (st[id]) {
+      st[id].dernierMail = 'Envoyé à ' + dest.label + ' le ' + new Date().toLocaleDateString('fr-FR');
+      st[id].dateMaj = new Date().toLocaleDateString('fr-FR');
+      if (view === 'fp') saveFPToFirebase(); else saveArrhesToFirebase();
     }
   })
   .catch((err) => {
     if (btn) { btn.textContent = '···'; btn.disabled = false; }
-    console.error('EmailJS error:', err);
-    alert('Erreur envoi mail : ' + JSON.stringify(err) + '\nVérifiez la configuration du template EmailJS.');
+    alert('Erreur envoi mail : ' + JSON.stringify(err));
   });
 }
 
@@ -598,8 +694,19 @@ dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag
 // ═══════════════════════════════════════════════════════
 function fmtAmt(n) { return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function updateLive() {
-  const n = Object.keys(state).length;
+function isOverdue(echeance) {
+  if (!echeance) return false;
+  return new Date(echeance) < new Date(new Date().toDateString());
+}
+function getStatClass(statut) {
+  return { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent' }[statut] || 's-attente';
+}
+function statusOptions(current) {
+  const opts = ['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];
+  if (current === 'URGENT') opts.unshift('URGENT');
+  return opts.map(s => `<option${current===s?' selected':''}>${s}</option>`).join('');
+}
+function updateLive(n) {
   if (db) document.getElementById('live-label').textContent = `En direct · ${n} ligne${n>1?'s':''}`;
 }
 
@@ -610,31 +717,24 @@ window.addEventListener('load', () => {
   const lastImport = localStorage.getItem('last_import');
   if (lastImport) document.getElementById('last-import-label').textContent = 'Importé le ' + lastImport;
 
-  // Init EmailJS
   if (typeof emailjs !== 'undefined') {
     emailjs.init({ publicKey: 'IOJCHQiqGloMl8p4k' });
-    console.log('[SUIVI] EmailJS initialisé');
   }
 
-  // Firebase pré-configuré
+  loadLocal();
+  render();
+
   const fbConfig = {
     apiKey: "AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
     projectId: "suivi-encours-novotel",
     databaseURL: "https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
     authDomain: "suivi-encours-novotel.firebaseapp.com",
     storageBucket: "suivi-encours-novotel.appspot.com",
-    messagingSenderId: "0",
-    appId: "0"
+    messagingSenderId: "0", appId: "0"
   };
-  loadLocal();
-  render();
-  // Attendre que les imports Firebase soient prêts
   const tryConnect = () => {
-    if (window._fbImports && window._fbImports.initializeApp) {
-      connectFirebase(fbConfig);
-    } else {
-      setTimeout(tryConnect, 200);
-    }
+    if (window._fbImports && window._fbImports.initializeApp) { connectFirebase(fbConfig); }
+    else { setTimeout(tryConnect, 200); }
   };
   tryConnect();
 });
