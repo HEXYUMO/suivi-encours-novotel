@@ -3,558 +3,1109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suivi des encours — Novotel Nice</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzFGMzg2NCIvPgogIDxyZWN0IHg9IjYiIHk9IjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiBmaWxsPSIjZmZmIi8+CiAgPHJlY3QgeD0iNiIgeT0iMTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiByeD0iMSIgZmlsbD0iIzlGRTFDQiIvPgogIDxyZWN0IHg9IjkiIHk9IjE3IiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHJlY3QgeD0iMTQuNSIgeT0iMTciIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIHJ4PSIwLjUiIGZpbGw9IiMxRjM4NjQiLz4KICA8cmVjdCB4PSIyMCIgeT0iMTciIHdpZHRoPSIzIiBoZWlnaHQ9IjMiIHJ4PSIwLjUiIGZpbGw9IiMxRjM4NjQiLz4KICA8cmVjdCB4PSI5IiB5PSIyMiIgd2lkdGg9IjMiIGhlaWdodD0iNCIgcng9IjAuNSIgZmlsbD0iIzFGMzg2NCIvPgogIDxyZWN0IHg9IjE0LjUiIHk9IjIyIiB3aWR0aD0iMyIgaGVpZ2h0PSI0IiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHJlY3QgeD0iMjAiIHk9IjIyIiB3aWR0aD0iMyIgaGVpZ2h0PSI0IiByeD0iMC41IiBmaWxsPSIjMUYzODY0Ii8+CiAgPHBvbHlnb24gcG9pbnRzPSIxNiw0IDUsMTMgMjcsMTMiIGZpbGw9IiMyRjU0OTYiLz4KPC9zdmc+">
+<title>Novotel Nice — Pilotage</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBkMWY0YSIvPjxyZWN0IHg9IjYiIHk9IjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iNiIgeT0iMTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiByeD0iMSIgZmlsbD0iIzRBOTBFMiIvPjxwb2x5Z29uIHBvaW50cz0iMTYsMiA1LDEzIDI3LDEzIiBmaWxsPSIjMkI1MkExIi8+PC9zdmc+">
+
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
   window._fbImports = { initializeApp, getDatabase, ref, set, onValue };
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;font-size:13px;background:#F0F4FA;color:#222}
-#app{max-width:1400px;margin:0 auto;padding:16px}
+/* ─── RESET & VARIABLES ─── */
+:root{
+  --font:'DM Sans','Segoe UI',Arial,sans-serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --navy:#0d1f4a;--navy2:#162b5e;--navy3:#1F3864;
+  --blue:#4A90E2;--blue-l:#E3F0FF;
+  --green:#2E7D32;--green-l:#E8F5E9;
+  --amber:#E8A000;--amber-l:#FFF8E1;
+  --red:#C62828;--red-l:#FFEBEE;
+  --pur:#4527A0;--pur-l:#EDE7F6;
+  --bg:#EFF3FB;--white:#fff;
+  --border:#E0E6EF;--text:#18203a;
+  --muted:#8896B3;--muted2:#C0CCE0;
+  --sw:218px;--th:50px;--r:10px;
+  --sh:0 1px 8px rgba(13,31,74,.07);
+  --sh2:0 6px 28px rgba(13,31,74,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg)}
 
-.topbar{background:#1F3864;border-radius:10px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap}
-.topbar h1{color:#fff;font-size:15px;font-weight:600}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.live{display:flex;align-items:center;gap:7px;font-size:11px;color:#9FE1CB}
-.live-dot{width:8px;height:8px;background:#4CAF50;border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* ─── SHELL ─── */
+.app{display:flex;height:100vh;width:100vw;overflow:hidden}
 
-/* NAV TABS */
-.nav-tabs{display:flex;gap:6px}
-.nav-tab{font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);background:transparent;transition:all .15s;white-space:nowrap}
-.nav-tab:hover{background:rgba(255,255,255,.1);color:#fff}
-.nav-tab.active{background:#fff;color:#1F3864;border-color:#fff}
+/* ─── SIDEBAR ─── */
+.sidebar{width:var(--sw);background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:20;box-shadow:3px 0 16px rgba(0,0,0,.18)}
+.sidebar::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(160deg,rgba(74,144,226,.1) 0%,transparent 55%)}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-mark{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.sb-icon{width:34px;height:34px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(74,144,226,.4)}
+.sb-wordmark{color:#fff;font-size:14.5px;font-weight:700;letter-spacing:2.8px}
+.sb-sub{color:rgba(255,255,255,.32);font-size:8px;letter-spacing:.9px;padding-left:44px;line-height:1.5}
+.nav{padding:10px 0;flex:1;overflow-y:auto}
+.nav::-webkit-scrollbar{display:none}
+.nav-cat{padding:12px 18px 4px;font-size:8px;color:rgba(255,255,255,.28);letter-spacing:1.2px;font-weight:700;text-transform:uppercase}
+.nav-sep{height:1px;background:rgba(255,255,255,.07);margin:5px 18px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:rgba(255,255,255,.48);font-size:11.5px;font-weight:500;border-left:3px solid transparent;transition:all .15s;user-select:none;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,.82);background:rgba(255,255,255,.05)}
+.nav-item.active{color:#fff;background:rgba(74,144,226,.16);border-left-color:var(--blue)}
+.nav-icon{width:14px;height:14px;flex-shrink:0;opacity:.6}
+.nav-item.active .nav-icon,.nav-item:hover .nav-icon{opacity:1}
+.nav-tag{margin-left:auto;font-size:8px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.3)}
+.nav-ext{margin-left:auto;font-size:9px;color:rgba(255,255,255,.22)}
+.nav-badge{margin-left:auto;font-size:9px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-weight:700;display:none;align-items:center;justify-content:center}
+.nav-badge.amber{background:var(--amber)}
+.sb-foot{padding:12px 16px 18px;border-top:1px solid rgba(255,255,255,.08)}
+.import-btn{width:100%;background:rgba(74,144,226,.18);border:1.5px solid rgba(74,144,226,.35);border-radius:8px;padding:9px 13px;color:rgba(255,255,255,.92);font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:var(--font);margin-bottom:10px}
+.import-btn:hover{background:rgba(74,144,226,.3);border-color:rgba(74,144,226,.6)}
+.sb-live{display:flex;align-items:center;gap:6px;font-size:9px;color:rgba(255,255,255,.26)}
+.live-dot{width:6px;height:6px;background:#4CAF50;border-radius:50%;animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
-.upload-bar{background:#fff;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:12px;border:1px solid #E0E6EF;flex-wrap:wrap}
-.drop-zone{border:2px dashed #7EB3E8;border-radius:8px;padding:10px 20px;cursor:pointer;background:#F0F6FF;text-align:center;transition:background .2s;min-width:220px}
-.drop-zone:hover,.drop-zone.drag{background:#DAEEFF;border-color:#378ADD}
-.drop-zone p{font-size:12px;color:#185FA5;font-weight:600;margin:0}
-.drop-zone span{font-size:10px;color:#88AAC8}
-.last-import{font-size:11px;color:#AAA}
-.stats{display:flex;gap:10px;margin-left:auto}
-.stat{background:#F4F6FA;border-radius:8px;padding:6px 14px;text-align:center}
-.stat-val{font-size:16px;font-weight:700;color:#1F3864}
-.stat-label{font-size:9px;color:#888;margin-top:2px}
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:var(--th);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-crumb{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.topbar-crumb span{color:var(--navy3);font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-pill{font-size:10px;color:var(--muted);background:var(--bg);border-radius:6px;padding:3px 9px;border:1px solid var(--border);white-space:nowrap}
+.topbar-fb{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.topbar-date{font-size:10.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
 
-.section{margin-bottom:16px}
-.section-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:0 4px}
-.section-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.3px}
-.badge-green{background:#E2EFDA;color:#2E7D32}
-.badge-purple{background:#EDE7F6;color:#4527A0}
-.badge-amber{background:#FFF3CD;color:#856404}
-.badge-blue{background:#E3F2FD;color:#1565C0}
-.section-meta{font-size:11px;color:#999}
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;overflow-x:hidden}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:4px}
 
-.table-wrap{background:#fff;border-radius:10px;border:1px solid #E0E6EF;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:900px}
-th{background:#F8FAFD;padding:8px 10px;text-align:left;font-size:10px;color:#888;font-weight:700;border-bottom:1px solid #E8EEF6;white-space:nowrap;position:sticky;top:0}
-td{padding:6px 10px;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+/* ─── IMPORT BANNER ─── */
+.import-banner{background:var(--red);color:#fff;font-size:12px;font-weight:500;padding:9px 22px;display:none;align-items:center;gap:8px;flex-shrink:0}
+.import-banner.show{display:flex}
+.import-banner svg{flex-shrink:0}
+
+/* ─── PAGES ─── */
+.page{display:none;padding:18px 22px}
+.page.active{display:block}
+
+/* ─── DASHBOARD ─── */
+.slbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:0 0 9px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh)}
+.kpi-val{font-size:22px;font-weight:700;color:var(--navy3);line-height:1.1;font-family:var(--mono)}
+.kpi-val sup{font-size:13px;font-weight:400;margin-left:2px;vertical-align:super}
+.kpi-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi-sub{font-size:10px;margin-top:3px}
+.kpi-sub.g{color:var(--green)}.kpi-sub.r{color:var(--red)}.kpi-sub.a{color:var(--amber)}.kpi-sub.mu{color:var(--muted)}
+.charts-row{display:grid;grid-template-columns:1fr 1.2fr;gap:12px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
+.card-title{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.chart-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:9px;flex-wrap:wrap}
+.leg-sq{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+
+/* ─── ENCOURS SECTIONS ─── */
+.section{margin-bottom:14px}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:7px;padding:0 2px}
+.sbadge{font-size:9.5px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.3px}
+.sbadge-todo{background:#FFECB3;color:#856404}
+.sbadge-green{background:#E2EFDA;color:var(--green)}
+.sbadge-purple{background:var(--pur-l);color:var(--pur)}
+.sbadge-amber{background:var(--amber-l);color:#856404}
+.smeta{font-size:11px;color:var(--muted)}
+
+/* ─── TABLE ─── */
+.table-wrap{background:var(--white);border-radius:var(--r);border:1px solid var(--border);overflow:auto;box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:860px}
+th{background:#F7F9FD;padding:8px 10px;text-align:left;font-size:9px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 10px;border-bottom:1px solid #F2F5FB;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#FAFCFF}
-.client-name{font-weight:700;color:#1F3864;white-space:nowrap}
-.amount{font-weight:600;white-space:nowrap;text-align:right}
-.amount-neg{color:#C62828}
-.note-prev{font-size:10px;color:#185FA5;font-style:italic;max-width:180px;line-height:1.4}
-.date-mj{font-size:10px;color:#BBB;white-space:nowrap}
+.cname{font-weight:700;color:var(--navy3);white-space:nowrap;font-size:12.5px}
+.amount{font-weight:600;white-space:nowrap;text-align:right;font-family:var(--mono);font-size:12px}
+.amount-neg{color:var(--red)}
+.note-prev{font-size:10px;color:var(--blue);font-style:italic;max-width:170px;line-height:1.4}
+.date-mj{font-size:10px;color:var(--muted2);white-space:nowrap;font-family:var(--mono)}
 
-.editable{border:1px solid transparent;border-radius:5px;padding:4px 6px;min-height:28px;cursor:text;transition:border-color .15s;outline:none;width:100%;min-width:120px;font-size:12px;font-family:Arial,sans-serif;background:transparent;resize:none;display:block}
+/* Editable */
+.editable{border:1px solid transparent;border-radius:5px;padding:4px 7px;min-height:28px;cursor:text;transition:border-color .15s,background .15s;outline:none;width:100%;min-width:110px;font-size:12px;font-family:var(--font);background:transparent;resize:none;display:block;line-height:1.4}
 .editable:hover{border-color:#D0DCF0;background:#FAFCFF}
-.editable:focus{border-color:#378ADD;background:#F5F9FF}
-.editable[placeholder]:empty:before{content:attr(placeholder);color:#BCC8DC;font-style:italic;pointer-events:none}
+.editable:focus{border-color:var(--blue);background:#F5F9FF;box-shadow:0 0 0 3px rgba(74,144,226,.1)}
+.editable:empty::before{content:attr(placeholder);color:var(--muted2);font-style:italic;pointer-events:none}
 
-.status-sel{border:none;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:18px}
-.s-attente{background:#F3F3F3;color:#666}
-.s-encours{background:#FFF8E1;color:#856404}
-.s-rembours{background:#E3F2FD;color:#1565C0}
-.s-report{background:#F3E5F5;color:#6A1B9A}
-.s-solde{background:#E8F5E9;color:#2E7D32}
-.s-verifier{background:#FFEBEE;color:#C62828}
-.s-urgent{background:#C62828;color:#fff;animation:urgentPulse 2s infinite}
-@keyframes urgentPulse{0%,100%{opacity:1}50%{opacity:.75}}
+/* Status select */
+.status-sel{border:none;border-radius:12px;padding:3px 20px 3px 9px;font-size:11px;font-weight:600;cursor:pointer;appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;font-family:var(--font)}
+.s-attente{background:#F0F0F0;color:#666}
+.s-encours{background:var(--amber-l);color:#856404}
+.s-rembours{background:var(--blue-l);color:#1565C0}
+.s-report{background:var(--pur-l);color:var(--pur)}
+.s-solde{background:var(--green-l);color:var(--green)}
+.s-verifier{background:var(--red-l);color:var(--red)}
+.s-urgent{background:var(--red);color:#fff;animation:urgp 2s infinite}
+@keyframes urgp{0%,100%{opacity:1}50%{opacity:.72}}
 
-.new-badge{display:inline-block;background:#FFECB3;color:#856404;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;vertical-align:middle}
+/* Badges & Assign */
+.nbadge{display:inline-block;background:#FFECB3;color:#856404;font-size:8.5px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;vertical-align:middle}
 .assign-btns{display:flex;gap:4px;flex-wrap:wrap}
-.assign-btn{font-size:10px;padding:3px 8px;border:1px solid #D0D7E3;border-radius:5px;background:#fff;cursor:pointer;color:#444;transition:all .15s;white-space:nowrap}
-.assign-btn:hover{background:#1F3864;color:#fff;border-color:#1F3864}
+.assign-btn{font-size:10px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--white);cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;font-family:var(--font)}
+.assign-btn:hover{background:var(--navy3);color:#fff;border-color:var(--navy3)}
 
-.dots-wrap{position:relative}
-.btn-dots{background:none;border:1px solid transparent;border-radius:5px;cursor:pointer;padding:4px 8px;font-size:16px;color:#CCC;line-height:1;font-weight:700;letter-spacing:2px;display:block}
-.btn-dots:hover{background:#F0F4FA;color:#555;border-color:#D0D7E3}
-.dots-menu{display:none;position:absolute;right:0;top:100%;background:#fff;border:1px solid #D0D7E3;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;min-width:160px;padding:4px 0}
+/* Dots */
+.btn-dots{background:none;border:1px solid transparent;border-radius:5px;cursor:pointer;padding:4px 8px;font-size:15px;color:var(--muted2);line-height:1;font-weight:700;letter-spacing:2px;display:block;transition:all .15s}
+.btn-dots:hover{background:var(--bg);color:#666;border-color:var(--border)}
+.dots-menu{display:none;position:fixed;background:var(--white);border:1px solid var(--border);border-radius:9px;box-shadow:var(--sh2);z-index:1000;min-width:172px;padding:5px 0}
 .dots-menu.open{display:block}
-.dots-menu-item{padding:8px 14px;cursor:pointer;font-size:12px;color:#333;white-space:nowrap}
-.dots-menu-item:hover{background:#F5F8FF;color:#1F3864}
-.dots-menu-sep{height:1px;background:#F0F0F0;margin:3px 0}
-.dots-menu-label{padding:6px 14px 3px;font-size:10px;color:#AAA;font-weight:600;text-transform:uppercase}
+.dmi{padding:8px 14px;cursor:pointer;font-size:12px;color:#333;white-space:nowrap}
+.dmi:hover{background:#F4F8FF;color:var(--navy3)}
+.dmsep{height:1px;background:#F0F0F0;margin:3px 0}
+.dmlabel{padding:6px 14px 3px;font-size:8.5px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
 
-.footer{background:#fff;border-radius:10px;border:1px solid #E0E6EF;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-.footer-total{font-size:13px;font-weight:700;color:#1F3864}
-.footer-info{font-size:10px;color:#AAA}
+/* ─── IMPORT MODAL ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(13,31,74,.48);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:14px;padding:24px 26px;width:330px;box-shadow:var(--sh2);animation:mIn .18s ease-out}
+@keyframes mIn{from{transform:scale(.95) translateY(6px);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-title{font-size:13.5px;font-weight:700;color:var(--navy3);margin-bottom:16px}
+.modal-opt{display:flex;align-items:flex-start;gap:12px;padding:13px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;margin-bottom:9px;transition:all .15s}
+.modal-opt:hover{background:#F4F8FF;border-color:var(--blue)}
+.modal-opt.disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.mopt-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mopt-label{font-size:12.5px;font-weight:600;color:var(--navy3)}
+.mopt-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.modal-cancel{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;cursor:pointer;padding:4px}
+.modal-cancel:hover{color:var(--red)}
 
-/* Vue FP : badge urgent dans date */
-.date-urgent-cell{color:#C62828;font-weight:700;font-size:10px}
-.date-ok-cell{font-size:11px;color:#555}
+/* ─── COMING SOON ─── */
+.coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:10px;color:var(--muted)}
+.coming-soon h2{font-size:17px;font-weight:600;color:var(--muted2)}
+.coming-soon p{font-size:12px}
+
+/* ─── DATE INPUT ─── */
+input[type=date]{border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:11px;color:#555;width:100%;font-family:var(--mono);background:var(--white);transition:border-color .15s}
+input[type=date]:focus{outline:none;border-color:var(--blue)}
 </style>
 </head>
 <body>
-<div id="app">
+<div class="app">
 
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">
+      <div class="sb-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="9" width="14" height="9" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="3" y="7.5" width="14" height="2.5" rx=".6" fill="rgba(255,255,255,.5)"/>
+          <polygon points="10,2.5 2,9 18,9" fill="rgba(255,255,255,.7)"/>
+          <rect x="6" y="11.5" width="2.5" height="2.5" rx=".4" fill="#4A90E2"/>
+          <rect x="9.5" y="11.5" width="2.5" height="2.5" rx=".4" fill="#4A90E2"/>
+          <rect x="13" y="11.5" width="2.5" height="2.5" rx=".4" fill="#4A90E2"/>
+          <rect x="8" y="14.5" width="4" height="3.5" rx=".4" fill="#4A90E2"/>
+        </svg>
+      </div>
+      <div class="sb-wordmark">NOVOTEL</div>
+    </div>
+    <div class="sb-sub">NICE CENTRE VIEUX-NICE</div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="4" height="6" rx=".8" fill="currentColor"/><rect x="5.5" y="4" width="4" height="9" rx=".8" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx=".8" fill="currentColor"/></svg>
+      Tableau de bord
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-cat">Financier</div>
+    <div class="nav-item" id="nav-arrhes" onclick="navigate('arrhes')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Encours
+      <span class="nav-badge amber" id="nav-badge-arrhes">0</span>
+    </div>
+    <div class="nav-item" id="nav-fp" onclick="navigate('fp')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Factures perm.
+      <span class="nav-badge" id="nav-badge-fp">0</span>
+    </div>
+    <div class="nav-item" id="nav-debiteurs" onclick="navigate('debiteurs')">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Débiteurs divers
+      <span class="nav-tag">bientôt</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-cat">Opérationnel</div>
+    <a class="nav-item" href="https://briefnovotel.netlify.app/" target="_blank" rel="noopener">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12" stroke="currentColor" stroke-width="1.2"/><path d="M5 2v3M9 2v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Briefs journaliers
+      <span class="nav-ext">↗</span>
+    </a>
+  </nav>
+
+  <div class="sb-foot">
+    <button class="import-btn" onclick="openImportModal()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v7M4.5 6.5L7 9l2.5-2.5" stroke="rgba(255,255,255,.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.65)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Importer un fichier
+    </button>
+    <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <h1>Suivi des encours — Novotel Nice Centre Vieux-Nice</h1>
+    <div class="topbar-left">
+      <div class="topbar-crumb">Novotel Nice &rsaquo; <span id="topbar-page">Tableau de bord</span></div>
+      <div class="topbar-pill" id="last-import-label">Aucune importation</div>
+    </div>
     <div class="topbar-right">
-      <div class="nav-tabs">
-        <button class="nav-tab active" id="tab-arrhes" onclick="switchView('arrhes')">Arrhes sans date</button>
-        <button class="nav-tab" id="tab-fp" onclick="switchView('fp')">Factures Permanentes</button>
+      <div class="topbar-fb" id="firebase-status">
+        <span style="width:5px;height:5px;background:#CCC;border-radius:50%;display:inline-block"></span> Connexion...
       </div>
-      <div class="live">
-        <span class="live-dot"></span>
-        <span id="live-label">Chargement...</span>
-      </div>
+      <div class="topbar-date" id="topbar-date"></div>
     </div>
   </div>
 
-  <div class="upload-bar">
-    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-      <p>Déposer la balance XLS ici</p>
-      <span>ou cliquer pour choisir un fichier</span>
-      <input type="file" id="file-input" accept=".xls,.xlsx" style="display:none" onchange="handleFile(this.files[0])">
-    </div>
-    <span class="last-import" id="last-import-label">Aucune importation</span>
-    <div class="stats">
-      <div class="stat"><div class="stat-val" id="stat-total">—</div><div class="stat-label" id="stat-label-total">Arrhes à traiter</div></div>
-      <div class="stat"><div class="stat-val" id="stat-new" style="color:#856404">—</div><div class="stat-label" id="stat-label-new">Nouvelles</div></div>
-      <div class="stat"><div class="stat-val" id="stat-amount" style="color:#1F3864">—</div><div class="stat-label">Total €</div></div>
-    </div>
+  <!-- IMPORT BANNER -->
+  <div class="import-banner" id="import-banner">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13.5h13L8 2z" stroke="rgba(255,255,255,.8)" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6.5v3" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="#fff"/></svg>
+    Données journalières non importées — les chiffres affichés peuvent être erronés
   </div>
 
-  <div id="sections-container"></div>
+  <!-- CONTENT -->
+  <div class="content">
 
-  <div class="footer">
-    <span class="footer-total" id="footer-total">Total : —</span>
-    <span class="footer-info">Données partagées en temps réel · <span id="firebase-status">Connexion...</span></span>
+    <!-- ─── PAGE DASHBOARD ─── -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- AUJOURD'HUI -->
+      <div class="slbl" id="dash-today-label">Aujourd'hui</div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-to-day">—</div>
+          <div class="kpi-lbl">TO du jour</div>
+          <div class="kpi-sub mu" id="kpi-to-day-sub">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-pm-day">—</div>
+          <div class="kpi-lbl">Prix moyen</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-revpar-day">—</div>
+          <div class="kpi-lbl">RevPAR</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-ca-day">—</div>
+          <div class="kpi-lbl">CA hébergement</div>
+        </div>
+      </div>
+
+      <!-- CUMULÉ MOIS -->
+      <div class="slbl" id="dash-month-label">Cumulé — portefeuille complet</div>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-to-month">—</div>
+          <div class="kpi-lbl">TO cumulé</div>
+          <div class="kpi-sub mu" id="kpi-to-month-sub">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-ca-month">—</div>
+          <div class="kpi-lbl">CA hébergement</div>
+          <div class="kpi-sub mu" id="kpi-ca-month-sub">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-pm-month">—</div>
+          <div class="kpi-lbl">Prix moyen du mois</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val" id="kpi-advance">—</div>
+          <div class="kpi-lbl" id="kpi-advance-lbl">Avance budget</div>
+          <div class="kpi-sub" id="kpi-advance-sub">—</div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-title">Portefeuille TO — 7 prochains jours</div>
+          <div style="position:relative;width:100%;height:200px">
+            <canvas id="to-chart" role="img" aria-label="TO portefeuille 7 jours">Chargement...</canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">CA portefeuille vs budget 2026</div>
+          <div class="chart-legend">
+            <span><span class="leg-sq" style="background:#185FA5"></span>Réalisé</span>
+            <span><span class="leg-sq" style="background:#EF9F27"></span>En cours</span>
+            <span><span class="leg-sq" style="background:#5DCAA5"></span>Portefeuille</span>
+            <span><span class="leg-sq" style="background:transparent;border:1.5px solid #999;border-radius:2px"></span>Budget</span>
+          </div>
+          <div style="position:relative;width:100%;height:180px">
+            <canvas id="budget-chart" role="img" aria-label="CA vs budget mensuel 2026">Chargement...</canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /dashboard -->
+
+    <!-- ─── PAGE ENCOURS (ARRHES) ─── -->
+    <div class="page" id="page-arrhes">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
+        <div class="kpi"><div class="kpi-val" id="arrhes-stat-total">—</div><div class="kpi-lbl">Arrhes à traiter</div></div>
+        <div class="kpi"><div class="kpi-val" id="arrhes-stat-new" style="color:var(--amber)">—</div><div class="kpi-lbl">Nouvelles</div></div>
+        <div class="kpi"><div class="kpi-val" id="arrhes-stat-amount">—</div><div class="kpi-lbl">Total € encours</div></div>
+      </div>
+      <div id="arrhes-sections"></div>
+    </div>
+
+    <!-- ─── PAGE FACTURES PERMANENTES ─── -->
+    <div class="page" id="page-fp">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
+        <div class="kpi"><div class="kpi-val" id="fp-stat-total">—</div><div class="kpi-lbl">Factures à traiter</div></div>
+        <div class="kpi"><div class="kpi-val" id="fp-stat-urgent" style="color:var(--red)">—</div><div class="kpi-lbl">Échéances dépassées</div></div>
+        <div class="kpi"><div class="kpi-val" id="fp-stat-amount">—</div><div class="kpi-lbl">Total € encours</div></div>
+      </div>
+      <div id="fp-sections"></div>
+    </div>
+
+    <!-- ─── PAGE DÉBITEURS ─── -->
+    <div class="page" id="page-debiteurs">
+      <div class="coming-soon">
+        <div style="font-size:48px;opacity:.2">🏗</div>
+        <h2>Débiteurs divers</h2>
+        <p>Ce module est en cours de développement.</p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div><!-- /app -->
+
+<!-- ═══════════ IMPORT MODAL ═══════════ -->
+<div class="modal-bg" id="import-modal" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal">
+    <div class="modal-title">Quel fichier souhaitez-vous importer ?</div>
+    <div class="modal-opt" onclick="triggerCSVImport()">
+      <div class="mopt-icon" style="background:#EBF4FF">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="#1F3864" stroke-width="1.3"/><path d="M5 8h10M5 11h7" stroke="#1F3864" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="mopt-label">Données journalières</div>
+        <div class="mopt-sub">CSV Oxygroup · TO, PM, CA du jour</div>
+      </div>
+    </div>
+    <div class="modal-opt" onclick="triggerXLSImport()">
+      <div class="mopt-icon" style="background:#FFF5E6">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="#E8A000" stroke-width="1.3"/><path d="M5 8h10M5 11h10M5 14h6" stroke="#E8A000" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="mopt-label">Balance des encours</div>
+        <div class="mopt-sub">XLS balance · Arrhes + Factures perm.</div>
+      </div>
+    </div>
+    <div class="modal-cancel" onclick="closeImportModal()">Annuler</div>
   </div>
 </div>
 
-<!-- Dots menu Arrhes -->
+<!-- Hidden file inputs -->
+<input type="file" id="file-input-xls" accept=".xls,.xlsx" style="display:none" onchange="handleXLS(this.files[0])">
+<input type="file" id="file-input-csv" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
+
+<!-- Dots menu — Arrhes -->
 <div id="dots-menu-arrhes" class="dots-menu">
-  <div class="dots-menu-label">Déplacer vers</div>
-  <div class="dots-menu-item" onclick="moveRow('reception')">Réception</div>
-  <div class="dots-menu-item" onclick="moveRow('commerciaux')">Commerciaux</div>
-  <div class="dots-menu-item" onclick="moveRow('comptabilite')">Comptabilité</div>
-  <div class="dots-menu-sep"></div>
-  <div class="dots-menu-label">Envoyer un mail à</div>
-  <div class="dots-menu-item" onclick="sendMail('reception')">✉ Réception</div>
-  <div class="dots-menu-item" onclick="sendMail('commerciaux')">✉ Commerciaux</div>
-  <div class="dots-menu-item" onclick="sendMail('comptabilite')">✉ Comptabilité</div>
+  <div class="dmlabel">Déplacer vers</div>
+  <div class="dmi" onclick="moveRow('reception')">Réception</div>
+  <div class="dmi" onclick="moveRow('commerciaux')">Commerciaux</div>
+  <div class="dmi" onclick="moveRow('comptabilite')">Comptabilité</div>
+  <div class="dmsep"></div>
+  <div class="dmlabel">Envoyer un mail à</div>
+  <div class="dmi" onclick="sendMail('reception')">✉ Réception</div>
+  <div class="dmi" onclick="sendMail('commerciaux')">✉ Commerciaux</div>
+  <div class="dmi" onclick="sendMail('comptabilite')">✉ Comptabilité</div>
 </div>
 
-<!-- Dots menu FP -->
+<!-- Dots menu — FP -->
 <div id="dots-menu-fp" class="dots-menu">
-  <div class="dots-menu-label">Déplacer vers</div>
-  <div class="dots-menu-item" onclick="moveRowFP('reception')">Réception</div>
-  <div class="dots-menu-item" onclick="moveRowFP('commerciaux')">Commerciaux</div>
-  <div class="dots-menu-item" onclick="moveRowFP('comptabilite')">Comptabilité</div>
-  <div class="dots-menu-sep"></div>
-  <div class="dots-menu-label">Envoyer un mail à</div>
-  <div class="dots-menu-item" onclick="sendMailFP('reception')">✉ Réception</div>
-  <div class="dots-menu-item" onclick="sendMailFP('commerciaux')">✉ Commerciaux</div>
-  <div class="dots-menu-item" onclick="sendMailFP('comptabilite')">✉ Comptabilité</div>
+  <div class="dmlabel">Déplacer vers</div>
+  <div class="dmi" onclick="moveRowFP('reception')">Réception</div>
+  <div class="dmi" onclick="moveRowFP('commerciaux')">Commerciaux</div>
+  <div class="dmi" onclick="moveRowFP('comptabilite')">Comptabilité</div>
+  <div class="dmsep"></div>
+  <div class="dmlabel">Envoyer un mail à</div>
+  <div class="dmi" onclick="sendMailFP('reception')">✉ Réception</div>
+  <div class="dmi" onclick="sendMailFP('commerciaux')">✉ Commerciaux</div>
+  <div class="dmi" onclick="sendMailFP('comptabilite')">✉ Comptabilité</div>
 </div>
 
 <script>
 // ═══════════════════════════════════════════════════════
-// GLOBAL STATE
+// CONSTANTES
+// ═══════════════════════════════════════════════════════
+const NB_CHAMBRES = 180;
+const BUDGET_2026 = [144950,282420,359040,583060,760340,903271,1056407,1104640,857915,630925,173310,226064];
+const MOIS_LABELS = ['Jan.','Fév.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
+const MOIS_LONGS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+const SERVICES   = ['reception','commerciaux','comptabilite'];
+const SVC_LABEL  = {reception:'Réception',commerciaux:'Commerciaux',comptabilite:'Comptabilité'};
+const MAIL_DEST  = {
+  reception:    {to:'h1103-om1@accor.com', cc:'h1103-om@accor.com',  label:'Réception'},
+  commerciaux:  {to:'h1103-sb@accor.com',  cc:'h1103-re2@accor.com', label:'Service Commercial'},
+  comptabilite: {to:'h1103-gl@accor.com',  cc:'',                    label:'Comptabilité'},
+};
+const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers'};
+
+// ═══════════════════════════════════════════════════════
+// STATE
 // ═══════════════════════════════════════════════════════
 let db = null;
-let stateArrhes = {};
-let stateFP = {};
-let activeDotsId = null;
-let currentView = 'arrhes'; // 'arrhes' | 'fp'
-
-const SERVICES = ['reception','commerciaux','comptabilite'];
-const SERVICE_LABELS = { reception:'Réception', commerciaux:'Commerciaux', comptabilite:'Comptabilité' };
-const MAIL_DEST = {
-  reception:    { to: 'h1103-om1@accor.com', cc: 'h1103-om@accor.com',  label: 'Réception' },
-  commerciaux:  { to: 'h1103-sb@accor.com',  cc: 'h1103-re2@accor.com', label: 'Service Commercial' },
-  comptabilite: { to: 'h1103-gl@accor.com',  cc: '',                    label: 'Comptabilité' },
-};
+let stateArrhes    = {};
+let stateFP        = {};
+let stateDashboard = null;
+let currentView    = 'dashboard';
+let activeDotsId   = null;
+let toChartInst    = null;
+let budgetChartInst = null;
 
 function clientId(client, nc) {
   return `${nc}_${String(client).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`;
 }
 
 // ═══════════════════════════════════════════════════════
-// VIEW SWITCHING
+// NAVIGATION
 // ═══════════════════════════════════════════════════════
-function switchView(view) {
+function navigate(view) {
   currentView = view;
-  document.getElementById('tab-arrhes').classList.toggle('active', view === 'arrhes');
-  document.getElementById('tab-fp').classList.toggle('active', view === 'fp');
-  if (view === 'arrhes') {
-    document.getElementById('stat-label-total').textContent = 'Arrhes à traiter';
-    document.getElementById('stat-label-new').textContent = 'Nouvelles';
-  } else {
-    document.getElementById('stat-label-total').textContent = 'Factures à traiter';
-    document.getElementById('stat-label-new').textContent = 'Urgentes';
-  }
-  render();
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + view);
+  if (navEl) navEl.classList.add('active');
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + view);
+  if (pageEl) pageEl.classList.add('active');
+  document.getElementById('topbar-page').textContent = PAGE_NAMES[view] || view;
+  if (view === 'arrhes')    renderArrhes();
+  else if (view === 'fp')   renderFP();
+  else if (view === 'dashboard') renderDashboard();
 }
+
+// ═══════════════════════════════════════════════════════
+// IMPORT MODAL
+// ═══════════════════════════════════════════════════════
+function openImportModal()  { document.getElementById('import-modal').classList.add('open'); }
+function closeImportModal() { document.getElementById('import-modal').classList.remove('open'); }
+function triggerXLSImport() { closeImportModal(); document.getElementById('file-input-xls').click(); }
+function triggerCSVImport() { closeImportModal(); document.getElementById('file-input-csv').click(); }
 
 // ═══════════════════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════════════════
 function connectFirebase(config) {
   try {
-    const { initializeApp, getDatabase, ref, onValue } = window._fbImports;
-    const app = initializeApp(config, 'encours-app');
+    const {initializeApp, getDatabase, ref, onValue} = window._fbImports;
+    const app = initializeApp(config, 'pilotage-app');
     db = getDatabase(app);
 
-    onValue(ref(db, 'encours'), (snap) => {
-      if (snap.val()) { stateArrhes = snap.val(); if (currentView === 'arrhes') render(); }
+    onValue(ref(db,'encours'), snap => {
+      if (snap.val()) { stateArrhes = snap.val(); if (currentView==='arrhes') renderArrhes(); updateNavBadges(); }
     });
-    onValue(ref(db, 'encoursFP'), (snap) => {
-      if (snap.val()) { stateFP = snap.val(); if (currentView === 'fp') render(); }
+    onValue(ref(db,'encoursFP'), snap => {
+      if (snap.val()) { stateFP = snap.val(); if (currentView==='fp') renderFP(); updateNavBadges(); }
+    });
+    onValue(ref(db,'dashboardData'), snap => {
+      if (snap.val()) {
+        stateDashboard = snap.val();
+        localStorage.setItem('dashboard_state', JSON.stringify(stateDashboard));
+        if (currentView==='dashboard') renderDashboard();
+        checkImportBanner();
+        const li = stateDashboard.lastImport || '';
+        if (li) document.getElementById('last-import-label').textContent = 'Importé le ' + li;
+      }
     });
 
-    document.getElementById('firebase-status').textContent = 'Firebase connecté — données partagées en temps réel';
+    document.getElementById('firebase-status').innerHTML =
+      '<span style="width:5px;height:5px;background:#4CAF50;border-radius:50%;display:inline-block;animation:pulse 2.5s infinite"></span> Firebase · En direct';
     document.getElementById('live-label').textContent = 'En direct';
   } catch(e) {
     console.error(e);
-    document.getElementById('firebase-status').textContent = 'Erreur Firebase : ' + e.message;
+    document.getElementById('live-label').textContent = 'Hors ligne';
+    document.getElementById('firebase-status').textContent = 'Erreur Firebase';
   }
 }
 
-function saveToFirebase() {
-  if (!db) { saveLocal(); return; }
-  const { ref, set } = window._fbImports;
-  if (currentView === 'arrhes') set(ref(db, 'encours'), stateArrhes);
-  else set(ref(db, 'encoursFP'), stateFP);
-}
-
 function saveArrhesToFirebase() {
-  if (!db) return;
-  const { ref, set } = window._fbImports;
-  set(ref(db, 'encours'), stateArrhes);
+  if (!db) { saveLocal(); return; }
+  const {ref,set} = window._fbImports;
+  set(ref(db,'encours'), stateArrhes);
 }
-
 function saveFPToFirebase() {
-  if (!db) return;
-  const { ref, set } = window._fbImports;
-  set(ref(db, 'encoursFP'), stateFP);
+  if (!db) { saveLocal(); return; }
+  const {ref,set} = window._fbImports;
+  set(ref(db,'encoursFP'), stateFP);
 }
-
+function saveDashboardToFirebase(data) {
+  if (!db) { localStorage.setItem('dashboard_state', JSON.stringify(data)); return; }
+  const {ref,set} = window._fbImports;
+  set(ref(db,'dashboardData'), data);
+}
 function saveLocal() {
-  localStorage.setItem('encours_state', JSON.stringify(stateArrhes));
-  localStorage.setItem('encours_fp_state', JSON.stringify(stateFP));
+  try { localStorage.setItem('encours_state',    JSON.stringify(stateArrhes)); } catch(e){}
+  try { localStorage.setItem('encours_fp_state', JSON.stringify(stateFP));     } catch(e){}
 }
-
 function loadLocal() {
-  try { const s = localStorage.getItem('encours_state'); if(s) stateArrhes = JSON.parse(s); } catch(e) {}
-  try { const s = localStorage.getItem('encours_fp_state'); if(s) stateFP = JSON.parse(s); } catch(e) {}
+  try { const s=localStorage.getItem('encours_state');    if(s) stateArrhes=JSON.parse(s); } catch(e){}
+  try { const s=localStorage.getItem('encours_fp_state'); if(s) stateFP=JSON.parse(s);     } catch(e){}
+  try { const s=localStorage.getItem('dashboard_state');  if(s) stateDashboard=JSON.parse(s); } catch(e){}
 }
 
 // ═══════════════════════════════════════════════════════
-// FILE PARSING
+// BANNER CHECK
 // ═══════════════════════════════════════════════════════
-function handleFile(file) {
+function checkImportBanner() {
+  const banner = document.getElementById('import-banner');
+  if (!stateDashboard || !stateDashboard.lastImportDate) {
+    banner.classList.add('show'); return;
+  }
+  const today = new Date().toLocaleDateString('fr-FR');
+  banner.classList.toggle('show', stateDashboard.lastImportDate !== today);
+}
+
+// ═══════════════════════════════════════════════════════
+// CSV PARSING (TRACKING JOURNALIER)
+// ═══════════════════════════════════════════════════════
+function handleCSV(file) {
   if (!file) return;
-  document.getElementById('last-import-label').textContent = 'Lecture en cours...';
   const reader = new FileReader();
-  reader.onerror = () => alert('Erreur de lecture du fichier.');
-  reader.onload = (e) => {
+  reader.onerror = () => alert('Erreur de lecture du fichier CSV.');
+  reader.onload = e => {
+    try {
+      const rows = parseCSVRows(e.target.result);
+      const data = computeDashboardData(rows);
+      stateDashboard = data;
+      saveDashboardToFirebase(data);
+      const d = data.lastImport;
+      document.getElementById('last-import-label').textContent = 'Importé le ' + d;
+      localStorage.setItem('last_import', d);
+      checkImportBanner();
+      renderDashboard();
+      document.getElementById('file-input-csv').value = '';
+    } catch(err) { console.error(err); alert('Erreur parsing CSV : ' + err.message); }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parseCSVRows(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(';').map(h => h.replace(/^"(.*)"$/, '$1').trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(';').map(v => v.replace(/^"(.*)"$/, '$1').trim());
+    const row = {};
+    headers.forEach((h, j) => row[h] = vals[j] || '');
+    rows.push(row);
+  }
+  return rows;
+}
+
+function pNum(s) { return parseFloat(String(s||'').replace(',','.')) || 0; }
+
+function parseCSVDate(s) {
+  if (!s) return null;
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!m) return null;
+  return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+}
+
+function computeDashboardData(rows) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayPrefix = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  const currentYear  = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  // Today A2
+  const todayA2 = rows.find(r => r.typeline==='A2' && r.cdate.startsWith(todayPrefix));
+
+  // 7-day portfolio from A2
+  const portfolio7d = [];
+  for (let d = 0; d < 7; d++) {
+    const dt = new Date(now); dt.setDate(dt.getDate()+d);
+    const pf = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
+    const a2 = rows.find(r => r.typeline==='A2' && r.cdate.startsWith(pf));
+    portfolio7d.push(a2 ? {
+      label: `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`,
+      TO:    pNum(a2.occupancy_rate),
+      RN:    Math.round(pNum(a2.room_qty)),
+      PM:    pNum(a2.room_revenue_avg),
+      RevPAR:pNum(a2.REVPAR),
+      CA:    pNum(a2.room_revenue)
+    } : null);
+  }
+
+  // Monthly CA from A3 Individual+Group+Crew
+  const SEG = ['Individual','Group','Crew'];
+  const monthlyCA = {};
+  rows.forEach(r => {
+    if (r.typeline!=='A3') return;
+    if (!SEG.includes(r.slabel)) return;
+    const d = parseCSVDate(r.cdate); if(!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthlyCA[key]) monthlyCA[key] = {rn:0, ca:0};
+    monthlyCA[key].rn += pNum(r.room_qty);
+    monthlyCA[key].ca += pNum(r.room_revenue);
+  });
+
+  // Current month cumulated
+  const currKey = `${currentYear}-${String(currentMonth).padStart(2,'0')}`;
+  const md = monthlyCA[currKey] || {rn:0,ca:0};
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+  const monthTO     = md.rn > 0 ? md.rn / (NB_CHAMBRES * daysInMonth) * 100 : 0;
+  const monthPM     = md.rn > 0 ? md.ca / md.rn : 0;
+  const monthBudget = BUDGET_2026[currentMonth-1] || 0;
+
+  // Budget advance Jan → currentMonth
+  let advancePast = 0, advanceCurrent = 0;
+  for (let m = 1; m <= currentMonth; m++) {
+    const k = `${currentYear}-${String(m).padStart(2,'0')}`;
+    const v = (monthlyCA[k] || {ca:0}).ca;
+    const b = BUDGET_2026[m-1] || 0;
+    if (m < currentMonth) advancePast    += v - b;
+    else                   advanceCurrent = v - b;
+  }
+  const advanceTotal = advancePast + advanceCurrent;
+
+  // Past months labels for sub
+  const pastLabel = currentMonth > 1
+    ? MOIS_LONGS.slice(0, currentMonth-1).map(l => l.substring(0,3)).join('+') + ' ' + fmtAdvance(advancePast)
+    : null;
+
+  return {
+    lastImport:     new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    lastImportDate: new Date().toLocaleDateString('fr-FR'),
+    today: todayA2 ? {
+      TO:     pNum(todayA2.occupancy_rate),
+      RN:     Math.round(pNum(todayA2.room_qty)),
+      PM:     pNum(todayA2.room_revenue_avg),
+      RevPAR: pNum(todayA2.REVPAR),
+      CA:     pNum(todayA2.room_revenue),
+      guests: Math.round(pNum(todayA2.guests_nb))
+    } : null,
+    monthCumul: {
+      month: currentMonth, year: currentYear,
+      TO: monthTO, RN: Math.round(md.rn), CA: md.ca,
+      PM: monthPM, budget: monthBudget,
+      advanceTotal, advancePast, advanceCurrent, pastLabel
+    },
+    portfolio7d: portfolio7d.filter(Boolean),
+    monthlyCA
+  };
+}
+
+function fmtAdvance(v) {
+  const sign = v >= 0 ? '+' : '−';
+  return sign + fmtAmt(Math.abs(v)) + ' €';
+}
+
+// ═══════════════════════════════════════════════════════
+// XLS PARSING (BALANCE ENCOURS)
+// ═══════════════════════════════════════════════════════
+function handleXLS(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onerror = () => alert('Erreur de lecture du fichier XLS.');
+  reader.onload = e => {
     try {
       if (typeof XLSX === 'undefined') { alert('Librairie XLSX non chargée.'); return; }
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, { type: 'array', cellDates: false });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
-      console.log('[SUIVI] Fichier OK, lignes:', rows.length);
-      parseArrhes(rows);
-      parseFP(rows);
-      const importDate = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-      localStorage.setItem('last_import', importDate);
-      document.getElementById('last-import-label').textContent = 'Importé le ' + importDate;
-      saveArrhesToFirebase();
-      saveFPToFirebase();
-      render();
-    } catch(err) { console.error('[SUIVI]', err); alert('Erreur parsing: ' + err.message); }
+      const wb   = XLSX.read(new Uint8Array(e.target.result), {type:'array',cellDates:false});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1,raw:true,defval:null});
+      parseArrhesRows(rows);
+      parseFPRows(rows);
+      const d = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      localStorage.setItem('last_import_xls', d);
+      document.getElementById('last-import-label').textContent = 'Importé le ' + d;
+      saveArrhesToFirebase(); saveFPToFirebase();
+      if (currentView==='arrhes') renderArrhes();
+      if (currentView==='fp')     renderFP();
+      updateNavBadges();
+      document.getElementById('file-input-xls').value = '';
+    } catch(err) { console.error(err); alert('Erreur parsing XLS : ' + err.message); }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function isBlank(v) {
-  return v === null || v === undefined || v === '' || (typeof v === 'string' && !v.trim());
-}
-function hasDate(v) {
-  if (isBlank(v)) return false;
-  if (typeof v === 'number' && v > 1000) return true;
-  if (typeof v === 'string' && v.length > 4) return true;
+function xlsHasDate(v) {
+  if (v===null||v===undefined||v==='') return false;
+  if (typeof v==='number'&&v>1000) return true;
+  if (typeof v==='string'&&v.length>4) return true;
   return false;
 }
-
-// Fin du mois d'une date Excel serial
-function endOfMonth(excelSerial) {
-  if (!excelSerial || excelSerial < 1000) return '';
-  const date = new Date((excelSerial - 25569) * 86400 * 1000);
-  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  return lastDay.toISOString().split('T')[0]; // yyyy-mm-dd
+function xlsFmtDate(v) {
+  if (!v||v<1000) return '—';
+  return new Date((v-25569)*86400*1000).toLocaleDateString('fr-FR');
+}
+function xlsEndOfMonth(s) {
+  if (!s||s<1000) return '';
+  const d = new Date((s-25569)*86400*1000);
+  return new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().split('T')[0];
 }
 
-function fmtExcelDate(v) {
-  if (!v || v < 1000) return '—';
-  const date = new Date((v - 25569) * 86400 * 1000);
-  return date.toLocaleDateString('fr-FR');
-}
-
-// ARRHES
-function parseArrhes(rows) {
-  let inArrhes = false;
-  let arrheRows = [];
+function parseArrhesRows(rows) {
+  let inArrhes = false; const arr = [];
   const STOPS = ['total','encours factures','encours s','balance de'];
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (!Array.isArray(row)) continue;
-    const c1 = row[1] != null ? String(row[1]).trim() : '';
-    const c1low = c1.toLowerCase();
-    if (!inArrhes) { if (c1low === 'arrhes') { inArrhes = true; } continue; }
-    if (STOPS.some(s => c1low.startsWith(s))) break;
-    const nc = parseFloat(row[9]);
-    if (!nc || nc < 1) continue;
-    if (!hasDate(row[15]) && !hasDate(row[21])) {
-      const m = parseFloat(String(row[25] != null ? row[25] : 0).replace(',','.')) || 0;
-      arrheRows.push({ client: c1, nc: Math.round(nc), montant: m });
+  for (let i=0;i<rows.length;i++) {
+    const row = rows[i]; if(!Array.isArray(row)) continue;
+    const c1=(row[1]!=null?String(row[1]).trim():''); const c1l=c1.toLowerCase();
+    if (!inArrhes) { if(c1l==='arrhes') inArrhes=true; continue; }
+    if (STOPS.some(s=>c1l.startsWith(s))) break;
+    const nc=parseFloat(row[9]); if(!nc||nc<1) continue;
+    if (!xlsHasDate(row[15])&&!xlsHasDate(row[21])) {
+      arr.push({client:c1, nc:Math.round(nc), montant:parseFloat(String(row[25]!=null?row[25]:0).replace(',','.'))||0});
     }
   }
-
-  const activeIds = new Set(arrheRows.map(r => clientId(r.client, r.nc)));
-  // Remove gone rows
-  Object.keys(stateArrhes).forEach(id => { if (!activeIds.has(id)) delete stateArrhes[id]; });
-  // Merge
-  arrheRows.forEach(r => {
-    const id = clientId(r.client, r.nc);
-    const ex = stateArrhes[id];
+  const ids = new Set(arr.map(r=>clientId(r.client,r.nc)));
+  Object.keys(stateArrhes).forEach(id=>{ if(!ids.has(id)) delete stateArrhes[id]; });
+  arr.forEach(r => {
+    const id=clientId(r.client,r.nc); const ex=stateArrhes[id];
     if (ex) {
-      const newNote = ex.commentaire && ex.commentaire.trim()
-        ? (ex.notePrev ? ex.notePrev + ' → ' + ex.commentaire : ex.commentaire)
-        : ex.notePrev || '';
-      stateArrhes[id] = { ...ex, client: r.client, montant: r.montant, notePrev: newNote, isNew: false };
+      const newNote=ex.commentaire&&ex.commentaire.trim()?(ex.notePrev?ex.notePrev+' → '+ex.commentaire:ex.commentaire):ex.notePrev||'';
+      stateArrhes[id]={...ex,client:r.client,montant:r.montant,notePrev:newNote,isNew:false};
     } else {
-      stateArrhes[id] = { client: r.client, nc: r.nc, montant: r.montant, service: null, commentaire: '', action: '', echeance: '', statut: 'En attente', notePrev: '', dateMaj: '', isNew: true };
+      stateArrhes[id]={client:r.client,nc:r.nc,montant:r.montant,service:null,commentaire:'',action:'',echeance:'',statut:'En attente',notePrev:'',dateMaj:'',isNew:true};
     }
   });
-  console.log('[SUIVI] Arrhes:', arrheRows.length);
 }
 
-// FACTURES PERMANENTES
-function parseFP(rows) {
-  let inFP = false;
-  let fpRows = [];
-  const STOPS = ['total','encours séjours','encours sejours','balance de'];
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (!Array.isArray(row)) continue;
-    const c1 = row[1] != null ? String(row[1]).trim() : '';
-    const c1low = c1.toLowerCase();
-    if (!inFP) {
-      if (c1low === 'encours factures permanentes') { inFP = true; continue; }
-      continue;
-    }
-    if (STOPS.some(s => c1low.startsWith(s)) || c1low === 'total') break;
-    const nc = parseFloat(row[9]);
-    if (!nc || nc < 1) continue;
-    const m = parseFloat(String(row[25] != null ? row[25] : 0).replace(',','.')) || 0;
-    fpRows.push({ client: c1, nc: Math.round(nc), montant: m, dateCreationSerial: row[15] || null });
+function parseFPRows(rows) {
+  let inFP=false; const fp=[];
+  const STOPS=['total','encours séjours','encours sejours','balance de'];
+  for (let i=0;i<rows.length;i++) {
+    const row=rows[i]; if(!Array.isArray(row)) continue;
+    const c1=(row[1]!=null?String(row[1]).trim():''); const c1l=c1.toLowerCase();
+    if (!inFP) { if(c1l==='encours factures permanentes'){inFP=true;continue;} continue; }
+    if (STOPS.some(s=>c1l.startsWith(s))||c1l==='total') break;
+    const nc=parseFloat(row[9]); if(!nc||nc<1) continue;
+    fp.push({client:c1,nc:Math.round(nc),montant:parseFloat(String(row[25]!=null?row[25]:0).replace(',','.'))||0,dateSerial:row[15]||null});
   }
-
-  const activeIds = new Set(fpRows.map(r => clientId(r.client, r.nc)));
-  Object.keys(stateFP).forEach(id => { if (!activeIds.has(id)) delete stateFP[id]; });
-  fpRows.forEach(r => {
-    const id = clientId(r.client, r.nc);
-    const ex = stateFP[id];
-    const dateCreation = fmtExcelDate(r.dateCreationSerial);
-    const echeanceAuto = endOfMonth(r.dateCreationSerial);
-    if (ex) {
-      // Commentaire permanent — jamais déplacé, jamais écrasé
-      stateFP[id] = { ...ex, client: r.client, montant: r.montant, dateCreation, isNew: false };
-    } else {
-      stateFP[id] = {
-        client: r.client, nc: r.nc, montant: r.montant,
-        dateCreation, service: null,
-        commentaire: '', action: '',
-        echeance: echeanceAuto,
-        statut: 'En attente',
-        dateMaj: '', isNew: true
-      };
-    }
+  const ids=new Set(fp.map(r=>clientId(r.client,r.nc)));
+  Object.keys(stateFP).forEach(id=>{ if(!ids.has(id)) delete stateFP[id]; });
+  fp.forEach(r => {
+    const id=clientId(r.client,r.nc); const ex=stateFP[id];
+    const dateCreation=xlsFmtDate(r.dateSerial); const echeanceAuto=xlsEndOfMonth(r.dateSerial);
+    if (ex) { stateFP[id]={...ex,client:r.client,montant:r.montant,dateCreation,isNew:false}; }
+    else { stateFP[id]={client:r.client,nc:r.nc,montant:r.montant,dateCreation,service:null,commentaire:'',action:'',echeance:echeanceAuto,statut:'En attente',dateMaj:'',isNew:true}; }
   });
-  console.log('[SUIVI] FP:', fpRows.length);
 }
 
 // ═══════════════════════════════════════════════════════
-// RENDER
+// RENDER DASHBOARD
 // ═══════════════════════════════════════════════════════
-function render() {
-  if (currentView === 'arrhes') renderArrhes();
-  else renderFP();
+function renderDashboard() {
+  if (!stateDashboard) { checkImportBanner(); return; }
+  const d = stateDashboard;
+
+  // Label aujourd'hui
+  const now = new Date();
+  const dayFr = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  setEl('dash-today-label', 'Aujourd\'hui — ' + dayFr.charAt(0).toUpperCase() + dayFr.slice(1));
+
+  // KPIs jour
+  if (d.today) {
+    setEl('kpi-to-day',     fmtPct(d.today.TO));
+    setEl('kpi-to-day-sub', d.today.RN + ' RN · ' + d.today.guests + ' clients');
+    setEl('kpi-pm-day',     fmtE(d.today.PM));
+    setEl('kpi-revpar-day', fmtE(d.today.RevPAR));
+    setEl('kpi-ca-day',     fmtE(d.today.CA, true));
+  } else {
+    ['kpi-to-day','kpi-pm-day','kpi-revpar-day','kpi-ca-day'].forEach(id => setEl(id,'—'));
+    setEl('kpi-to-day-sub','Pas de données pour aujourd\'hui');
+  }
+
+  // KPIs mois
+  if (d.monthCumul) {
+    const mc = d.monthCumul;
+    const monthName = MOIS_LONGS[mc.month-1] + ' ' + mc.year;
+    setEl('dash-month-label', 'Cumulé ' + monthName + ' — portefeuille complet');
+
+    setEl('kpi-to-month',     fmtPct(mc.TO));
+    setEl('kpi-to-month-sub', mc.RN + ' RN');
+
+    setEl('kpi-ca-month',     fmtE(mc.CA, true));
+    const diffBud = mc.CA - mc.budget;
+    const subCaEl = document.getElementById('kpi-ca-month-sub');
+    subCaEl.textContent = 'Budget : ' + fmtAmt(mc.budget) + ' € (' + fmtAdvance(diffBud) + ')';
+    subCaEl.className   = 'kpi-sub ' + (diffBud >= 0 ? 'g' : 'a');
+
+    setEl('kpi-pm-month', fmtE(mc.PM));
+
+    const advEl    = document.getElementById('kpi-advance');
+    const advLbl   = document.getElementById('kpi-advance-lbl');
+    const advSub   = document.getElementById('kpi-advance-sub');
+    const advTotal = mc.advanceTotal;
+    advEl.textContent  = fmtAdvance(advTotal);
+    advEl.style.color  = advTotal >= 0 ? 'var(--green)' : 'var(--red)';
+    advLbl.textContent = 'Avance budget Jan→' + MOIS_LONGS[mc.month-1].substring(0,4) + '.';
+    if (mc.pastLabel) {
+      advSub.textContent = mc.pastLabel + ' · ' + MOIS_LONGS[mc.month-1].substring(0,3) + '. ' + fmtAdvance(mc.advanceCurrent);
+      advSub.className   = 'kpi-sub mu';
+    } else {
+      advSub.textContent = '';
+    }
+  }
+
+  // Charts
+  if (d.portfolio7d && d.portfolio7d.length) renderTOChart(d.portfolio7d);
+  if (d.monthlyCA) renderBudgetChart(d.monthlyCA, d.monthCumul.year, d.monthCumul.month);
+
+  checkImportBanner();
 }
 
+// ─── TO CHART ───
+function renderTOChart(p7d) {
+  if (toChartInst) { toChartInst.destroy(); toChartInst = null; }
+  const canvas = document.getElementById('to-chart');
+  if (!canvas) return;
+
+  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const gridC  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+  const textC  = isDark ? 'rgba(255,255,255,.5)'  : 'rgba(0,0,0,.4)';
+  const labelC = isDark ? 'rgba(255,255,255,.7)'  : 'rgba(0,0,0,.55)';
+
+  const labels = p7d.map(d => d.label);
+  const toData = p7d.map(d => d.TO);
+  const rnData = p7d.map(d => d.RN);
+  const bgColors = toData.map((v,i) => i===0 ? '#185FA5' : v < 60 ? '#854F0B' : '#4A90E2');
+
+  const rnPlugin = {
+    id:'rnPlugin',
+    afterDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      chart.getDatasetMeta(0).data.forEach((bar, i) => {
+        ctx.save();
+        ctx.fillStyle   = labelC;
+        ctx.font        = '600 10px DM Sans, Arial, sans-serif';
+        ctx.textAlign   = 'center';
+        ctx.textBaseline= 'bottom';
+        ctx.fillText(rnData[i] + '#', bar.x, bar.y - 3);
+        ctx.restore();
+      });
+    }
+  };
+
+  toChartInst = new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{ label:'TO %', data:toData, backgroundColor:bgColors, borderRadius:4, barPercentage:.65 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ top:22 } },
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:c => c.raw.toFixed(1)+' % · '+rnData[c.dataIndex]+' RN' } }
+      },
+      scales:{
+        x:{ grid:{color:gridC}, ticks:{color:textC,font:{size:11}} },
+        y:{ min:0,max:100, grid:{color:gridC}, ticks:{color:textC,font:{size:11},callback:v=>v+'%'} }
+      }
+    },
+    plugins:[rnPlugin]
+  });
+}
+
+// ─── BUDGET CHART ───
+function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
+  if (budgetChartInst) { budgetChartInst.destroy(); budgetChartInst = null; }
+  const canvas = document.getElementById('budget-chart');
+  if (!canvas) return;
+
+  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const gridC  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+  const textC  = isDark ? 'rgba(255,255,255,.5)'  : 'rgba(0,0,0,.4)';
+
+  const caData   = [];
+  const caColors = [];
+  for (let m = 0; m < 12; m++) {
+    const key = `${currentYear}-${String(m+1).padStart(2,'0')}`;
+    const v   = (monthlyCA[key] || {ca:0}).ca;
+    caData.push(v > 0 ? v : null);
+    if      (m+1 < currentMonth)  caColors.push('#185FA5'); // réalisé
+    else if (m+1 === currentMonth) caColors.push('#EF9F27'); // en cours
+    else                           caColors.push('#5DCAA5'); // portefeuille
+  }
+
+  budgetChartInst = new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels: MOIS_LABELS,
+      datasets:[
+        { label:'CA',     data:caData,    backgroundColor:caColors,
+          borderRadius:3, barPercentage:.6, categoryPercentage:.85, order:1 },
+        { label:'Budget', data:BUDGET_2026,
+          backgroundColor: isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',
+          borderWidth:1.5, borderColor: isDark?'rgba(255,255,255,.28)':'rgba(0,0,0,.22)',
+          borderRadius:3, barPercentage:.6, categoryPercentage:.85, order:2 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{ callbacks:{ label:c => c.raw==null?null:c.dataset.label+' : '+Math.round(c.raw).toLocaleString('fr-FR')+' €' } }
+      },
+      scales:{
+        x:{ grid:{color:gridC}, ticks:{color:textC,font:{size:10},maxRotation:0} },
+        y:{ grid:{color:gridC}, ticks:{ color:textC,font:{size:10},
+          callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'k':v }}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER ARRHES
+// ═══════════════════════════════════════════════════════
 function renderArrhes() {
-  const container = document.getElementById('sections-container');
+  const container = document.getElementById('arrhes-sections'); if(!container) return;
   container.innerHTML = '';
-  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
-  Object.entries(stateArrhes).forEach(([id, row]) => {
-    (row.service ? byService[row.service] : byService.unassigned).push([id, row]);
-  });
-  const allRows = Object.values(stateArrhes);
-  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
-  document.getElementById('stat-total').textContent = allRows.length;
-  document.getElementById('stat-new').textContent = allRows.filter(r => r.isNew).length;
-  document.getElementById('stat-amount').textContent = fmtAmt(total);
-  document.getElementById('footer-total').textContent = 'Total arrhes : ' + fmtAmt(total) + ' €';
-
-  if (byService.unassigned.length > 0) container.appendChild(buildSectionArrhes('unassigned', byService.unassigned));
-  SERVICES.forEach(svc => { if (byService[svc].length > 0) container.appendChild(buildSectionArrhes(svc, byService[svc])); });
-  updateLive(Object.keys(stateArrhes).length);
+  const bySvc = {reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
+  Object.entries(stateArrhes).forEach(([id,row]) => (row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
+  const all   = Object.values(stateArrhes);
+  const total = all.reduce((s,r)=>s+(r.montant||0),0);
+  setEl('arrhes-stat-total',  all.length);
+  setEl('arrhes-stat-new',    all.filter(r=>r.isNew).length);
+  setEl('arrhes-stat-amount', fmtAmt(total)+' €');
+  if (bySvc.unassigned.length) container.appendChild(buildSectionArrhes('unassigned',bySvc.unassigned));
+  SERVICES.forEach(svc => { if(bySvc[svc].length) container.appendChild(buildSectionArrhes(svc,bySvc[svc])); });
 }
 
 function buildSectionArrhes(svc, rows) {
-  const isU = svc === 'unassigned';
-  const badgeClass = {reception:'badge-green',commerciaux:'badge-purple',comptabilite:'badge-amber',unassigned:''}[svc];
-  const label = isU ? 'À attribuer' : SERVICE_LABELS[svc];
-  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
-  const div = document.createElement('div');
-  div.className = 'section';
-  div.innerHTML = `
+  const isU=svc==='unassigned';
+  const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
+  const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
+  const div=document.createElement('div'); div.className='section';
+  div.innerHTML=`
     <div class="section-header">
-      <span class="section-badge ${badgeClass}" style="${isU?'background:#FFECB3;color:#856404':''}">${label.toUpperCase()}</span>
-      <span class="section-meta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
+      <span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span>
+      <span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
         <th style="width:18%">Client</th><th style="width:9%;text-align:right">Montant</th>
-        <th style="width:15%">Note précédente</th><th style="width:20%">Commentaire / Statut</th>
-        <th style="width:15%">Action requise</th><th style="width:8%">Échéance</th>
+        <th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th>
+        <th style="width:14%">Action requise</th><th style="width:8%">Échéance</th>
         <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
       </tr></thead>
       <tbody id="tbody-a-${svc}"></tbody>
     </table></div>`;
-  const tbody = div.querySelector(`#tbody-a-${svc}`);
-  rows.forEach(([id, row]) => tbody.appendChild(buildRowArrhes(id, row, isU)));
+  const tbody=div.querySelector(`#tbody-a-${svc}`);
+  rows.forEach(([id,row])=>tbody.appendChild(buildRowArrhes(id,row,isU)));
   return div;
 }
 
 function buildRowArrhes(id, row, isU) {
-  const tr = document.createElement('tr');
-  tr.id = 'row-' + id;
-  const statClass = getStatClass(row.statut);
+  const tr=document.createElement('tr'); tr.id='row-'+id;
   if (isU) {
-    tr.innerHTML = `
-      <td><span class="client-name">${esc(row.client)}</span><span class="new-badge">NOUVEAU</span></td>
+    tr.innerHTML=`
+      <td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td>
       <td class="amount">${fmtAmt(row.montant)} €</td>
-      <td colspan="5" style="color:#CCC;font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
+      <td colspan="5" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
       <td></td>
-      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SERVICE_LABELS[s]}</button>`).join('')}</div></td>`;
+      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;
     return tr;
   }
-  tr.innerHTML = `
-    <td><span class="client-name">${esc(row.client)}</span>${row.isNew?'<span class="new-badge">NOUVEAU</span>':''}</td>
+  tr.innerHTML=`
+    <td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td>
     <td class="amount">${fmtAmt(row.montant)} €</td>
     <td><div class="note-prev">${esc(row.notePrev||'—')}</div></td>
     <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
-    <td><input type="date" style="border:1px solid #E0E6EF;border-radius:5px;padding:3px 5px;font-size:11px;color:#555;width:100%" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td>
-    <td><select class="status-sel ${statClass}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td>
+    <td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td>
+    <td><select class="status-sel ${getStatClass(row.statut)}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td>
     <td class="date-mj">${row.dateMaj||'—'}</td>
-    <td><div class="dots-wrap"><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></div></td>`;
+    <td><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></td>`;
   return tr;
 }
 
+// ═══════════════════════════════════════════════════════
+// RENDER FP
+// ═══════════════════════════════════════════════════════
 function renderFP() {
-  const container = document.getElementById('sections-container');
-  container.innerHTML = '';
-  const byService = { reception:[], commerciaux:[], comptabilite:[], unassigned:[] };
-  Object.entries(stateFP).forEach(([id, row]) => {
-    (row.service ? byService[row.service] : byService.unassigned).push([id, row]);
-  });
-  const allRows = Object.values(stateFP);
-  const total = allRows.reduce((s,r) => s + (r.montant||0), 0);
-  const urgentCount = allRows.filter(r => isOverdue(r.echeance)).length;
-  document.getElementById('stat-total').textContent = allRows.length;
-  document.getElementById('stat-new').textContent = urgentCount;
-  document.getElementById('stat-new').style.color = urgentCount > 0 ? '#C62828' : '#856404';
-  document.getElementById('stat-amount').textContent = fmtAmt(total);
-  document.getElementById('footer-total').textContent = 'Total factures permanentes : ' + fmtAmt(total) + ' €';
-
-  if (byService.unassigned.length > 0) container.appendChild(buildSectionFP('unassigned', byService.unassigned));
-  SERVICES.forEach(svc => { if (byService[svc].length > 0) container.appendChild(buildSectionFP(svc, byService[svc])); });
-  updateLive(Object.keys(stateFP).length);
+  const container=document.getElementById('fp-sections'); if(!container) return;
+  container.innerHTML='';
+  const bySvc={reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
+  Object.entries(stateFP).forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
+  const all=Object.values(stateFP);
+  const total=all.reduce((s,r)=>s+(r.montant||0),0);
+  const urgentCount=all.filter(r=>isOverdue(r.echeance)).length;
+  setEl('fp-stat-total',  all.length);
+  setEl('fp-stat-urgent', urgentCount);
+  document.getElementById('fp-stat-urgent').style.color=urgentCount>0?'var(--red)':'var(--muted)';
+  setEl('fp-stat-amount', fmtAmt(total)+' €');
+  if (bySvc.unassigned.length) container.appendChild(buildSectionFP('unassigned',bySvc.unassigned));
+  SERVICES.forEach(svc=>{ if(bySvc[svc].length) container.appendChild(buildSectionFP(svc,bySvc[svc])); });
 }
 
 function buildSectionFP(svc, rows) {
-  const isU = svc === 'unassigned';
-  const badgeClass = {reception:'badge-green',commerciaux:'badge-purple',comptabilite:'badge-amber',unassigned:''}[svc];
-  const label = isU ? 'À attribuer' : SERVICE_LABELS[svc];
-  const total = rows.reduce((s,[,r]) => s + (r.montant||0), 0);
-  const div = document.createElement('div');
-  div.className = 'section';
-  div.innerHTML = `
+  const isU=svc==='unassigned';
+  const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
+  const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
+  const div=document.createElement('div'); div.className='section';
+  div.innerHTML=`
     <div class="section-header">
-      <span class="section-badge ${badgeClass}" style="${isU?'background:#FFECB3;color:#856404':''}">${label.toUpperCase()}</span>
-      <span class="section-meta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
+      <span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span>
+      <span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
     </div>
     <div class="table-wrap"><table>
       <thead><tr>
         <th style="width:16%">Client</th><th style="width:9%;text-align:right">Montant</th>
         <th style="width:10%">Date création</th><th style="width:22%">Commentaire</th>
-        <th style="width:16%">Action requise</th><th style="width:9%">Échéance</th>
+        <th style="width:13%">Action requise</th><th style="width:9%">Échéance</th>
         <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
       </tr></thead>
       <tbody id="tbody-fp-${svc}"></tbody>
     </table></div>`;
-  const tbody = div.querySelector(`#tbody-fp-${svc}`);
-  rows.forEach(([id, row]) => tbody.appendChild(buildRowFP(id, row, isU)));
+  const tbody=div.querySelector(`#tbody-fp-${svc}`);
+  rows.forEach(([id,row])=>tbody.appendChild(buildRowFP(id,row,isU)));
   return div;
 }
 
 function buildRowFP(id, row, isU) {
-  const tr = document.createElement('tr');
-  tr.id = 'row-' + id;
-  const overdue = isOverdue(row.echeance);
-  const statClass = overdue ? 's-urgent' : getStatClass(row.statut);
-  const statutDisplay = overdue ? 'URGENT' : (row.statut || 'En attente');
-  const amtClass = row.montant < 0 ? 'amount amount-neg' : 'amount';
-
+  const tr=document.createElement('tr'); tr.id='row-'+id;
+  const overdue=isOverdue(row.echeance);
+  const sc=overdue?'s-urgent':getStatClass(row.statut);
+  const amtCls=row.montant<0?'amount amount-neg':'amount';
   if (isU) {
-    tr.innerHTML = `
-      <td><span class="client-name">${esc(row.client)}</span><span class="new-badge">NOUVEAU</span></td>
-      <td class="${amtClass}">${fmtAmt(row.montant)} €</td>
-      <td class="date-ok-cell">${esc(row.dateCreation||'—')}</td>
-      <td colspan="4" style="color:#CCC;font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
+    tr.innerHTML=`
+      <td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td>
+      <td class="${amtCls}">${fmtAmt(row.montant)} €</td>
+      <td style="font-size:11px;color:#666;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td>
+      <td colspan="4" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
       <td></td>
-      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','fp')">${SERVICE_LABELS[s]}</button>`).join('')}</div></td>`;
+      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','fp')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;
     return tr;
   }
-
-  const echeanceFmt = row.echeance ? new Date(row.echeance).toLocaleDateString('fr-FR') : '—';
-  tr.innerHTML = `
-    <td><span class="client-name">${esc(row.client)}</span>${row.isNew?'<span class="new-badge">NOUVEAU</span>':''}</td>
-    <td class="${amtClass}">${fmtAmt(row.montant)} €</td>
-    <td class="date-ok-cell">${esc(row.dateCreation||'—')}</td>
+  const echeanceFmt=row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—';
+  tr.innerHTML=`
+    <td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td>
+    <td class="${amtCls}">${fmtAmt(row.montant)} €</td>
+    <td style="font-size:11px;color:#555;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td>
     <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="fp" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="fp" onblur="saveField(this)" placeholder="Action requise...">${esc(row.action||'')}</div></td>
+    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="fp" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td>
     <td>
-      <input type="date" style="border:1px solid ${overdue?'#C62828':'#E0E6EF'};border-radius:5px;padding:3px 5px;font-size:11px;color:${overdue?'#C62828':'#555'};width:100%;font-weight:${overdue?'700':'400'}"
-        value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="fp" onchange="saveField(this)">
-      ${overdue ? `<div style="font-size:9px;color:#C62828;font-weight:700;margin-top:2px">⚠ Dépassée — ${echeanceFmt}</div>` : ''}
+      <input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="fp" onchange="saveField(this)"
+        style="border-color:${overdue?'var(--red)':'var(--border)'};color:${overdue?'var(--red)':'#555'};font-weight:${overdue?'700':'400'}">
+      ${overdue?`<div style="font-size:9px;color:var(--red);font-weight:700;margin-top:2px">⚠ ${echeanceFmt}</div>`:''}
     </td>
-    <td><select class="status-sel ${statClass}" data-id="${id}" data-field="statut" data-view="fp" onchange="saveField(this)">${statusOptions(overdue ? 'URGENT' : row.statut)}</select></td>
+    <td><select class="status-sel ${sc}" data-id="${id}" data-field="statut" data-view="fp" onchange="saveField(this)">${statusOptions(overdue?'URGENT':row.statut)}</select></td>
     <td class="date-mj">${row.dateMaj||'—'}</td>
-    <td><div class="dots-wrap"><button class="btn-dots" onclick="openDots(event,'${id}','fp')">···</button></div></td>`;
+    <td><button class="btn-dots" onclick="openDots(event,'${id}','fp')">···</button></td>`;
   return tr;
 }
 
@@ -562,181 +1113,170 @@ function buildRowFP(id, row, isU) {
 // ACTIONS
 // ═══════════════════════════════════════════════════════
 function saveField(el) {
-  const id = el.dataset.id;
-  const field = el.dataset.field;
-  const view = el.dataset.view;
-  const val = el.tagName === 'DIV' ? el.innerText.trim() : el.value;
-  const st = view === 'fp' ? stateFP : stateArrhes;
+  const id=el.dataset.id, field=el.dataset.field, view=el.dataset.view;
+  const val=el.tagName==='DIV'?el.innerText.trim():el.value;
+  const st=view==='fp'?stateFP:stateArrhes;
   if (!st[id]) return;
-  st[id][field] = val;
-  st[id].dateMaj = new Date().toLocaleDateString('fr-FR');
-  if (field === 'statut' && !isOverdue(st[id].echeance)) {
-    el.className = 'status-sel ' + getStatClass(val);
-  }
-  if (view === 'fp') saveFPToFirebase();
-  else saveArrhesToFirebase();
-  const tr = document.getElementById('row-' + id);
-  if (tr) {
-    const dateTd = tr.querySelector('.date-mj');
-    if (dateTd) dateTd.textContent = st[id].dateMaj;
-  }
+  st[id][field]=val; st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
+  if (field==='statut'&&!isOverdue(st[id].echeance)) el.className='status-sel '+getStatClass(val);
+  if (view==='fp') saveFPToFirebase(); else saveArrhesToFirebase();
+  const tr=document.getElementById('row-'+id);
+  if (tr) { const dtd=tr.querySelector('.date-mj'); if(dtd) dtd.textContent=st[id].dateMaj; }
 }
 
 function assignService(id, svc, view) {
-  const st = view === 'fp' ? stateFP : stateArrhes;
+  const st=view==='fp'?stateFP:stateArrhes;
   if (!st[id]) return;
-  st[id].service = svc;
-  st[id].isNew = false;
-  if (view === 'fp') saveFPToFirebase();
-  else saveArrhesToFirebase();
-  render();
+  st[id].service=svc; st[id].isNew=false;
+  if (view==='fp') saveFPToFirebase(); else saveArrhesToFirebase();
+  if (view==='fp') renderFP(); else renderArrhes();
+  updateNavBadges();
 }
 
 function openDots(e, id, view) {
-  e.stopPropagation();
-  activeDotsId = id;
-  const menuId = view === 'fp' ? 'dots-menu-fp' : 'dots-menu-arrhes';
-  // Close all menus
-  document.querySelectorAll('.dots-menu').forEach(m => m.classList.remove('open'));
-  const menu = document.getElementById(menuId);
-  const btn = e.currentTarget;
-  const rect = btn.getBoundingClientRect();
-  const appRect = document.getElementById('app').getBoundingClientRect();
-  menu.style.top = (rect.bottom - appRect.top + 4) + 'px';
-  menu.style.right = (appRect.right - rect.right) + 'px';
-  menu.style.left = 'auto';
-  menu.style.position = 'absolute';
-  document.getElementById('app').style.position = 'relative';
+  e.stopPropagation(); activeDotsId=id;
+  document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
+  const menu=document.getElementById(view==='fp'?'dots-menu-fp':'dots-menu-arrhes');
+  const rect=e.currentTarget.getBoundingClientRect();
+  menu.style.top=(rect.bottom+4)+'px'; menu.style.right=(window.innerWidth-rect.right)+'px'; menu.style.left='auto';
   menu.classList.add('open');
 }
 
 function moveRow(svc) {
-  if (!activeDotsId || !stateArrhes[activeDotsId]) return;
-  stateArrhes[activeDotsId].service = svc;
+  if (!activeDotsId||!stateArrhes[activeDotsId]) return;
+  stateArrhes[activeDotsId].service=svc;
   document.getElementById('dots-menu-arrhes').classList.remove('open');
-  saveArrhesToFirebase();
-  render();
+  saveArrhesToFirebase(); renderArrhes(); updateNavBadges();
 }
-
 function moveRowFP(svc) {
-  if (!activeDotsId || !stateFP[activeDotsId]) return;
-  stateFP[activeDotsId].service = svc;
+  if (!activeDotsId||!stateFP[activeDotsId]) return;
+  stateFP[activeDotsId].service=svc;
   document.getElementById('dots-menu-fp').classList.remove('open');
-  saveFPToFirebase();
-  render();
+  saveFPToFirebase(); renderFP(); updateNavBadges();
 }
 
 document.addEventListener('click', () => {
-  document.querySelectorAll('.dots-menu').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
 });
+
+// ═══════════════════════════════════════════════════════
+// BADGES NAV
+// ═══════════════════════════════════════════════════════
+function updateNavBadges() {
+  const newA=Object.values(stateArrhes).filter(r=>r.isNew).length;
+  const urgF=Object.values(stateFP).filter(r=>isOverdue(r.echeance)).length;
+  const ba=document.getElementById('nav-badge-arrhes');
+  if (ba) { ba.textContent=newA; ba.style.display=newA>0?'inline-flex':'none'; }
+  const bf=document.getElementById('nav-badge-fp');
+  if (bf) { bf.textContent=urgF; bf.style.display=urgF>0?'inline-flex':'none'; }
+}
 
 // ═══════════════════════════════════════════════════════
 // MAIL
 // ═══════════════════════════════════════════════════════
 function sendMail(svc) {
   document.getElementById('dots-menu-arrhes').classList.remove('open');
-  if (!activeDotsId || !stateArrhes[activeDotsId]) return;
-  const row = stateArrhes[activeDotsId];
-  const dest = MAIL_DEST[svc];
-  const montant = fmtAmt(row.montant);
-  const subject = 'Suivi encours — ' + row.client + ' (N°' + row.nc + ') — Demande de mise à jour';
-  const message = `Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${montant} €\nStatut actuel: ${row.statut || 'En attente'}\n${row.notePrev ? 'Note précédente : ' + row.notePrev : ''}\n${row.commentaire ? 'Commentaire : ' + row.commentaire : ''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEmailJS(dest, subject, message, row, activeDotsId, 'arrhes');
+  if (!activeDotsId||!stateArrhes[activeDotsId]) return;
+  const row=stateArrhes[activeDotsId]; const dest=MAIL_DEST[svc];
+  const subject=`Suivi encours — ${row.client} (N°${row.nc}) — Demande de mise à jour`;
+  const message=`Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${fmtAmt(row.montant)} €\nStatut actuel: ${row.statut||'En attente'}\n${row.notePrev?'Note précédente : '+row.notePrev:''}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
+  sendEmailJS(dest,subject,message,row,activeDotsId,'arrhes');
 }
 
 function sendMailFP(svc) {
   document.getElementById('dots-menu-fp').classList.remove('open');
-  if (!activeDotsId || !stateFP[activeDotsId]) return;
-  const row = stateFP[activeDotsId];
-  const dest = MAIL_DEST[svc];
-  const montant = fmtAmt(row.montant);
-  const overdue = isOverdue(row.echeance);
-  const subject = 'Facture Permanente — ' + row.client + ' (N°' + row.nc + ')' + (overdue ? ' ⚠ URGENT' : ' — Demande de mise à jour');
-  const message = `Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant la ligne suivante :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${montant} €\nDate de création: ${row.dateCreation || '—'}\nÉchéance        : ${row.echeance ? new Date(row.echeance).toLocaleDateString('fr-FR') : '—'}${overdue ? ' ⚠ DÉPASSÉE' : ''}\nStatut actuel   : ${overdue ? 'URGENT' : (row.statut || 'En attente')}\n${row.commentaire ? 'Commentaire : ' + row.commentaire : ''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEmailJS(dest, subject, message, row, activeDotsId, 'fp');
+  if (!activeDotsId||!stateFP[activeDotsId]) return;
+  const row=stateFP[activeDotsId]; const dest=MAIL_DEST[svc];
+  const overdue=isOverdue(row.echeance);
+  const subject=`Facture Permanente — ${row.client} (N°${row.nc})${overdue?' ⚠ URGENT':' — Demande de mise à jour'}`;
+  const message=`Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${fmtAmt(row.montant)} €\nDate de création: ${row.dateCreation||'—'}\nÉchéance        : ${row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—'}${overdue?' ⚠ DÉPASSÉE':''}\nStatut          : ${overdue?'URGENT':(row.statut||'En attente')}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
+  sendEmailJS(dest,subject,message,row,activeDotsId,'fp');
 }
 
-function sendEmailJS(dest, subject, message, row, id, view) {
-  const btn = document.querySelector('#row-' + id + ' .btn-dots');
-  if (btn) { btn.textContent = '...'; btn.disabled = true; }
-  const montant = fmtAmt(row.montant);
-  emailjs.send('service_dd2nn5g', 'template_3aeinef', {
-    to_email: dest.to, cc_email: dest.cc || '', to_name: dest.label,
-    subject, message, client: row.client, nc: row.nc,
-    montant: montant + ' €', statut: row.statut || 'En attente',
+function sendEmailJS(dest,subject,message,row,id,view) {
+  const btn=document.querySelector('#row-'+id+' .btn-dots');
+  if (btn) { btn.textContent='...'; btn.disabled=true; }
+  emailjs.send('service_dd2nn5g','template_3aeinef',{
+    to_email:dest.to, cc_email:dest.cc||'', to_name:dest.label,
+    subject, message, client:row.client, nc:row.nc,
+    montant:fmtAmt(row.montant)+' €', statut:row.statut||'En attente',
   })
-  .then(() => {
-    if (btn) { btn.textContent = '···'; btn.disabled = false; }
-    alert('✓ Mail envoyé à ' + dest.label + ' (' + dest.to + ')');
-    const st = view === 'fp' ? stateFP : stateArrhes;
+  .then(()=>{
+    if(btn){btn.textContent='···';btn.disabled=false;}
+    alert('✓ Mail envoyé à '+dest.label+' ('+dest.to+')');
+    const st=view==='fp'?stateFP:stateArrhes;
     if (st[id]) {
-      st[id].dernierMail = 'Envoyé à ' + dest.label + ' le ' + new Date().toLocaleDateString('fr-FR');
-      st[id].dateMaj = new Date().toLocaleDateString('fr-FR');
-      if (view === 'fp') saveFPToFirebase(); else saveArrhesToFirebase();
+      st[id].dernierMail='Envoyé à '+dest.label+' le '+new Date().toLocaleDateString('fr-FR');
+      st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
+      if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();
     }
   })
-  .catch((err) => {
-    if (btn) { btn.textContent = '···'; btn.disabled = false; }
-    alert('Erreur envoi mail : ' + JSON.stringify(err));
+  .catch(err=>{
+    if(btn){btn.textContent='···';btn.disabled=false;}
+    alert('Erreur envoi mail : '+JSON.stringify(err));
   });
 }
-
-// ═══════════════════════════════════════════════════════
-// DRAG & DROP
-// ═══════════════════════════════════════════════════════
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
 // ═══════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════
 function fmtAmt(n) { return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function isOverdue(echeance) {
-  if (!echeance) return false;
-  return new Date(echeance) < new Date(new Date().toDateString());
+function fmtE(n, short=false) {
+  if (short && Math.abs(n) >= 10000) return Math.round(n).toLocaleString('fr-FR') + ' €';
+  return fmtAmt(n) + ' €';
 }
-function getStatClass(statut) {
-  return { 'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent' }[statut] || 's-attente';
+function fmtPct(n) { return n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1}) + ' %'; }
+function esc(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function setEl(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+function isOverdue(e){ if(!e) return false; return new Date(e)<new Date(new Date().toDateString()); }
+function getStatClass(s){
+  return {'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent'}[s]||'s-attente';
 }
-function statusOptions(current) {
-  const opts = ['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];
-  if (current === 'URGENT') opts.unshift('URGENT');
-  return opts.map(s => `<option${current===s?' selected':''}>${s}</option>`).join('');
-}
-function updateLive(n) {
-  if (db) document.getElementById('live-label').textContent = `En direct · ${n} ligne${n>1?'s':''}`;
+function statusOptions(current){
+  const opts=['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];
+  if(current==='URGENT') opts.unshift('URGENT');
+  return opts.map(s=>`<option${current===s?' selected':''}>${s}</option>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
-  const lastImport = localStorage.getItem('last_import');
-  if (lastImport) document.getElementById('last-import-label').textContent = 'Importé le ' + lastImport;
+  // Date topbar
+  const updateDate = () => {
+    const el=document.getElementById('topbar-date'); if(!el) return;
+    el.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  };
+  updateDate(); setInterval(updateDate, 60000);
 
-  if (typeof emailjs !== 'undefined') {
-    emailjs.init({ publicKey: 'IOJCHQiqGloMl8p4k' });
-  }
+  // EmailJS
+  if (typeof emailjs!=='undefined') emailjs.init({publicKey:'IOJCHQiqGloMl8p4k'});
 
+  // Load local state first (instant display)
   loadLocal();
-  render();
+  updateNavBadges();
+  checkImportBanner();
+  if (stateDashboard) renderDashboard();
 
+  // Last import labels
+  const liXLS=localStorage.getItem('last_import_xls');
+  if (liXLS) document.getElementById('last-import-label').textContent='Importé le '+liXLS;
+
+  // Firebase
   const fbConfig = {
-    apiKey: "AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
-    projectId: "suivi-encours-novotel",
-    databaseURL: "https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
-    authDomain: "suivi-encours-novotel.firebaseapp.com",
-    storageBucket: "suivi-encours-novotel.appspot.com",
-    messagingSenderId: "0", appId: "0"
+    apiKey:            "AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
+    projectId:         "suivi-encours-novotel",
+    databaseURL:       "https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
+    authDomain:        "suivi-encours-novotel.firebaseapp.com",
+    storageBucket:     "suivi-encours-novotel.appspot.com",
+    messagingSenderId: "0",
+    appId:             "0"
   };
-  const tryConnect = () => {
-    if (window._fbImports && window._fbImports.initializeApp) { connectFirebase(fbConfig); }
-    else { setTimeout(tryConnect, 200); }
+  const tryFB = () => {
+    if (window._fbImports&&window._fbImports.initializeApp) connectFirebase(fbConfig);
+    else setTimeout(tryFB, 200);
   };
-  tryConnect();
+  tryFB();
 });
 </script>
 </body>
