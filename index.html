@@ -183,6 +183,66 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 /* ─── COMING SOON ─── */
 .coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:10px;color:var(--muted)}
 .coming-soon h2{font-size:17px;font-weight:600;color:var(--muted2)}
+
+/* ─── DD MODULE ─── */
+.dd-days-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+.dd-cat-pill{display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+.dd-overlay{position:fixed;inset:0;background:rgba(13,31,74,.55);display:none;align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(3px)}
+.dd-overlay.open{display:flex}
+.dd-modal{background:#fff;border-radius:14px;padding:24px 26px;width:540px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(13,31,74,.2);animation:mIn .18s ease-out}
+.dd-modal.wide{width:700px}
+.dd-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.dd-modal-title{font-size:14px;font-weight:700;color:var(--navy3)}
+.dd-close{background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted);line-height:1;padding:0 4px}
+.dd-close:hover{color:var(--red)}
+.dd-progress-bar{height:6px;background:#EEF1F8;border-radius:3px;margin-bottom:14px;overflow:hidden}
+.dd-progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .3s}
+.dd-counter{font-size:11px;color:var(--muted);margin-bottom:14px;text-align:right}
+.dd-form-group{margin-bottom:12px}
+.dd-form-group label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.dd-form-group input{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-size:13px;font-family:var(--mono);color:var(--text);background:var(--bg);transition:border-color .15s}
+.dd-form-group input:focus{outline:none;border-color:var(--blue);background:#fff}
+.dd-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dd-histo-card{border:1px solid var(--border);border-radius:9px;padding:14px 16px;margin-bottom:10px;background:var(--bg)}
+.dd-histo-card-title{font-size:13px;font-weight:700;color:var(--navy3);margin-bottom:3px}
+.dd-histo-card-sub{font-size:11px;color:var(--muted);margin-bottom:10px}
+.dd-avoir-card{border:1px solid var(--border);border-radius:9px;padding:14px 16px;margin-bottom:10px}
+.dd-avoir-title{font-size:13px;font-weight:700;color:var(--navy3)}
+.dd-avoir-amount{font-size:18px;font-weight:700;color:var(--red);margin:4px 0 10px}
+.dd-avoir-radio{display:flex;flex-direction:column;gap:7px}
+.dd-avoir-radio label{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:8px 12px;border:1.5px solid var(--border);border-radius:7px;transition:all .15s}
+.dd-avoir-radio label:hover{border-color:var(--blue);background:#F5F9FF}
+.dd-avoir-radio input[type=radio]{accent-color:var(--blue)}
+.dd-histo-date-row{margin-top:8px}
+.dd-histo-date-row label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.dd-histo-date-row input{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;font-family:var(--mono)}
+.dd-plan-box{border-left:4px solid var(--blue);padding:10px 14px;margin-bottom:10px;border-radius:0 8px 8px 0;background:#F5F9FF}
+.dd-danger-box{background:#4A0000;color:#fff;border-radius:8px;padding:12px 14px;margin-top:10px}
+.dd-btn-primary{background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.dd-btn-primary:hover{background:var(--navy)}
+.dd-btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.dd-btn-secondary{background:var(--bg);color:var(--navy3);border:1.5px solid var(--border);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.dd-btn-secondary:hover{border-color:var(--navy3)}
+.dd-btn-green{background:var(--green);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.dd-btn-green:hover{background:#1B5E20}
+.dd-step-bar{display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.dd-step-item{flex:1;text-align:center;padding:8px 6px;font-size:10px;font-weight:600;color:var(--muted);background:var(--bg);border-right:1px solid var(--border);transition:all .2s}
+.dd-step-item:last-child{border-right:none}
+.dd-step-item.active{background:var(--navy3);color:#fff}
+.dd-step-item.done{background:var(--green-l);color:var(--green)}
+.dd-dropzone{border:2px dashed var(--border);border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.dd-dropzone:hover,.dd-dropzone.drag{border-color:var(--blue);background:#EEF6FF}
+.dd-drop-icon{margin-bottom:10px}
+.dd-drop-text{font-size:13px;color:var(--muted);margin-bottom:10px}
+.dd-badge{display:inline-block;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600}
+.dd-badge.ok{background:var(--green-l);color:var(--green)}
+.dd-badge.warn{background:var(--amber-l);color:#856404}
+.dd-badge.default{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.dd-rapport-ok{background:#E8F5E9;border:1px solid #A5D6A7;border-radius:10px;padding:16px;margin-bottom:16px}
+.dd-rapport-ok-title{font-size:14px;font-weight:600;color:#2E7D32;margin-bottom:6px}
+.dd-rapport-ok-body{font-size:13px;color:#444;line-height:1.7}
+.dd-legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text);margin-bottom:5px}
+.dd-legend-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -227,7 +287,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
     <div class="nav-item" id="nav-debiteurs" onclick="navigate('debiteurs')">
       <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Débiteurs divers
-      <span class="nav-tag">bientôt</span>
+      <span class="nav-badge" id="nav-badge-dd" style="background:var(--blue)">0</span>
     </div>
     <div class="nav-sep"></div>
     <div class="nav-cat">Opérationnel</div>
@@ -330,7 +390,60 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 
     <!-- ─── DÉBITEURS ─── -->
     <div class="page" id="page-debiteurs">
-      <div class="coming-soon"><div style="font-size:48px;opacity:.2">🏗</div><h2>Débiteurs divers</h2><p>Ce module est en cours de développement.</p></div>
+      <!-- Dashboard DD (affiché quand données disponibles) -->
+      <div id="dd-dashboard-view">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--navy3)">Débiteurs divers</div>
+            <div style="font-size:11px;color:var(--muted)" id="dd-last-import-label">Aucune importation</div>
+          </div>
+          <button onclick="triggerDDImport()" style="background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background .15s;" onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--navy3)'">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.7)" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Démarrer le traitement mensuel DD
+          </button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+          <div class="kpi"><div class="kpi-val" id="dd-kpi-total" style="font-size:18px">—</div><div class="kpi-lbl">Total encours</div><div class="kpi-sub mu" id="dd-kpi-total-sub">—</div></div>
+          <div class="kpi"><div class="kpi-val" id="dd-kpi-actions" style="color:var(--amber)">—</div><div class="kpi-lbl">Actions requises</div><div class="kpi-sub mu" id="dd-kpi-actions-sub">—</div></div>
+          <div class="kpi"><div class="kpi-val" id="dd-kpi-med" style="color:var(--red);font-size:18px">—</div><div class="kpi-lbl">Mise en demeure</div><div class="kpi-sub mu" id="dd-kpi-med-sub">—</div></div>
+          <div class="kpi"><div class="kpi-val" id="dd-kpi-danger" style="color:#4A0000">—</div><div class="kpi-lbl">Créances en danger</div><div class="kpi-sub mu" id="dd-kpi-danger-sub">—</div></div>
+        </div>
+
+        <!-- Charts + tableau résumé -->
+        <div class="charts-row" style="grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px">
+          <div class="card" style="display:flex;flex-direction:column;align-items:center;">
+            <div class="card-title" style="align-self:flex-start;">Répartition par catégorie</div>
+            <div style="position:relative;width:200px;height:200px;margin:8px auto 6px">
+              <canvas id="dd-pie-chart" width="200" height="200"></canvas>
+              <div id="dd-pie-tooltip" style="display:none;position:absolute;background:rgba(0,0,0,.8);color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;pointer-events:none;white-space:nowrap;z-index:10;"></div>
+            </div>
+            <div id="dd-legend" style="width:100%;padding:0 8px;"></div>
+          </div>
+          <div class="card" style="overflow:auto;">
+            <div class="card-title">Détail des créances</div>
+            <table style="min-width:unset;width:100%">
+              <thead><tr>
+                <th>Client</th><th>Facture</th><th style="text-align:right">Montant</th><th>Niveau</th>
+              </tr></thead>
+              <tbody id="dd-summary-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- État vide (pas encore de données) -->
+      <div id="dd-empty-view" style="display:none;">
+        <div class="coming-soon">
+          <div style="font-size:48px;opacity:.25">📋</div>
+          <h2 style="color:var(--navy3)">Débiteurs divers</h2>
+          <p style="color:var(--muted);margin-bottom:20px;">Importez votre première balance âgée CSV pour démarrer le suivi</p>
+          <button onclick="triggerDDImport()" style="background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">
+            Démarrer le traitement mensuel DD
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ─── PARAMÈTRES ─── -->
@@ -425,10 +538,79 @@ let stateArrhes    = {};
 let stateFP        = {};
 let stateDashboard = null;
 let stateSettings  = { pastCA: {} }; // { "2026-01": 150264.27, ... }
+let stateDDSuivi   = null; // Données suivi débiteurs divers
 let currentView    = 'dashboard';
 let activeDotsId   = null;
 let toChartInst    = null;
 let budgetChartInst = null;
+let ddPieChartInst  = null;
+let ddPieChart2Inst = null;
+
+// Variables pour le workflow DD
+let ddCsvData      = null;
+let ddInvoices     = [];
+let ddNegatifs     = [];
+let ddAdresseQueue = [];
+let ddAdresseIdx   = 0;
+const DD_TODAY     = new Date(); DD_TODAY.setHours(0,0,0,0);
+const DD_TSTR      = DD_TODAY.toLocaleDateString('fr-FR');
+
+const DD_CAT_COLORS = {
+  'NE PAS RELANCER':  ['#D9EAD3','#2A5C1A'],
+  '1ERE RELANCE':     ['#FFF2CC','#856404'],
+  '2EME RELANCE':     ['#FCE5CD','#7B3900'],
+  '3EME RELANCE':     ['#F4CCCC','#7B0000'],
+  'MISE EN DEMEURE':  ['#EA4335','#fff'],
+  'CRÉANCE EN DANGER':['#4A0000','#fff']
+};
+const DD_PIE_COLORS = {
+  'NE PAS RELANCER':  '#4CAF50',
+  '1ERE RELANCE':     '#FFC107',
+  '2EME RELANCE':     '#FF9800',
+  '3EME RELANCE':     '#F44336',
+  'MISE EN DEMEURE':  '#B71C1C',
+  'CRÉANCE EN DANGER':'#4A0000'
+};
+const DD_CAT_LABELS = {
+  'NE PAS RELANCER':  'Non relancé',
+  '1ERE RELANCE':     '1ère relance',
+  '2EME RELANCE':     '2ème relance',
+  '3EME RELANCE':     '3ème relance',
+  'MISE EN DEMEURE':  'Mise en demeure',
+  'CRÉANCE EN DANGER':'Créance en danger'
+};
+const DD_CAT_ACTIONS = {
+  '1ERE RELANCE':     'Envoyer email de relance',
+  '2EME RELANCE':     'Envoyer 2ème courrier recommandé',
+  '3EME RELANCE':     'Envoyer 3ème courrier recommandé',
+  'MISE EN DEMEURE':  'Envoyer mise en demeure',
+  'CRÉANCE EN DANGER':'Remettre au cabinet de recouvrement ou procédure contentieuse'
+};
+const DD_HOTEL = {
+  nom:'Novotel Nice Centre Vieux Nice',
+  adresse:'8-10 Esplanade du Parvis de l\'Europe',
+  ville:'06300 Nice',
+  tel:'04\u00a093\u00a013\u00a030\u00a093',
+  email:'H1103-OM@accor.com',
+  iban:'FR76 3002 7177 6300 0201 0390 145',
+  bic:'CMCIFRPP',
+  directeur:'Bruno Felix',
+  auteur:'Ulysse Montaigne',
+  titreAuteur:'Directeur Hébergement'
+};
+
+function ddFmtM(n){return Number(n).toFixed(2).replace('.',',')+'\u00a0\u20ac';}
+function ddFmtAmt(n){return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function ddDiffD(d){return Math.round((DD_TODAY-d)/86400000);}
+function ddEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ddClassifyNiveau(n){
+  if(n<=0)return 'NE PAS RELANCER';
+  if(n===1)return '1ERE RELANCE';
+  if(n===2)return '2EME RELANCE';
+  if(n===3)return '3EME RELANCE';
+  if(n===4)return 'MISE EN DEMEURE';
+  return 'CRÉANCE EN DANGER';
+}
 
 function clientId(c,n){ return `${n}_${String(c).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`; }
 
@@ -444,10 +626,11 @@ function navigate(view) {
   document.getElementById('topbar-page').textContent = PAGE_NAMES[view]||view;
   const sb = document.getElementById('settings-btn');
   if (sb) sb.classList.toggle('active', view==='settings');
-  if (view==='arrhes')    renderArrhes();
-  else if (view==='fp')   renderFP();
+  if (view==='arrhes')       renderArrhes();
+  else if (view==='fp')      renderFP();
   else if (view==='dashboard') renderDashboard();
   else if (view==='settings')  renderSettingsPage();
+  else if (view==='debiteurs') renderDDPage();
 }
 
 // ═══════════════════════ IMPORT MODAL ═══════════════════════
@@ -486,6 +669,18 @@ function connectFirebase(cfg) {
         if(currentView==='settings')renderSettingsPage();
       }
     });
+    onValue(ref(db,'debiteurs_suivi'), s=>{
+      if(s.val()){
+        // Ne pas écraser si un traitement DD est en cours (analyse ouverte)
+        const analysisOpen = document.getElementById('dd-analysis-overlay')?.classList.contains('open');
+        if(!analysisOpen) {
+          stateDDSuivi=s.val();
+          localStorage.setItem('dd_suivi_state',JSON.stringify(stateDDSuivi));
+          if(currentView==='debiteurs') renderDDPage();
+          updateDDNavBadge();
+        }
+      }
+    });
     document.getElementById('firebase-status').innerHTML=
       '<span style="width:5px;height:5px;background:#4CAF50;border-radius:50%;display:inline-block;animation:pulse 2.5s infinite"></span> Firebase · En direct';
     setEl('live-label','En direct');
@@ -515,6 +710,7 @@ function loadLocal() {
   try{const s=localStorage.getItem('encours_fp_state'); if(s)stateFP=JSON.parse(s);}catch(e){}
   try{const s=localStorage.getItem('dashboard_state');  if(s)stateDashboard=JSON.parse(s);}catch(e){}
   try{const s=localStorage.getItem('settings_state');   if(s)stateSettings=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('dd_suivi_state');   if(s)stateDDSuivi=JSON.parse(s);}catch(e){}
 }
 
 // ═══════════════════════ BANNER ═══════════════════════
@@ -1083,15 +1279,617 @@ function isOverdue(e){if(!e)return false;return new Date(e)<new Date(new Date().
 function getStatClass(s){return({'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent'}[s])||'s-attente';}
 function statusOptions(c){const opts=['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];if(c==='URGENT')opts.unshift('URGENT');return opts.map(s=>`<option${c===s?' selected':''}>${s}</option>`).join('');}
 
-// ═══════════════════════ INIT ═══════════════════════
+// ═══════════════════════ DD MODULE ═══════════════════════
+
+function saveDDToFirebase() {
+  if(!stateDDSuivi) return;
+  fbSet('debiteurs_suivi', stateDDSuivi);
+  try{localStorage.setItem('dd_suivi_state',JSON.stringify(stateDDSuivi));}catch(e){}
+}
+
+function updateDDNavBadge() {
+  const badge = document.getElementById('nav-badge-dd');
+  if(!badge) return;
+  if(!stateDDSuivi || !stateDDSuivi.factures) { badge.style.display='none'; return; }
+  const n = Object.keys(stateDDSuivi.factures).length;
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-flex' : 'none';
+}
+
+// ─── Rendu page DD principale ───
+function renderDDPage() {
+  const hasData = stateDDSuivi && stateDDSuivi.factures && Object.keys(stateDDSuivi.factures).length > 0;
+  document.getElementById('dd-dashboard-view').style.display = hasData ? 'block' : 'none';
+  document.getElementById('dd-empty-view').style.display     = hasData ? 'none'  : 'block';
+  if(hasData) renderDDDashboard();
+}
+
+function renderDDDashboard() {
+  if(!stateDDSuivi || !stateDDSuivi.factures) return;
+  const factures = stateDDSuivi.factures;
+  const entries  = Object.entries(factures);
+
+  // Calcul des KPIs basé sur montant_original
+  let total = 0, actions = 0, medMontant = 0, medCount = 0, dangerCount = 0, dangerMontant = 0;
+  const byCat = {};
+  entries.forEach(([, f]) => {
+    const m   = f.montant_original || 0;
+    const niv = f.niveau_actuel || 0;
+    const cat = ddClassifyNiveau(niv);
+    total += m;
+    if(!byCat[cat]) byCat[cat] = {montant:0, count:0};
+    byCat[cat].montant += m;
+    byCat[cat].count++;
+    if(niv > 0) actions++;
+    if(niv === 4) { medMontant += m; medCount++; }
+    if(niv > 4)  { dangerCount++; dangerMontant += m; }
+  });
+
+  // KPIs
+  const setEl2 = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl2('dd-kpi-total',     ddFmtAmt(total)+' €');
+  setEl2('dd-kpi-total-sub', entries.length+' factures');
+  setEl2('dd-kpi-actions',   actions);
+  setEl2('dd-kpi-actions-sub', 'sur '+entries.length+' factures');
+  setEl2('dd-kpi-med',       ddFmtAmt(medMontant)+' €');
+  setEl2('dd-kpi-med-sub',   medCount+' facture'+(medCount>1?'s':''));
+  setEl2('dd-kpi-danger',    dangerCount);
+  setEl2('dd-kpi-danger-sub', dangerCount > 0 ? ddFmtAmt(dangerMontant)+' €' : '—');
+
+  // Dernière importation
+  if(stateDDSuivi.meta) {
+    setEl2('dd-last-import-label', 'Dernier export : '+stateDDSuivi.meta.dernier_export);
+  }
+
+  // Pie chart
+  renderDDPie('dd-pie-chart','dd-legend','dd-pie-tooltip', byCat, total);
+
+  // Tableau résumé
+  const tbody = document.getElementById('dd-summary-table');
+  if(tbody) {
+    tbody.innerHTML = entries.slice(0,20).map(([num, f]) => {
+      const niv = f.niveau_actuel || 0;
+      const cat = ddClassifyNiveau(niv);
+      const [bg,fg] = DD_CAT_COLORS[cat] || ['#eee','#333'];
+      return `<tr>
+        <td style="font-weight:600;color:var(--navy3);font-size:11px">${ddEsc(f.client)}</td>
+        <td style="font-family:var(--mono);font-size:11px">${num}</td>
+        <td style="text-align:right;font-family:var(--mono);font-size:11px">${ddFmtAmt(f.montant_original||0)} €</td>
+        <td><span class="dd-cat-pill" style="background:${bg};color:${fg}">${DD_CAT_LABELS[cat]||cat}</span></td>
+      </tr>`;
+    }).join('');
+    if(entries.length > 20) tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;color:var(--muted);font-size:11px;padding:8px">… et ${entries.length-20} autres</td></tr>`;
+  }
+}
+
+function renderDDPie(canvasId, legendId, tooltipId, byCat, grandTotal) {
+  const canvas = document.getElementById(canvasId);
+  if(!canvas || grandTotal === 0) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, cx = W/2, cy = W/2, r = W/2-6, ri = W/4.5;
+  ctx.clearRect(0,0,W,W);
+
+  const data = Object.keys(DD_PIE_COLORS)
+    .map(c => ({c, v: (byCat[c]||{montant:0}).montant}))
+    .filter(d => d.v > 0);
+
+  const slices = [];
+  let angle = -Math.PI/2;
+  data.forEach(d => {
+    const slice = (d.v/grandTotal)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+slice); ctx.closePath();
+    ctx.fillStyle = DD_PIE_COLORS[d.c]; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    slices.push({c:d.c, v:d.v, start:angle, end:angle+slice});
+    angle += slice;
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,ri,0,Math.PI*2);
+  ctx.fillStyle='#fff'; ctx.fill();
+  ctx.fillStyle='var(--navy3)'; ctx.font=`bold ${Math.round(W/20)}px Arial`; ctx.textAlign='center';
+  ctx.fillText('Total',cx,cy-4); ctx.fillText(ddFmtAmt(grandTotal).replace(/\s/g,'').replace(',00','')+'€',cx,cy+12);
+
+  const tooltip = document.getElementById(tooltipId);
+  if(tooltip) {
+    canvas.onmousemove = e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+      const dx=mx-cx, dy=my-cy, dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<ri||dist>r){tooltip.style.display='none';return;}
+      let a=Math.atan2(dy,dx); if(a<-Math.PI/2) a+=Math.PI*2;
+      const hit=slices.find(s=>{let sa=s.start,ea=s.end;if(sa<-Math.PI/2)sa+=Math.PI*2;if(ea<-Math.PI/2)ea+=Math.PI*2;return a>=sa&&a<=ea;});
+      if(hit){const pct=Math.round((hit.v/grandTotal)*100);tooltip.textContent=DD_CAT_LABELS[hit.c]+': '+ddFmtAmt(hit.v)+' € ('+pct+'%)';tooltip.style.display='block';tooltip.style.left=(mx+12)+'px';tooltip.style.top=(my-22)+'px';}
+      else tooltip.style.display='none';
+    };
+    canvas.onmouseleave=()=>tooltip.style.display='none';
+  }
+
+  const legend = document.getElementById(legendId);
+  if(legend) {
+    legend.innerHTML = data.map(d=>{
+      const pct=Math.round((d.v/grandTotal)*100);
+      return `<div class="dd-legend-item"><div class="dd-legend-dot" style="background:${DD_PIE_COLORS[d.c]}"></div><span>${DD_CAT_LABELS[d.c]} <span style="color:var(--muted)">(${pct}%)</span></span></div>`;
+    }).join('');
+  }
+}
+
+// ─── Import CSV DD ───
+function triggerDDImport() {
+  document.getElementById('dd-import-overlay').classList.add('open');
+  ddSetStep(1);
+}
+function closeDDImport() {
+  document.getElementById('dd-import-overlay').classList.remove('open');
+  ddCsvData = null;
+  const b = document.getElementById('dd-badge-csv');
+  if(b){b.textContent='Aucun fichier CSV';b.className='dd-badge default';}
+  document.getElementById('dd-btn-analyze').disabled = true;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('dd-input-csv');
+  if(inp) {
+    inp.addEventListener('change', e => {
+      const file = e.target.files[0]; if(!file) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        ddCsvData = ev.target.result;
+        const b = document.getElementById('dd-badge-csv');
+        if(b){b.textContent=file.name;b.className='dd-badge ok';}
+        document.getElementById('dd-btn-analyze').disabled = false;
+      };
+      r.readAsText(file);
+    });
+  }
+  const dz = document.getElementById('dd-drop-csv');
+  if(dz) {
+    dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('drag');});
+    dz.addEventListener('dragleave', ()=>dz.classList.remove('drag'));
+    dz.addEventListener('drop', e=>{
+      e.preventDefault(); dz.classList.remove('drag');
+      const file=e.dataTransfer.files[0]; if(!file) return;
+      const inp=document.getElementById('dd-input-csv');
+      const dt=new DataTransfer(); dt.items.add(file); inp.files=dt.files;
+      inp.dispatchEvent(new Event('change'));
+    });
+  }
+});
+
+// ─── Parsing CSV DD ───
+function ddParseCSV(text) {
+  const lines = text.split('\n').filter(l=>l.trim());
+  const headers = lines[0].split(';').map(h=>h.trim().replace(/^"|"$/g,''));
+  const pf = s => parseFloat((s||'0').replace(',','.'))||0;
+  return lines.slice(1).map(line => {
+    const vals = line.split(';').map(v=>v.trim().replace(/^"|"$/g,''));
+    const r={}; headers.forEach((h,i)=>r[h]=vals[i]||'');
+    let solde=0;
+    for(let m=0;m<=8;m++){const v=pf(r['f_mois_'+m]);if(Math.abs(v)>0.001){solde=v;break;}}
+    const raw=r['arfo_front_folidate']||'';
+    const parts=raw.split(' ')[0].split('/');
+    const folidate=parts.length===3?new Date(+parts[2],+parts[1]-1,+parts[0]):null;
+    const jours=folidate?ddDiffD(folidate):null;
+    const numF=r['arfo_front_folinum']?String(Math.round(parseFloat(r['arfo_front_folinum']))):null;
+    return{client:r['arac_gues_name']||'',facture:numF,dateStr:folidate?folidate.toLocaleDateString('fr-FR'):'',jours,montantOriginal:pf(r['OrginalAmount']),solde,negatif:solde<0,valide:!!numF&&solde>0};
+  });
+}
+
+function ddBuildSuivi(rows) {
+  const s={meta:{hotel:'H1103',premier_export:DD_TSTR,dernier_export:DD_TSTR},factures:{},factures_reglees:{}};
+  rows.filter(f=>f.valide).forEach(f=>{s.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};});
+  return s;
+}
+
+function ddUpdateSuivi(suivi, rows) {
+  const act=new Set(rows.filter(f=>f.valide).map(f=>f.facture));
+  const prev=new Set(Object.keys(suivi.factures));
+  for(const n of prev){if(!act.has(n)){suivi.factures_reglees[n]={...suivi.factures[n],date_reglement:DD_TSTR};delete suivi.factures[n];}}
+  rows.filter(f=>f.valide&&!prev.has(f.facture)).forEach(f=>{suivi.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};});
+  suivi.meta.dernier_export=DD_TSTR;
+  return suivi;
+}
+
+function ddAnalyzeData() {
+  const rows = ddParseCSV(ddCsvData);
+  const eligible = rows.filter(f=>f.valide&&f.jours>60);
+  if(!stateDDSuivi) {
+    stateDDSuivi = ddBuildSuivi(rows);
+    if(eligible.length > 0) ddShowHistoriqueForm(rows, eligible);
+    else ddProcessAndShow(rows);
+  } else {
+    stateDDSuivi = ddUpdateSuivi(stateDDSuivi, rows);
+    ddProcessAndShow(rows);
+  }
+  document.getElementById('dd-import-overlay').classList.remove('open');
+}
+
+// ─── Historique (premier lancement) ───
+function ddShowHistoriqueForm(rows, eligible) {
+  const form = document.getElementById('dd-historique-form');
+  form.innerHTML = '';
+  eligible.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'dd-histo-card';
+    d.innerHTML = `<div class="dd-histo-card-title">${ddEsc(f.client)}</div>
+    <div class="dd-histo-card-sub">Facture ${f.facture} &nbsp;|&nbsp; ${f.jours} jours &nbsp;|&nbsp; ${ddFmtM(f.solde)}</div>
+    <div class="dd-form-group" style="margin-bottom:6px"><label>Niveau de relance déjà effectué</label>
+    <select id="ddh-niv-${f.facture}" onchange="ddUpdateHistoFields('${f.facture}')" style="width:100%;border:1.5px solid var(--border);border-radius:7px;padding:8px;font-family:var(--font);font-size:12px">
+      <option value="0">0 — Aucune relance</option>
+      <option value="1">1 — Email envoyé</option>
+      <option value="2">2 — 1er courrier envoyé</option>
+      <option value="3">3 — 2ème courrier envoyé</option>
+      <option value="4">4 — Mise en demeure envoyée</option>
+    </select></div>
+    <div id="ddh-dates-${f.facture}" class="dd-histo-dates"></div>`;
+    form.appendChild(d);
+  });
+  document.getElementById('dd-historique-overlay').classList.add('open');
+  window._ddHistoRows = rows;
+  window._ddHistoEligible = eligible;
+}
+
+function ddUpdateHistoFields(facture) {
+  const niv = parseInt(document.getElementById('ddh-niv-'+facture).value);
+  const container = document.getElementById('ddh-dates-'+facture);
+  container.innerHTML = '';
+  if(niv>=2) container.innerHTML+=`<div class="dd-histo-date-row"><label>Date 1er courrier</label><input type="text" id="ddh-d1-${facture}" placeholder="JJ/MM/AAAA" style="width:100%;border:1.5px solid var(--border);border-radius:6px;padding:7px;font-size:12px;font-family:var(--mono)"></div>`;
+  if(niv>=3) container.innerHTML+=`<div class="dd-histo-date-row"><label>Date 2ème courrier</label><input type="text" id="ddh-d2-${facture}" placeholder="JJ/MM/AAAA" style="width:100%;border:1.5px solid var(--border);border-radius:6px;padding:7px;font-size:12px;font-family:var(--mono);margin-top:8px"></div>`;
+}
+
+function closeDDHistorique() { document.getElementById('dd-historique-overlay').classList.remove('open'); }
+
+function validateDDHistorique() {
+  window._ddHistoEligible.forEach(f => {
+    const niv = parseInt(document.getElementById('ddh-niv-'+f.facture).value)||0;
+    if(!stateDDSuivi.factures[f.facture]) return;
+    const entry = stateDDSuivi.factures[f.facture];
+    entry.niveau_actuel=niv; entry.historique=[];
+    if(niv>=1) entry.historique.push({niveau:1,type:'email',date:'inconnue'});
+    if(niv>=2){const d1=document.getElementById('ddh-d1-'+f.facture)?.value||'';entry.historique.push({niveau:2,type:'courrier',date:d1||'inconnue'});}
+    if(niv>=3){const d2=document.getElementById('ddh-d2-'+f.facture)?.value||'';entry.historique.push({niveau:3,type:'courrier',date:d2||'inconnue'});}
+    if(niv>=4) entry.historique.push({niveau:4,type:'courrier',date:'inconnue'});
+  });
+  closeDDHistorique();
+  // Sauvegarde Firebase avec les niveaux initiaux
+  saveDDToFirebase();
+  ddProcessAndShow(window._ddHistoRows);
+}
+
+// ─── Construction des factures ───
+function ddBuildInvoices(rows, suivi) {
+  const inv=[], neg=[];
+  rows.forEach(f=>{
+    if(f.negatif){neg.push(f);return;}
+    if(!f.valide) return;
+    const entry = suivi.factures[f.facture];
+    let cat, niveau, hist;
+    if(!entry){cat='NE PAS RELANCER';niveau=0;hist=[];}
+    else {
+      niveau=entry.niveau_actuel; hist=entry.historique||[];
+      if(niveau===0&&f.jours>60){
+        entry.niveau_actuel=1; entry.historique.push({niveau:1,type:'email',date:DD_TSTR});
+        niveau=1; cat='1ERE RELANCE';
+      } else if(niveau===0){cat='NE PAS RELANCER';}
+      else {
+        cat=ddClassifyNiveau(niveau);
+        const last=hist[hist.length-1];
+        if(!last||last.date!==DD_TSTR){entry.historique.push({niveau,type:niveau===1?'email':'courrier',date:DD_TSTR});}
+      }
+    }
+    const paiementPartiel=f.montantOriginal>0&&Math.abs(f.montantOriginal-f.solde)>0.01;
+    inv.push({...f,paiementPartiel,categorie:cat,niveau,historique:hist,adresse:entry?.adresse||null});
+  });
+  inv.sort((a,b)=>b.jours-a.jours);
+  return{inv,neg};
+}
+
+function ddProcessAndShow(rows) {
+  const{inv,neg}=ddBuildInvoices(rows,stateDDSuivi);
+  ddInvoices=inv; ddNegatifs=neg;
+  // Sauvegarde immédiate en Firebase (niveaux mis à jour)
+  saveDDToFirebase();
+  ddRenderAnalysis();
+  ddSetStep(2);
+  document.getElementById('dd-analysis-overlay').classList.add('open');
+  if(neg.length>0) setTimeout(ddShowAvoirs,600);
+}
+
+// ─── Tableau de bord analyse ───
+function ddRenderAnalysis() {
+  document.getElementById('dd-dash-date').textContent = DD_TSTR;
+  const total = ddInvoices.reduce((s,i)=>s+i.solde,0);
+  const actions = ddInvoices.filter(i=>i.categorie!=='NE PAS RELANCER');
+  const meds    = ddInvoices.filter(i=>i.categorie==='MISE EN DEMEURE');
+  const danger  = ddInvoices.filter(i=>i.categorie==='CRÉANCE EN DANGER');
+
+  document.getElementById('dd-metrics-grid').innerHTML=`
+    <div class="kpi"><div class="kpi-val" style="font-size:16px">${ddFmtAmt(total)} €</div><div class="kpi-lbl">Total créances</div><div class="kpi-sub mu">${ddInvoices.length} factures</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--amber)">${actions.length}</div><div class="kpi-lbl">Actions requises</div><div class="kpi-sub mu">${ddInvoices.filter(i=>i.categorie==='1ERE RELANCE').length} emails · ${ddInvoices.filter(i=>['2EME RELANCE','3EME RELANCE','MISE EN DEMEURE'].includes(i.categorie)).length} courriers</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--red);font-size:16px">${ddFmtAmt(meds.reduce((s,i)=>s+i.solde,0))} €</div><div class="kpi-lbl">Mise en demeure</div><div class="kpi-sub mu">${meds.length} factures</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:#4A0000">${danger.length}</div><div class="kpi-lbl">Créances en danger</div><div class="kpi-sub mu">${danger.length>0?ddFmtAmt(danger.reduce((s,i)=>s+i.solde,0))+' €':'—'}</div></div>`;
+
+  document.getElementById('dd-action-count').textContent = `${actions.length} action${actions.length>1?'s':''} à effectuer`;
+
+  // Pie
+  const byCat={};
+  ddInvoices.forEach(i=>{if(!byCat[i.categorie])byCat[i.categorie]={montant:0,count:0};byCat[i.categorie].montant+=i.solde;byCat[i.categorie].count++;});
+  renderDDPie('dd-pie-chart2','dd-legend2','dd-pie-tooltip2',byCat,total);
+
+  // Tableau
+  document.getElementById('dd-table-body2').innerHTML=ddInvoices.map(inv=>{
+    const[bg,fg]=DD_CAT_COLORS[inv.categorie]||['#eee','#333'];
+    return `<tr><td style="font-weight:500;font-size:11px">${ddEsc(inv.client)}</td><td style="font-size:11px;font-family:var(--mono)">${inv.facture||'—'}</td>
+    <td><span class="dd-days-badge" style="background:${bg};color:${fg}">${inv.jours}j</span></td>
+    <td style="text-align:right;font-family:var(--mono);font-size:11px">${ddFmtM(inv.solde)}${inv.paiementPartiel?'<br><span style="font-size:9px;color:#888">partiel</span>':''}</td>
+    <td><span class="dd-cat-pill" style="background:${bg};color:${fg}">${inv.categorie}</span></td></tr>`;
+  }).join('')+ddNegatifs.map(n=>`<tr>
+    <td style="color:var(--blue);font-weight:500;font-size:11px">${ddEsc(n.client)}</td><td style="font-size:11px;font-family:var(--mono)">${n.facture||'—'}</td>
+    <td><span class="dd-days-badge" style="background:var(--blue-l);color:#1565C0">avoir</span></td>
+    <td style="color:var(--blue);text-align:right;font-family:var(--mono);font-size:11px">${ddFmtM(n.solde)}</td>
+    <td><span class="dd-cat-pill" style="background:var(--blue-l);color:#1565C0;cursor:pointer" onclick="ddShowAvoirs()">Gérer l'avoir</span></td></tr>`).join('');
+}
+
+function closeDDAnalysis() {
+  document.getElementById('dd-analysis-overlay').classList.remove('open');
+  ddSetStep(1);
+}
+
+// ─── Avoirs ───
+function ddShowAvoirs() {
+  if(!ddNegatifs.length) return;
+  document.getElementById('dd-avoir-body').innerHTML=ddNegatifs.map(n=>{
+    const saved=stateDDSuivi.factures[n.facture]?.avoir_decision||'';
+    return `<div class="dd-avoir-card">
+      <div class="dd-avoir-title">${ddEsc(n.client)}${n.facture?' — Facture '+n.facture:''}</div>
+      <div class="dd-avoir-amount">${ddFmtM(n.solde)}</div>
+      <div class="dd-avoir-radio">
+        <label><input type="radio" name="ddav-${n.facture||'x'}" value="remboursement"${saved==='remboursement'?' checked':''}> Rembourser le client</label>
+        <label><input type="radio" name="ddav-${n.facture||'x'}" value="compensation"${saved==='compensation'?' checked':''}> Compenser avec une créance en cours</label>
+        <label><input type="radio" name="ddav-${n.facture||'x'}" value="conserver"${saved==='conserver'?' checked':''}> Conserver en avoir</label>
+      </div></div>`;
+  }).join('');
+  document.getElementById('dd-avoir-overlay').classList.add('open');
+}
+
+function saveDDAvoir() {
+  ddNegatifs.forEach(n=>{
+    const sel=document.querySelector(`input[name="ddav-${n.facture||'x'}"]:checked`);
+    if(sel){
+      if(!stateDDSuivi.factures[n.facture]) stateDDSuivi.factures[n.facture]={client:n.client,avoir_decision:null};
+      stateDDSuivi.factures[n.facture].avoir_decision=sel.value;
+    }
+  });
+  document.getElementById('dd-avoir-overlay').classList.remove('open');
+  // Sauvegarde Firebase
+  saveDDToFirebase();
+}
+
+// ─── Génération ───
+function ddStartGeneration() {
+  ddAdresseQueue=ddInvoices.filter(i=>['2EME RELANCE','3EME RELANCE','MISE EN DEMEURE'].includes(i.categorie));
+  ddAdresseIdx=0;
+  if(ddAdresseQueue.length>0) ddShowAdresseModal();
+  else ddFinishGeneration();
+}
+
+function ddShowAdresseModal() {
+  if(ddAdresseIdx>=ddAdresseQueue.length){ddFinishGeneration();return;}
+  const inv=ddAdresseQueue[ddAdresseIdx];
+  const adr=stateDDSuivi.factures[inv.facture]?.adresse||null;
+  document.getElementById('dd-adresse-title').textContent=`Adresse client (${ddAdresseIdx+1}/${ddAdresseQueue.length})`;
+  document.getElementById('dd-adresse-counter').textContent=`${inv.categorie} — Facture ${inv.facture}`;
+  document.getElementById('dd-adresse-client-name').textContent=inv.client;
+  document.getElementById('dd-adr-nom').value=adr?.nom||inv.client;
+  document.getElementById('dd-adr-ligne1').value=adr?.ligne1||'';
+  document.getElementById('dd-adr-ligne2').value=adr?.ligne2||'';
+  document.getElementById('dd-adr-cp').value=adr?.cp||'';
+  document.getElementById('dd-adr-ville').value=adr?.ville||'';
+  document.getElementById('dd-adr-pays').value=adr?.pays||'France';
+  const fill=ddAdresseIdx/ddAdresseQueue.length*100;
+  document.getElementById('dd-adresse-progress').style.width=fill+'%';
+  document.getElementById('dd-adresse-overlay').classList.add('open');
+}
+
+function saveDDAdresse() {
+  const inv=ddAdresseQueue[ddAdresseIdx];
+  if(stateDDSuivi.factures[inv.facture]) {
+    stateDDSuivi.factures[inv.facture].adresse={
+      nom:document.getElementById('dd-adr-nom').value,
+      ligne1:document.getElementById('dd-adr-ligne1').value,
+      ligne2:document.getElementById('dd-adr-ligne2').value,
+      cp:document.getElementById('dd-adr-cp').value,
+      ville:document.getElementById('dd-adr-ville').value,
+      pays:document.getElementById('dd-adr-pays').value
+    };
+    // Mise à jour dans les invoices
+    const inv2=ddInvoices.find(i=>i.facture===inv.facture);
+    if(inv2) inv2.adresse=stateDDSuivi.factures[inv.facture].adresse;
+    // Sauvegarde Firebase immédiate après chaque adresse
+    saveDDToFirebase();
+  }
+  document.getElementById('dd-adresse-overlay').classList.remove('open');
+  ddAdresseIdx++;
+  setTimeout(ddShowAdresseModal,150);
+}
+
+function skipDDAdresse() {
+  document.getElementById('dd-adresse-overlay').classList.remove('open');
+  ddAdresseIdx++;
+  setTimeout(ddShowAdresseModal,150);
+}
+
+function ddFinishGeneration() {
+  document.getElementById('dd-analysis-overlay').classList.remove('open');
+  ddSetStep(3);
+  ddRenderRapportSummary();
+  document.getElementById('dd-rapport-overlay').classList.add('open');
+}
+
+function ddRenderRapportSummary() {
+  const total=ddInvoices.reduce((s,i)=>s+i.solde,0);
+  const cats=['NE PAS RELANCER','1ERE RELANCE','2EME RELANCE','3EME RELANCE','MISE EN DEMEURE','CRÉANCE EN DANGER'];
+  const recapRows=cats.map(c=>{
+    const ci=ddInvoices.filter(i=>i.categorie===c);
+    if(!ci.length)return'';
+    const t=ci.reduce((s,i)=>s+i.solde,0);
+    return `<tr><td>${DD_CAT_LABELS[c]||c}</td><td style="text-align:center">${ci.length}</td><td style="text-align:right;font-family:var(--mono)">${ddFmtAmt(t)} €</td></tr>`;
+  }).join('');
+  document.getElementById('dd-rapport-summary').innerHTML=`
+    <div style="font-size:13px;font-weight:600;color:var(--navy3);margin-bottom:10px">Récapitulatif</div>
+    <table style="font-size:12px;width:100%;border-collapse:collapse">
+      <thead><tr style="background:var(--bg)"><th style="padding:6px 10px;text-align:left">Catégorie</th><th style="padding:6px 10px;text-align:center">Nb</th><th style="padding:6px 10px;text-align:right">Montant</th></tr></thead>
+      <tbody>${recapRows}</tbody>
+      <tfoot><tr style="background:var(--navy3);color:#fff"><td style="padding:6px 10px;font-weight:600">Total — ${ddInvoices.length} factures</td><td></td><td style="padding:6px 10px;text-align:right;font-family:var(--mono)">${ddFmtAmt(total)} €</td></tr></tfoot>
+    </table>`;
+}
+
+function closeDDRapport() {
+  document.getElementById('dd-rapport-overlay').classList.remove('open');
+  ddSetStep(2);
+  document.getElementById('dd-analysis-overlay').classList.add('open');
+}
+
+// ─── Téléchargement ───
+function ddDownloadAll() {
+  const btn=document.getElementById('dd-btn-download');
+  btn.textContent='Génération…'; btn.disabled=true;
+  const dateTag=DD_TSTR.replace(/\//g,'');
+
+  // Sauvegarder en Firebase (données déjà sauvées tout au long du traitement)
+  saveDDToFirebase();
+  renderDDPage();
+  updateDDNavBadge();
+
+  // Uniquement le rapport HTML
+  const html=ddGenerateRapport();
+  const htmlBlob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const htmlA=document.createElement('a'); htmlA.href=URL.createObjectURL(htmlBlob);
+  htmlA.download='H1103_Rapport_DD_'+dateTag+'.html'; htmlA.click();
+  btn.textContent='Rapport téléchargé ✓';
+  ddSetStep(4);
+  setTimeout(()=>{
+    document.getElementById('dd-rapport-overlay').classList.remove('open');
+    ddSetStep(1);
+  },2500);
+}
+
+// ─── Génération HTML rapport ───
+function ddGenerateRapport() {
+  const total=ddInvoices.reduce((s,i)=>s+i.solde,0);
+  const cats=['NE PAS RELANCER','1ERE RELANCE','2EME RELANCE','3EME RELANCE','MISE EN DEMEURE','CRÉANCE EN DANGER'];
+  const emails=ddInvoices.filter(i=>i.categorie==='1ERE RELANCE');
+  const courriers=ddInvoices.filter(i=>['2EME RELANCE','3EME RELANCE','MISE EN DEMEURE'].includes(i.categorie));
+  const dangerList=ddInvoices.filter(i=>i.categorie==='CRÉANCE EN DANGER');
+
+  const synthRows=ddInvoices.map(i=>{
+    const[bg,fg]=DD_CAT_COLORS[i.categorie]||['#eee','#333'];
+    return `<tr><td>${ddEsc(i.client)}</td><td>${i.facture||'—'}</td><td>${i.dateStr}</td><td style="text-align:right">${i.jours}j</td><td style="text-align:right">${ddFmtAmt(i.solde)} €</td><td><span style="background:${bg};color:${fg};padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700">${i.categorie}</span></td></tr>`;
+  }).join('');
+  const recapRows=cats.map(c=>{const ci=ddInvoices.filter(i=>i.categorie===c);if(!ci.length)return'';return`<tr><td>${DD_CAT_LABELS[c]||c}</td><td style="text-align:center">${ci.length}</td><td style="text-align:right">${ddFmtAmt(ci.reduce((s,i)=>s+i.solde,0))} €</td></tr>`;}).join('');
+
+  const ddGenEmail=inv=>`<div class="page email-page">
+    <div class="ltr-header"><div><div style="font-weight:700;font-size:15px">${DD_HOTEL.nom}</div><div style="font-size:10px;color:#555">${DD_HOTEL.adresse} — ${DD_HOTEL.ville}</div></div><div class="ltr-hotel-info">${DD_HOTEL.tel}<br>${DD_HOTEL.email}</div></div>
+    <span class="email-band">EMAIL — RELANCE N°1</span>
+    <div class="email-meta">À : <span class="email-to">[Adresse email de ${ddEsc(inv.client)}]</span><br>Objet : Rappel de paiement — Facture n°${inv.facture}</div>
+    <hr class="email-hr">
+    <div class="ltr-corps"><p>Madame, Monsieur,</p>
+    <p>Sauf erreur de notre part, nous n'avons pas encore reçu le règlement de la facture suivante :</p>
+    <p>• Facture n° <strong>${inv.facture}</strong> — Montant : <strong>${ddFmtAmt(inv.solde)} €</strong> — Date : ${inv.dateStr}</p>
+    <p>Nous vous remercions de bien vouloir procéder à son règlement dans les meilleurs délais.</p>
+    <p>Pour tout renseignement, n'hésitez pas à nous contacter.</p>
+    <p>Cordialement,</p>
+    <div class="ltr-sig"><strong>${DD_HOTEL.auteur}</strong><br>${DD_HOTEL.titreAuteur}<br>${DD_HOTEL.nom}</div>
+    <div class="ltr-iban">Virement bancaire : IBAN ${DD_HOTEL.iban} | BIC ${DD_HOTEL.bic}</div></div></div>`;
+
+  const ddGenLettre=inv=>{
+    const adr=inv.adresse;
+    const adrBlock=adr?`${adr.nom}<br>${adr.ligne1}<br>${adr.ligne2?adr.ligne2+'<br>':''}${adr.cp} ${adr.ville}<br>${adr.pays}`:'[Adresse à compléter]';
+    const niv=inv.categorie==='MISE EN DEMEURE'?'MISE EN DEMEURE':inv.categorie;
+    return `<div class="page lettre-page">
+      <div class="ltr-header"><div><div style="font-weight:700;font-size:15px">${DD_HOTEL.nom}</div><div style="font-size:10px;color:#555">${DD_HOTEL.adresse} — ${DD_HOTEL.ville}</div></div><div class="ltr-hotel-info">${DD_HOTEL.tel}<br>${DD_HOTEL.email}</div></div>
+      <div class="ltr-addresses"><div class="ltr-client">${adrBlock}</div><div class="ltr-date">Nice, le ${DD_TSTR}</div></div>
+      <div class="ltr-objet"><strong>Objet : ${niv==='MISE EN DEMEURE'?'Mise en demeure de payer':'Relance pour impayé'} — Facture n°${inv.facture}</strong></div>
+      <div class="ltr-corps">
+      ${niv==='MISE EN DEMEURE'?`<p>Madame, Monsieur,</p><p>Malgré nos précédentes relances, votre dette d'un montant de <strong>${ddFmtAmt(inv.solde)} €</strong> (Facture n°${inv.facture} du ${inv.dateStr}) reste impayée.</p><p>Par la présente, nous vous mettons en demeure de régler cette somme dans un délai de <strong>8 jours</strong> à compter de la réception de ce courrier.</p><p>À défaut, nous nous verrons contraints d'engager toute procédure judiciaire utile au recouvrement de notre créance.</p>`:
+      `<p>Madame, Monsieur,</p><p>Sauf erreur de notre part, votre facture n°<strong>${inv.facture}</strong> d'un montant de <strong>${ddFmtAmt(inv.solde)} €</strong> en date du ${inv.dateStr} reste impayée malgré nos relances.</p><p>Nous vous prions de bien vouloir régulariser cette situation dans les plus brefs délais.</p>`}
+      <p>Coordonnées bancaires : IBAN ${DD_HOTEL.iban} | BIC ${DD_HOTEL.bic}</p>
+      <p>Dans l'attente de votre règlement, nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.</p>
+      <div class="ltr-sig"><strong>${DD_HOTEL.auteur}</strong><br>${DD_HOTEL.titreAuteur}<br>${DD_HOTEL.nom}</div></div></div>`;
+  };
+
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport Débiteurs Divers H1103 — ${DD_TSTR}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;color:#1a1a1a;background:#eee}
+.page{background:#fff;width:210mm;min-height:297mm;margin:0 auto 20px;padding:18mm 20mm;display:flex;flex-direction:column}
+h2{font-size:15px;color:#1A3A8F;border-bottom:2px solid #1A3A8F;padding-bottom:5px;margin:20px 0 12px}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px}
+th{background:#1A3A8F;color:#fff;padding:7px 9px;text-align:left;font-size:10px;font-weight:600}
+td{padding:6px 9px;border-bottom:1px solid #f0f0f0}
+tfoot td{background:#1A3A8F;color:#fff;font-weight:600}
+.cover{min-height:260mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cover h1{font-size:26px;color:#1A3A8F;margin-bottom:12px}
+.cover-divider{width:80px;height:3px;background:#1A3A8F;margin:0 auto 30px}
+.ltr-header{display:flex;justify-content:space-between;padding-bottom:14px;border-bottom:2px solid #1A3A8F;margin-bottom:22px}
+.ltr-hotel-info{font-size:10px;color:#555;text-align:right;line-height:1.8}
+.ltr-addresses{display:flex;justify-content:space-between;margin-bottom:26px}
+.ltr-client{font-size:12px;line-height:1.9}
+.ltr-date{font-size:12px}
+.ltr-objet{font-size:12px;margin-bottom:20px}
+.ltr-corps{font-size:12px;line-height:1.95;flex:1}
+.ltr-corps p{margin-bottom:14px}
+.ltr-sig{margin-top:28px;font-size:12px}
+.ltr-iban{margin-top:16px;padding-top:12px;border-top:1px solid #ddd;font-size:10px;color:#555;line-height:1.9}
+.email-band{display:inline-block;background:#FFF2CC;color:#856404;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:4px;margin-bottom:12px}
+.email-meta{font-size:12px;line-height:1.9;margin-bottom:12px}
+.email-to{color:#1A3A8F}
+.email-hr{border:none;border-top:1px solid #ddd;margin-bottom:18px}
+.lettre-page,.email-page{padding:18mm 20mm}
+@media print{body{background:#fff}.page{margin:0;padding:15mm 18mm;page-break-after:always;min-height:unset}}
+</style></head><body>
+<div class="page"><div class="cover">
+  <div style="font-weight:700;font-size:18px;margin-bottom:8px">${DD_HOTEL.nom}</div>
+  <div style="font-size:12px;color:#888;margin-bottom:40px">${DD_HOTEL.adresse}, ${DD_HOTEL.ville}</div>
+  <div class="cover-divider"></div>
+  <h1>Rapport de recouvrement — Débiteurs divers</h1>
+  <div style="font-size:14px;color:#555;margin-bottom:8px">Balance âgée au <strong>${DD_TSTR}</strong></div>
+  <div style="font-size:13px;color:#666">${ddInvoices.length} factures analysées · Total : <strong>${ddFmtAmt(total)} €</strong></div>
+  <div style="margin-top:40px;font-size:13px;color:#444;line-height:1.8">Établi par <strong>${DD_HOTEL.auteur}</strong><br>${DD_HOTEL.titreAuteur}</div>
+</div></div>
+<div class="page">
+  <h2>1. Tableau de synthèse</h2>
+  <table><thead><tr><th>Client</th><th>Facture</th><th>Date</th><th style="text-align:right">Retard</th><th style="text-align:right">Solde TTC</th><th>Catégorie</th></tr></thead>
+  <tbody>${synthRows}</tbody>
+  <tfoot><tr><td colspan="4">Total général — ${ddInvoices.length} factures</td><td style="text-align:right">${ddFmtAmt(total)} €</td><td></td></tr></tfoot></table>
+  <h2>2. Récapitulatif par catégorie</h2>
+  <table><thead><tr><th>Catégorie</th><th style="text-align:center">Nb</th><th style="text-align:right">Montant total</th></tr></thead>
+  <tbody>${recapRows}</tbody></table>
+  ${dangerList.length>0?`<div style="background:#4A0000;color:#fff;border-radius:6px;padding:12px 14px;margin-top:10px"><div style="font-size:13px;font-weight:700;margin-bottom:6px">CRÉANCES EN DANGER — ${dangerList.length} facture${dangerList.length>1?'s':''} — ${ddFmtAmt(dangerList.reduce((s,i)=>s+i.solde,0))} €</div><div style="font-size:11px;opacity:.85">${DD_CAT_ACTIONS['CRÉANCE EN DANGER']}</div><div style="font-size:10px;opacity:.75;margin-top:6px">${dangerList.map(i=>i.client+' (Fact. '+i.facture+' — '+ddFmtAmt(i.solde)+' €)').join(' | ')}</div></div>`:''}
+</div>
+${emails.map(ddGenEmail).join('')}
+${courriers.map(ddGenLettre).join('')}
+</body></html>`;
+}
+
+function ddSetStep(n) {
+  [1,2,3,4].forEach(i=>{
+    const el1=document.getElementById('dd-s'+i);
+    const el2=document.getElementById('dd-s'+i+'b');
+    const cls=i<n?'dd-step-item done':i===n?'dd-step-item active':'dd-step-item';
+    if(el1) el1.className=cls;
+    if(el2) el2.className=cls;
+  });
+}
+// ═══════════════════════ FIN DD MODULE ═══════════════════════
 window.addEventListener('load',()=>{
   const upd=()=>{const e=document.getElementById('topbar-date');if(e)e.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
   upd();setInterval(upd,60000);
   if(typeof emailjs!=='undefined')emailjs.init({publicKey:'IOJCHQiqGloMl8p4k'});
   loadLocal();
   updateNavBadges();
+  updateDDNavBadge();
   checkImportBanner();
-  if(stateDashboard)renderDashboard();
+  if(stateDashboard) renderDashboard();
+  if(stateDDSuivi)   renderDDPage();
 
   const fbConfig={
     apiKey:"AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
@@ -1105,5 +1903,147 @@ window.addEventListener('load',()=>{
   tryFB();
 });
 </script>
+<!-- ═══════ DD OVERLAYS ═══════ -->
+<!-- Étape 1: Import CSV -->
+<div class="dd-overlay" id="dd-import-overlay" onclick="if(event.target===this){}">
+  <div class="dd-modal">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Traitement mensuel — Débiteurs divers</div>
+    </div>
+    <div class="dd-step-bar">
+      <div class="dd-step-item active" id="dd-s1">1 — Import</div>
+      <div class="dd-step-item" id="dd-s2">2 — Analyse</div>
+      <div class="dd-step-item" id="dd-s3">3 — Génération</div>
+      <div class="dd-step-item" id="dd-s4">4 — Export</div>
+    </div>
+    <div class="dd-dropzone" id="dd-drop-csv" onclick="document.getElementById('dd-input-csv').click()">
+      <div class="dd-drop-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5"><path d="M9 12h6m-3-3v6M5 8V6a2 2 0 012-2h10a2 2 0 012 2v2M3 12h18M5 20h14a2 2 0 002-2v-6H3v6a2 2 0 002 2z"/></svg></div>
+      <div class="dd-drop-text">Glissez votre balance âgée (.csv) ou cliquez</div>
+      <div><span class="dd-badge default" id="dd-badge-csv">Aucun fichier CSV</span></div>
+      <input type="file" id="dd-input-csv" accept=".csv" style="display:none">
+    </div>
+    <div style="margin-top:14px;padding:12px 14px;background:var(--blue-l);border-radius:8px;font-size:11.5px;color:#1565C0;line-height:1.6">
+      <strong>Données de suivi :</strong> Les historiques de relance sont automatiquement chargés depuis la base de données. Aucun fichier JSON requis.
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:18px;align-items:center">
+      <button class="dd-btn-secondary" onclick="closeDDImport()">Annuler</button>
+      <button class="dd-btn-primary" id="dd-btn-analyze" disabled onclick="ddAnalyzeData()">Analyser la balance</button>
+    </div>
+  </div>
+</div>
+
+<!-- Étape 2: Dashboard analyse -->
+<div class="dd-overlay" id="dd-analysis-overlay">
+  <div class="dd-modal wide">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Tableau de bord — <span id="dd-dash-date"></span></div>
+      <button class="dd-btn-secondary" onclick="closeDDAnalysis()" style="font-size:11px;padding:6px 12px">Retour</button>
+    </div>
+    <div class="dd-step-bar">
+      <div class="dd-step-item done" id="dd-s1b">1 — Import</div>
+      <div class="dd-step-item active" id="dd-s2b">2 — Analyse</div>
+      <div class="dd-step-item" id="dd-s3b">3 — Génération</div>
+      <div class="dd-step-item" id="dd-s4b">4 — Export</div>
+    </div>
+    <div id="dd-metrics-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px"></div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-bottom:14px">
+      <div class="card" style="padding:12px">
+        <div class="card-title">Créances</div>
+        <div style="position:relative;width:160px;height:160px;margin:auto">
+          <canvas id="dd-pie-chart2" width="160" height="160"></canvas>
+          <div id="dd-pie-tooltip2" style="display:none;position:absolute;background:rgba(0,0,0,.8);color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;pointer-events:none;white-space:nowrap;z-index:10;"></div>
+        </div>
+        <div id="dd-legend2" style="margin-top:8px"></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="font-size:12px;min-width:unset;width:100%">
+          <thead><tr><th>Client</th><th>Facture</th><th>Retard</th><th style="text-align:right">Solde</th><th>Catégorie</th></tr></thead>
+          <tbody id="dd-table-body2"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--muted)" id="dd-action-count"></span>
+      <button class="dd-btn-primary" onclick="ddStartGeneration()">Générer le rapport</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Historique (premier lancement) -->
+<div class="dd-overlay" id="dd-historique-overlay">
+  <div class="dd-modal wide">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Premier lancement — historique des relances</div>
+      <button class="dd-close" onclick="closeDDHistorique()">×</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Pour chaque facture éligible, indiquez le niveau de relance déjà effectué.</p>
+    <div id="dd-historique-form" style="max-height:360px;overflow-y:auto;padding-right:4px"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="dd-btn-primary" onclick="validateDDHistorique()">Valider et analyser</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Adresse -->
+<div class="dd-overlay" id="dd-adresse-overlay">
+  <div class="dd-modal">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title" id="dd-adresse-title">Adresse client</div>
+      <button class="dd-close" onclick="skipDDAdresse()">×</button>
+    </div>
+    <div class="dd-progress-bar"><div class="dd-progress-fill" id="dd-adresse-progress"></div></div>
+    <div class="dd-counter" id="dd-adresse-counter"></div>
+    <p style="font-size:14px;font-weight:700;color:var(--blue);margin-bottom:14px" id="dd-adresse-client-name"></p>
+    <div class="dd-form-group"><label>Nom / Raison sociale</label><input type="text" id="dd-adr-nom"></div>
+    <div class="dd-form-group"><label>Adresse ligne 1</label><input type="text" id="dd-adr-ligne1" placeholder="ex: 10 rue de la Paix"></div>
+    <div class="dd-form-group"><label>Complément d'adresse</label><input type="text" id="dd-adr-ligne2" placeholder="Bât A, étage 3 (optionnel)"></div>
+    <div class="dd-form-row">
+      <div class="dd-form-group"><label>Code postal</label><input type="text" id="dd-adr-cp"></div>
+      <div class="dd-form-group"><label>Ville</label><input type="text" id="dd-adr-ville"></div>
+    </div>
+    <div class="dd-form-group"><label>Pays</label><input type="text" id="dd-adr-pays" value="France"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:16px">
+      <button class="dd-btn-secondary" onclick="skipDDAdresse()">Passer</button>
+      <button class="dd-btn-primary" onclick="saveDDAdresse()">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Avoirs -->
+<div class="dd-overlay" id="dd-avoir-overlay">
+  <div class="dd-modal">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Avoirs / remboursements — action requise</div>
+      <button class="dd-close" onclick="saveDDAvoir()">×</button>
+    </div>
+    <div id="dd-avoir-body" style="max-height:360px;overflow-y:auto"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="dd-btn-primary" onclick="saveDDAvoir()">Enregistrer les choix</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rapport prêt -->
+<div class="dd-overlay" id="dd-rapport-overlay">
+  <div class="dd-modal">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Rapport prêt</div>
+      <div style="display:flex;gap:8px">
+        <button class="dd-btn-secondary" onclick="closeDDRapport()" style="font-size:11px;padding:6px 12px">Retour</button>
+        <button class="dd-btn-green" id="dd-btn-download" onclick="ddDownloadAll()">Télécharger les documents</button>
+      </div>
+    </div>
+    <div class="dd-rapport-ok">
+      <div class="dd-rapport-ok-title">Le rapport va être téléchargé</div>
+      <div class="dd-rapport-ok-body">
+        • <strong>H1103_Rapport_DD_[date].html</strong> — rapport complet (Ctrl+P pour imprimer)<br>
+        • Les données (niveaux, adresses) sont <strong>sauvegardées automatiquement</strong> dans la base Firebase
+      </div>
+    </div>
+    <div id="dd-rapport-summary"></div>
+  </div>
+</div>
+
+<input type="file" id="dd-csv-hidden" accept=".csv" style="display:none">
 </body>
 </html>
