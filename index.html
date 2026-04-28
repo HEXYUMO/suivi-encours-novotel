@@ -1495,15 +1495,26 @@ function ddUpdateSuivi(suivi, rows) {
   if(!suivi.factures) suivi.factures = {};
   const act=new Set(rows.filter(f=>f.valide).map(f=>f.facture));
   const prev=new Set(Object.keys(suivi.factures));
+
+  // Factures réglées ce mois → archiver
   for(const n of prev){
     if(!act.has(n)){
       suivi.factures_reglees[n]={...suivi.factures[n],date_reglement:DD_TSTR};
       delete suivi.factures[n];
     }
   }
+
+  // Nouvelles factures → initialiser à 0
   rows.filter(f=>f.valide&&!prev.has(f.facture)).forEach(f=>{
     suivi.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};
   });
+
+  // ✅ Auto-incrément mensuel : factures toujours impayées depuis >60j avec relance en cours
+  rows.filter(f=>f.valide && f.jours>60 && suivi.factures[f.facture]).forEach(f=>{
+    const e = suivi.factures[f.facture];
+    if(e.niveau_actuel >= 1) e.niveau_actuel += 1;
+  });
+
   suivi.meta.dernier_export=DD_TSTR;
   return suivi;
 }
@@ -1790,26 +1801,48 @@ function closeDDRapport() {
 
 // ─── Téléchargement ───
 function ddDownloadAll() {
-  const btn=document.getElementById('dd-btn-download');
-  btn.textContent='Génération…'; btn.disabled=true;
-  const dateTag=DD_TSTR.replace(/\//g,'');
+  const btn    = document.getElementById('dd-btn-download');
+  const retour = document.getElementById('dd-btn-retour');
+  btn.textContent = 'Génération…'; btn.disabled = true;
+  if(retour) retour.style.display = 'none';
+  const dateTag = DD_TSTR.replace(/\//g,'');
 
-  // Sauvegarder en Firebase (données déjà sauvées tout au long du traitement)
   saveDDToFirebase();
   renderDDPage();
-  updateDDNavBadge();
 
-  // Uniquement le rapport HTML
-  const html=ddGenerateRapport();
-  const htmlBlob=new Blob([html],{type:'text/html;charset=utf-8'});
-  const htmlA=document.createElement('a'); htmlA.href=URL.createObjectURL(htmlBlob);
-  htmlA.download='H1103_Rapport_DD_'+dateTag+'.html'; htmlA.click();
-  btn.textContent='Rapport téléchargé ✓';
+  const html     = ddGenerateRapport();
+  const htmlBlob = new Blob([html],{type:'text/html;charset=utf-8'});
+  const htmlA    = document.createElement('a');
+  htmlA.href     = URL.createObjectURL(htmlBlob);
+  htmlA.download = 'H1103_Rapport_DD_'+dateTag+'.html';
+  htmlA.click();
+
+  btn.textContent = '✓ Rapport téléchargé';
+  btn.style.background = 'var(--green)';
+  // Remplacer Retour par Fermer
+  if(retour){
+    retour.textContent = 'Fermer';
+    retour.style.display = '';
+    retour.onclick = closeDDRapportAll;
+  }
   ddSetStep(4);
-  setTimeout(()=>{
-    document.getElementById('dd-rapport-overlay').classList.remove('open');
-    ddSetStep(1);
-  },2500);
+}
+
+function closeDDRapportAll() {
+  // Ferme tous les overlays DD et réinitialise
+  ['dd-rapport-overlay','dd-analysis-overlay','dd-import-overlay'].forEach(id=>{
+    document.getElementById(id)?.classList.remove('open');
+  });
+  const btn    = document.getElementById('dd-btn-download');
+  const retour = document.getElementById('dd-btn-retour');
+  if(btn)    { btn.textContent = 'Télécharger le rapport'; btn.disabled = false; btn.style.background = ''; }
+  if(retour) { retour.textContent = 'Retour'; retour.onclick = closeDDRapport; }
+  ddSetStep(1);
+  ddCsvData = null;
+  const badge = document.getElementById('dd-badge-csv');
+  if(badge){ badge.textContent='Aucun fichier CSV'; badge.className='dd-badge default'; }
+  const btnA = document.getElementById('dd-btn-analyze');
+  if(btnA) btnA.disabled = true;
 }
 
 // ─── Génération HTML rapport ───
@@ -2155,13 +2188,13 @@ window.addEventListener('load',()=>{
 </div>
 
 <!-- Rapport prêt -->
-<div class="dd-overlay" id="dd-rapport-overlay">
+<div class="dd-overlay" id="dd-rapport-overlay" onclick="if(event.target===this)closeDDRapportAll()">
   <div class="dd-modal">
     <div class="dd-modal-head">
       <div class="dd-modal-title">Rapport prêt</div>
       <div style="display:flex;gap:8px">
-        <button class="dd-btn-secondary" onclick="closeDDRapport()" style="font-size:11px;padding:6px 12px">Retour</button>
-        <button class="dd-btn-green" id="dd-btn-download" onclick="ddDownloadAll()">Télécharger les documents</button>
+        <button class="dd-btn-secondary" id="dd-btn-retour" onclick="closeDDRapport()" style="font-size:11px;padding:6px 12px">Retour</button>
+        <button class="dd-btn-green" id="dd-btn-download" onclick="ddDownloadAll()">Télécharger le rapport</button>
       </div>
     </div>
     <div class="dd-rapport-ok">
