@@ -277,17 +277,14 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
     <div class="nav-item" id="nav-arrhes" onclick="navigate('arrhes')">
       <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Encours
-      <span class="nav-badge amber" id="nav-badge-arrhes">0</span>
     </div>
     <div class="nav-item" id="nav-fp" onclick="navigate('fp')">
       <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Factures perm.
-      <span class="nav-badge" id="nav-badge-fp">0</span>
     </div>
     <div class="nav-item" id="nav-debiteurs" onclick="navigate('debiteurs')">
       <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
       Débiteurs divers
-      <span class="nav-badge" id="nav-badge-dd" style="background:var(--blue)">0</span>
     </div>
     <div class="nav-sep"></div>
     <div class="nav-cat">Opérationnel</div>
@@ -355,14 +352,18 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
         </div>
         <div class="card">
           <div class="card-title">CA portefeuille vs budget 2026</div>
-          <div class="chart-legend">
-            <span><span class="leg-sq" style="background:#185FA5"></span>Réalisé</span>
-            <span><span class="leg-sq" style="background:#EF9F27"></span>En cours</span>
-            <span><span class="leg-sq" style="background:#5DCAA5"></span>Portefeuille</span>
-            <span><span class="leg-line"></span>Budget</span>
-          </div>
-          <div style="position:relative;width:100%;height:196px">
-            <canvas id="budget-chart" role="img" aria-label="CA vs budget mensuel 2026"></canvas>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <div style="flex:1;min-width:0;position:relative;height:196px">
+              <canvas id="budget-chart" role="img" aria-label="CA vs budget mensuel 2026"></canvas>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:9px;padding-top:4px;min-width:88px">
+              <div class="chart-legend" style="flex-direction:column;gap:9px;flex-wrap:nowrap">
+                <span><span class="leg-sq" style="background:#185FA5"></span>Réalisé</span>
+                <span><span class="leg-sq" style="background:#E8A000"></span>En cours</span>
+                <span><span class="leg-sq" style="background:#5DCAA5"></span>Portefeuille</span>
+                <span><span class="leg-sq" style="background:rgba(150,150,150,.22);border:1.5px solid #999;box-sizing:border-box"></span>Budget</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -421,11 +422,11 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
             </div>
             <div id="dd-legend" style="width:100%;padding:0 8px;"></div>
           </div>
-          <div class="card" style="overflow:auto;">
-            <div class="card-title">Détail des créances</div>
+          <div class="card" style="overflow:auto;padding:14px 10px">
+            <div class="card-title" style="padding:0 6px;margin-bottom:8px">Détail des créances</div>
             <table style="min-width:unset;width:100%">
               <thead><tr>
-                <th>Client</th><th>Facture</th><th style="text-align:right">Montant</th><th>Niveau</th>
+                <th>Client</th><th>Facture</th><th style="text-align:right">Montant</th><th>Niveau</th><th style="width:32px"></th>
               </tr></thead>
               <tbody id="dd-summary-table"></tbody>
             </table>
@@ -1004,23 +1005,25 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
   const canvas=document.getElementById('budget-chart');if(!canvas)return;
   const pc=(stateSettings&&stateSettings.pastCA)||{};
 
-  const caData=[], caColors=[];
+  const caData=[], caColors=[], caBorderColors=[];
   for(let m=0;m<12;m++){
     const k=`${currentYear}-${pad(m+1)}`;
     let ca=null;
     if(m+1<currentMonth){
-      // Realized: prefer settings.pastCA
       const v=pc[k]!==undefined ? pc[k] : ((monthlyCA[k]||{ca:0}).ca);
       if(v>0)ca=v;
       caColors.push('#185FA5');
+      caBorderColors.push('#185FA5');
     } else if(m+1===currentMonth){
       const v=(monthlyCA[k]||{ca:0}).ca;
       if(v>0)ca=v;
-      caColors.push('#EF9F27');
+      caColors.push('#E8A000');
+      caBorderColors.push('#E8A000');
     } else {
       const v=(monthlyCA[k]||{ca:0}).ca;
       if(v>0)ca=v;
       caColors.push('#5DCAA5');
+      caBorderColors.push('#5DCAA5');
     }
     caData.push(ca);
   }
@@ -1031,34 +1034,32 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
       labels:MOIS_LABELS,
       datasets:[
         {
-          type:'bar',label:'CA',data:caData,
+          type:'bar', label:'CA', data:caData,
           backgroundColor:caColors,
-          borderRadius:4,barPercentage:.55,categoryPercentage:.85,order:2
+          borderColor:caBorderColors,
+          borderWidth:0,
+          borderRadius:4, barPercentage:.5, categoryPercentage:.85, order:2
         },
         {
-          type:'bar',label:'Budget',
+          type:'bar', label:'Budget',
           data:BUDGET_2026,
-          borderColor:'#888',
-          borderWidth:2.5,
-          borderDash:[5,4],
-          BackgroundColor:'#94A3B8',
-          pointRadius:3,
-          pointHoverRadius:5,
-          fill:false,
-          tension:0,
-          order:1
+          backgroundColor:'rgba(150,150,150,0.18)',
+          borderColor:'rgba(150,150,150,0.7)',
+          borderWidth:1.5,
+          borderRadius:4, barPercentage:.75, categoryPercentage:.85, order:1
         }
       ]
     },
     options:{
-      responsive:true,maintainAspectRatio:false,
-      layout:{padding:{top:8,right:6,left:2,bottom:2}},
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:8,right:4,left:2,bottom:2}},
       plugins:{
         legend:{display:false},
         tooltip:{
           callbacks:{
             label:c=>{
-              if(c.raw==null)return null;
+              if(c.raw==null) return null;
+              const labels=['Réalisé','En cours','Portefeuille','Budget'];
               return c.dataset.label+' : '+Math.round(c.raw).toLocaleString('fr-FR')+' €';
             }
           }
@@ -1066,13 +1067,13 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
       },
       scales:{
         x:{
-          grid:{color:'rgba(0,0,0,.08)'},
-          border:{color:'rgba(0,0,0,.15)'},
+          grid:{color:'rgba(0,0,0,.06)'},
+          border:{color:'rgba(0,0,0,.12)'},
           ticks:{color:'#555',font:{size:10,family:'DM Sans, Arial'},maxRotation:0}
         },
         y:{
-          grid:{color:'rgba(0,0,0,.08)'},
-          border:{color:'rgba(0,0,0,.15)'},
+          grid:{color:'rgba(0,0,0,.06)'},
+          border:{color:'rgba(0,0,0,.12)'},
           ticks:{
             color:'#555',font:{size:10,family:'DM Mono, monospace'},
             callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M€':v>=1000?Math.round(v/1000)+'k€':v
@@ -1236,10 +1237,11 @@ function moveRowFP(svc){if(!activeDotsId||!stateFP[activeDotsId])return;stateFP[
 document.addEventListener('click',()=>document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open')));
 
 function updateNavBadges(){
-  const newA=Object.values(stateArrhes).filter(r=>r.isNew).length;
-  const urgF=Object.values(stateFP).filter(r=>isOverdue(r.echeance)).length;
-  const ba=document.getElementById('nav-badge-arrhes');if(ba){ba.textContent=newA;ba.style.display=newA>0?'inline-flex':'none';}
-  const bf=document.getElementById('nav-badge-fp');if(bf){bf.textContent=urgF;bf.style.display=urgF>0?'inline-flex':'none';}
+  // Les badges sont désactivés — fonction conservée pour compatibilité
+}
+
+function updateDDNavBadge() {
+  // Badge DD supprimé de la sidebar
 }
 
 // ═══════════════════════ MAIL ═══════════════════════
@@ -1307,9 +1309,18 @@ function renderDDPage() {
 function renderDDDashboard() {
   if(!stateDDSuivi || !stateDDSuivi.factures) return;
   const factures = stateDDSuivi.factures;
-  const entries  = Object.entries(factures);
 
-  // Calcul des KPIs basé sur montant_original
+  // Fix 2 : filtrer les entrées sans montant (avoirs sans montant, etc.)
+  const entries = Object.entries(factures)
+    .filter(([, f]) => f.montant_original && f.montant_original > 0);
+
+  // Fix 3 : trier par niveau décroissant, puis montant décroissant
+  entries.sort((a, b) => {
+    const nivDiff = (b[1].niveau_actuel||0) - (a[1].niveau_actuel||0);
+    if(nivDiff !== 0) return nivDiff;
+    return (b[1].montant_original||0) - (a[1].montant_original||0);
+  });
+
   let total = 0, actions = 0, medMontant = 0, medCount = 0, dangerCount = 0, dangerMontant = 0;
   const byCat = {};
   entries.forEach(([, f]) => {
@@ -1325,7 +1336,6 @@ function renderDDDashboard() {
     if(niv > 4)  { dangerCount++; dangerMontant += m; }
   });
 
-  // KPIs
   const setEl2 = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
   setEl2('dd-kpi-total',     ddFmtAmt(total)+' €');
   setEl2('dd-kpi-total-sub', entries.length+' factures');
@@ -1336,29 +1346,29 @@ function renderDDDashboard() {
   setEl2('dd-kpi-danger',    dangerCount);
   setEl2('dd-kpi-danger-sub', dangerCount > 0 ? ddFmtAmt(dangerMontant)+' €' : '—');
 
-  // Dernière importation
   if(stateDDSuivi.meta) {
     setEl2('dd-last-import-label', 'Dernier export : '+stateDDSuivi.meta.dernier_export);
   }
 
-  // Pie chart
   renderDDPie('dd-pie-chart','dd-legend','dd-pie-tooltip', byCat, total);
 
-  // Tableau résumé
+  // Fix 3+4 : toutes les lignes, triées, avec menu ···
   const tbody = document.getElementById('dd-summary-table');
   if(tbody) {
-    tbody.innerHTML = entries.slice(0,20).map(([num, f]) => {
+    tbody.innerHTML = entries.map(([num, f]) => {
       const niv = f.niveau_actuel || 0;
       const cat = ddClassifyNiveau(niv);
       const [bg,fg] = DD_CAT_COLORS[cat] || ['#eee','#333'];
-      return `<tr>
-        <td style="font-weight:600;color:var(--navy3);font-size:11px">${ddEsc(f.client)}</td>
-        <td style="font-family:var(--mono);font-size:11px">${num}</td>
-        <td style="text-align:right;font-family:var(--mono);font-size:11px">${ddFmtAmt(f.montant_original||0)} €</td>
-        <td><span class="dd-cat-pill" style="background:${bg};color:${fg}">${DD_CAT_LABELS[cat]||cat}</span></td>
+      return `<tr id="ddrow-${num}">
+        <td style="font-weight:600;color:var(--navy3);font-size:11px;padding:6px 8px">${ddEsc(f.client)}</td>
+        <td style="font-family:var(--mono);font-size:11px;padding:6px 8px">${num}</td>
+        <td style="text-align:right;font-family:var(--mono);font-size:11px;padding:6px 8px">${ddFmtAmt(f.montant_original||0)} €</td>
+        <td style="padding:6px 8px"><span class="dd-cat-pill" style="background:${bg};color:${fg}">${DD_CAT_LABELS[cat]||cat}</span></td>
+        <td style="padding:4px 4px 4px 0">
+          <button class="btn-dots" onclick="openDDRowMenu(event,'${num}')" style="font-size:14px;padding:2px 6px">···</button>
+        </td>
       </tr>`;
     }).join('');
-    if(entries.length > 20) tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;color:var(--muted);font-size:11px;padding:8px">… et ${entries.length-20} autres</td></tr>`;
   }
 }
 
@@ -1480,10 +1490,20 @@ function ddBuildSuivi(rows) {
 }
 
 function ddUpdateSuivi(suivi, rows) {
+  // Firebase sérialise {} en null — protection critique
+  if(!suivi.factures_reglees) suivi.factures_reglees = {};
+  if(!suivi.factures) suivi.factures = {};
   const act=new Set(rows.filter(f=>f.valide).map(f=>f.facture));
   const prev=new Set(Object.keys(suivi.factures));
-  for(const n of prev){if(!act.has(n)){suivi.factures_reglees[n]={...suivi.factures[n],date_reglement:DD_TSTR};delete suivi.factures[n];}}
-  rows.filter(f=>f.valide&&!prev.has(f.facture)).forEach(f=>{suivi.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};});
+  for(const n of prev){
+    if(!act.has(n)){
+      suivi.factures_reglees[n]={...suivi.factures[n],date_reglement:DD_TSTR};
+      delete suivi.factures[n];
+    }
+  }
+  rows.filter(f=>f.valide&&!prev.has(f.facture)).forEach(f=>{
+    suivi.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};
+  });
   suivi.meta.dernier_export=DD_TSTR;
   return suivi;
 }
@@ -1690,6 +1710,28 @@ function ddShowAdresseModal() {
 }
 
 function saveDDAdresse() {
+  if(window._ddAdresseEditMode) {
+    // Mode édition directe depuis menu ···
+    const num = window._ddAdresseEditMode;
+    window._ddAdresseEditMode = null;
+    const skipBtn = document.getElementById('dd-adr-skip-btn');
+    if(skipBtn) skipBtn.style.display = '';
+    if(stateDDSuivi?.factures?.[num]) {
+      stateDDSuivi.factures[num].adresse = {
+        nom:    document.getElementById('dd-adr-nom').value,
+        ligne1: document.getElementById('dd-adr-ligne1').value,
+        ligne2: document.getElementById('dd-adr-ligne2').value,
+        cp:     document.getElementById('dd-adr-cp').value,
+        ville:  document.getElementById('dd-adr-ville').value,
+        pays:   document.getElementById('dd-adr-pays').value
+      };
+      saveDDToFirebase();
+      renderDDDashboard();
+    }
+    document.getElementById('dd-adresse-overlay').classList.remove('open');
+    return;
+  }
+  // Mode workflow normal
   const inv=ddAdresseQueue[ddAdresseIdx];
   if(stateDDSuivi.factures[inv.facture]) {
     stateDDSuivi.factures[inv.facture].adresse={
@@ -1700,10 +1742,8 @@ function saveDDAdresse() {
       ville:document.getElementById('dd-adr-ville').value,
       pays:document.getElementById('dd-adr-pays').value
     };
-    // Mise à jour dans les invoices
     const inv2=ddInvoices.find(i=>i.facture===inv.facture);
     if(inv2) inv2.adresse=stateDDSuivi.factures[inv.facture].adresse;
-    // Sauvegarde Firebase immédiate après chaque adresse
     saveDDToFirebase();
   }
   document.getElementById('dd-adresse-overlay').classList.remove('open');
@@ -1879,7 +1919,73 @@ function ddSetStep(n) {
     if(el2) el2.className=cls;
   });
 }
-// ═══════════════════════ FIN DD MODULE ═══════════════════════
+// ─── Menu 3 points DD ───
+let ddActiveRowNum = null;
+const DD_ROW_MENU_ID = 'dd-row-menu';
+
+function openDDRowMenu(e, num) {
+  e.stopPropagation();
+  ddActiveRowNum = num;
+  let menu = document.getElementById(DD_ROW_MENU_ID);
+  if(!menu) {
+    menu = document.createElement('div');
+    menu.id = DD_ROW_MENU_ID;
+    menu.className = 'dots-menu';
+    menu.innerHTML = `
+      <div class="dmlabel">Modifier</div>
+      <div class="dmi" onclick="openDDEditNiveau()">✏ Niveau de relance</div>
+      <div class="dmi" onclick="openDDEditAdresse()">📍 Adresse postale</div>`;
+    document.body.appendChild(menu);
+  }
+  document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
+  const rect = e.currentTarget.getBoundingClientRect();
+  menu.style.top   = (rect.bottom+4)+'px';
+  menu.style.right = (window.innerWidth-rect.right)+'px';
+  menu.style.left  = 'auto';
+  menu.classList.add('open');
+}
+
+function openDDEditNiveau() {
+  const num = ddActiveRowNum;
+  document.getElementById(DD_ROW_MENU_ID)?.classList.remove('open');
+  if(!num || !stateDDSuivi?.factures?.[num]) return;
+  const f = stateDDSuivi.factures[num];
+  document.getElementById('dd-edit-niv-title').textContent = f.client + ' — Fact. ' + num;
+  document.getElementById('dd-edit-niv-select').value = f.niveau_actuel || 0;
+  document.getElementById('dd-edit-niv-overlay').classList.add('open');
+}
+
+function saveDDEditNiveau() {
+  const num = ddActiveRowNum;
+  if(!num || !stateDDSuivi?.factures?.[num]) return;
+  const niv = parseInt(document.getElementById('dd-edit-niv-select').value)||0;
+  stateDDSuivi.factures[num].niveau_actuel = niv;
+  saveDDToFirebase();
+  renderDDDashboard();
+  document.getElementById('dd-edit-niv-overlay').classList.remove('open');
+}
+
+function openDDEditAdresse() {
+  const num = ddActiveRowNum;
+  document.getElementById(DD_ROW_MENU_ID)?.classList.remove('open');
+  if(!num || !stateDDSuivi?.factures?.[num]) return;
+  const f = stateDDSuivi.factures[num];
+  const adr = f.adresse || {};
+  document.getElementById('dd-adresse-title').textContent   = 'Modifier adresse — ' + f.client;
+  document.getElementById('dd-adresse-counter').textContent = 'Facture ' + num;
+  document.getElementById('dd-adresse-client-name').textContent = f.client;
+  document.getElementById('dd-adr-nom').value    = adr.nom    || f.client;
+  document.getElementById('dd-adr-ligne1').value = adr.ligne1 || '';
+  document.getElementById('dd-adr-ligne2').value = adr.ligne2 || '';
+  document.getElementById('dd-adr-cp').value     = adr.cp     || '';
+  document.getElementById('dd-adr-ville').value  = adr.ville  || '';
+  document.getElementById('dd-adr-pays').value   = adr.pays   || 'France';
+  window._ddAdresseEditMode = num;
+  const skipBtn = document.getElementById('dd-adr-skip-btn');
+  if(skipBtn) skipBtn.style.display = 'none';
+  document.getElementById('dd-adresse-overlay').classList.add('open');
+}
+// ─── FIN menu 3 points DD ───
 window.addEventListener('load',()=>{
   const upd=()=>{const e=document.getElementById('topbar-date');if(e)e.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
   upd();setInterval(upd,60000);
@@ -2003,8 +2109,33 @@ window.addEventListener('load',()=>{
     </div>
     <div class="dd-form-group"><label>Pays</label><input type="text" id="dd-adr-pays" value="France"></div>
     <div style="display:flex;justify-content:space-between;margin-top:16px">
-      <button class="dd-btn-secondary" onclick="skipDDAdresse()">Passer</button>
+      <button class="dd-btn-secondary" onclick="skipDDAdresse()" id="dd-adr-skip-btn">Passer</button>
       <button class="dd-btn-primary" onclick="saveDDAdresse()">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Édition Niveau (menu ···) -->
+<div class="dd-overlay" id="dd-edit-niv-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="dd-modal" style="max-width:360px">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title" id="dd-edit-niv-title">Modifier le niveau</div>
+      <button class="dd-close" onclick="document.getElementById('dd-edit-niv-overlay').classList.remove('open')">×</button>
+    </div>
+    <div class="dd-form-group">
+      <label>Niveau de relance</label>
+      <select id="dd-edit-niv-select" style="width:100%;border:1.5px solid var(--border);border-radius:7px;padding:10px 12px;font-size:13px;font-family:var(--font);background:var(--bg)">
+        <option value="0">0 — Non relancé</option>
+        <option value="1">1 — 1ère relance (email)</option>
+        <option value="2">2 — 2ème relance (courrier)</option>
+        <option value="3">3 — 3ème relance (courrier)</option>
+        <option value="4">4 — Mise en demeure</option>
+        <option value="5">5 — Créance en danger</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:16px">
+      <button class="dd-btn-secondary" onclick="document.getElementById('dd-edit-niv-overlay').classList.remove('open')">Annuler</button>
+      <button class="dd-btn-primary" onclick="saveDDEditNiveau()">Enregistrer</button>
     </div>
   </div>
 </div>
