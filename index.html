@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Novotel Nice — Pilotage</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBkMWY0YSIvPjxyZWN0IHg9IjYiIHk9IjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iNiIgeT0iMTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiByeD0iMSIgZmlsbD0iIzRBOTBFMiIvPjxwb2x5Z29uIHBvaW50cz0iMTYsMiA1LDEzIDI3LDEzIiBmaWxsPSIjMkI1MkExIi8+PC9zdmc+">
-
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -17,13 +16,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <style>
-/* ─── RESET & VARIABLES ─── */
 :root{
   --font:'DM Sans','Segoe UI',Arial,sans-serif;
   --mono:'DM Mono','Courier New',monospace;
-  --navy:#0d1f4a;--navy2:#162b5e;--navy3:#1F3864;
+  --navy:#0d1f4a;--navy3:#1F3864;
   --blue:#4A90E2;--blue-l:#E3F0FF;
   --green:#2E7D32;--green-l:#E8F5E9;
   --amber:#E8A000;--amber-l:#FFF8E1;
@@ -39,20 +36,17 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg)}
-
-/* ─── SHELL ─── */
 .app{display:flex;height:100vh;width:100vw;overflow:hidden}
 
 /* ─── SIDEBAR ─── */
-.sidebar{width:var(--sw);background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:20;box-shadow:3px 0 16px rgba(0,0,0,.18)}
+.sidebar{width:var(--sw);background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;z-index:20;box-shadow:3px 0 16px rgba(0,0,0,.18);position:relative}
 .sidebar::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(160deg,rgba(74,144,226,.1) 0%,transparent 55%)}
 .sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sb-mark{display:flex;align-items:center;gap:10px;margin-bottom:5px}
 .sb-icon{width:34px;height:34px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(74,144,226,.4)}
 .sb-wordmark{color:#fff;font-size:14.5px;font-weight:700;letter-spacing:2.8px}
 .sb-sub{color:rgba(255,255,255,.32);font-size:8px;letter-spacing:.9px;padding-left:44px;line-height:1.5}
-.nav{padding:10px 0;flex:1;overflow-y:auto}
-.nav::-webkit-scrollbar{display:none}
+.nav{padding:10px 0;flex:1;overflow-y:auto}.nav::-webkit-scrollbar{display:none}
 .nav-cat{padding:12px 18px 4px;font-size:8px;color:rgba(255,255,255,.28);letter-spacing:1.2px;font-weight:700;text-transform:uppercase}
 .nav-sep{height:1px;background:rgba(255,255,255,.07);margin:5px 18px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:rgba(255,255,255,.48);font-size:11.5px;font-weight:500;border-left:3px solid transparent;transition:all .15s;user-select:none;text-decoration:none}
@@ -64,9 +58,12 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .nav-ext{margin-left:auto;font-size:9px;color:rgba(255,255,255,.22)}
 .nav-badge{margin-left:auto;font-size:9px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-weight:700;display:none;align-items:center;justify-content:center}
 .nav-badge.amber{background:var(--amber)}
-.sb-foot{padding:12px 16px 18px;border-top:1px solid rgba(255,255,255,.08)}
-.import-btn{width:100%;background:rgba(74,144,226,.18);border:1.5px solid rgba(74,144,226,.35);border-radius:8px;padding:9px 13px;color:rgba(255,255,255,.92);font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:var(--font);margin-bottom:10px}
+.sb-foot{padding:10px 14px 16px;border-top:1px solid rgba(255,255,255,.08)}
+.import-btn{width:100%;background:rgba(74,144,226,.18);border:1.5px solid rgba(74,144,226,.35);border-radius:8px;padding:9px 13px;color:rgba(255,255,255,.92);font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-family:var(--font);margin-bottom:8px}
 .import-btn:hover{background:rgba(74,144,226,.3);border-color:rgba(74,144,226,.6)}
+.settings-btn{width:100%;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:7px 12px;color:rgba(255,255,255,.45);font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s;font-family:var(--font);margin-bottom:8px}
+.settings-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75)}
+.settings-btn.active{color:#fff;border-color:rgba(74,144,226,.5);background:rgba(74,144,226,.1)}
 .sb-live{display:flex;align-items:center;gap:6px;font-size:9px;color:rgba(255,255,255,.26)}
 .live-dot{width:6px;height:6px;background:#4CAF50;border-radius:50%;animation:pulse 2.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
@@ -74,7 +71,6 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 /* ─── MAIN ─── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .topbar{height:var(--th);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0;gap:12px}
-.topbar-left{display:flex;align-items:center;gap:10px}
 .topbar-crumb{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .topbar-crumb span{color:var(--navy3);font-weight:600}
 .topbar-right{display:flex;align-items:center;gap:16px}
@@ -87,10 +83,9 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:4px}
 
-/* ─── IMPORT BANNER ─── */
+/* ─── BANNER ─── */
 .import-banner{background:var(--red);color:#fff;font-size:12px;font-weight:500;padding:9px 22px;display:none;align-items:center;gap:8px;flex-shrink:0}
 .import-banner.show{display:flex}
-.import-banner svg{flex-shrink:0}
 
 /* ─── PAGES ─── */
 .page{display:none;padding:18px 22px}
@@ -101,17 +96,17 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
 .kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh)}
 .kpi-val{font-size:22px;font-weight:700;color:var(--navy3);line-height:1.1;font-family:var(--mono)}
-.kpi-val sup{font-size:13px;font-weight:400;margin-left:2px;vertical-align:super}
 .kpi-lbl{font-size:11px;color:var(--muted);margin-top:4px}
 .kpi-sub{font-size:10px;margin-top:3px}
 .kpi-sub.g{color:var(--green)}.kpi-sub.r{color:var(--red)}.kpi-sub.a{color:var(--amber)}.kpi-sub.mu{color:var(--muted)}
 .charts-row{display:grid;grid-template-columns:1fr 1.2fr;gap:12px}
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}
 .card-title{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.chart-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-bottom:9px;flex-wrap:wrap}
-.leg-sq{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+.chart-legend{display:flex;gap:14px;font-size:11px;color:#555;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.leg-sq{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+.leg-line{width:18px;height:3px;display:inline-block;margin-right:4px;vertical-align:middle;border-top:2.5px dashed #888;position:relative;top:1px}
 
-/* ─── ENCOURS SECTIONS ─── */
+/* ─── ENCOURS ─── */
 .section{margin-bottom:14px}
 .section-header{display:flex;align-items:center;gap:10px;margin-bottom:7px;padding:0 2px}
 .sbadge{font-size:9.5px;font-weight:700;padding:3px 10px;border-radius:5px;letter-spacing:.3px}
@@ -120,8 +115,6 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .sbadge-purple{background:var(--pur-l);color:var(--pur)}
 .sbadge-amber{background:var(--amber-l);color:#856404}
 .smeta{font-size:11px;color:var(--muted)}
-
-/* ─── TABLE ─── */
 .table-wrap{background:var(--white);border-radius:var(--r);border:1px solid var(--border);overflow:auto;box-shadow:var(--sh)}
 table{width:100%;border-collapse:collapse;font-size:12px;min-width:860px}
 th{background:#F7F9FD;padding:8px 10px;text-align:left;font-size:9px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;text-transform:uppercase;letter-spacing:.4px}
@@ -133,31 +126,20 @@ tr:hover td{background:#FAFCFF}
 .amount-neg{color:var(--red)}
 .note-prev{font-size:10px;color:var(--blue);font-style:italic;max-width:170px;line-height:1.4}
 .date-mj{font-size:10px;color:var(--muted2);white-space:nowrap;font-family:var(--mono)}
-
-/* Editable */
 .editable{border:1px solid transparent;border-radius:5px;padding:4px 7px;min-height:28px;cursor:text;transition:border-color .15s,background .15s;outline:none;width:100%;min-width:110px;font-size:12px;font-family:var(--font);background:transparent;resize:none;display:block;line-height:1.4}
 .editable:hover{border-color:#D0DCF0;background:#FAFCFF}
 .editable:focus{border-color:var(--blue);background:#F5F9FF;box-shadow:0 0 0 3px rgba(74,144,226,.1)}
 .editable:empty::before{content:attr(placeholder);color:var(--muted2);font-style:italic;pointer-events:none}
-
-/* Status select */
 .status-sel{border:none;border-radius:12px;padding:3px 20px 3px 9px;font-size:11px;font-weight:600;cursor:pointer;appearance:none;outline:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;font-family:var(--font)}
-.s-attente{background:#F0F0F0;color:#666}
-.s-encours{background:var(--amber-l);color:#856404}
-.s-rembours{background:var(--blue-l);color:#1565C0}
-.s-report{background:var(--pur-l);color:var(--pur)}
-.s-solde{background:var(--green-l);color:var(--green)}
-.s-verifier{background:var(--red-l);color:var(--red)}
+.s-attente{background:#F0F0F0;color:#666}.s-encours{background:var(--amber-l);color:#856404}
+.s-rembours{background:var(--blue-l);color:#1565C0}.s-report{background:var(--pur-l);color:var(--pur)}
+.s-solde{background:var(--green-l);color:var(--green)}.s-verifier{background:var(--red-l);color:var(--red)}
 .s-urgent{background:var(--red);color:#fff;animation:urgp 2s infinite}
 @keyframes urgp{0%,100%{opacity:1}50%{opacity:.72}}
-
-/* Badges & Assign */
 .nbadge{display:inline-block;background:#FFECB3;color:#856404;font-size:8.5px;padding:1px 5px;border-radius:3px;margin-left:5px;font-weight:700;vertical-align:middle}
 .assign-btns{display:flex;gap:4px;flex-wrap:wrap}
 .assign-btn{font-size:10px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--white);cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;font-family:var(--font)}
 .assign-btn:hover{background:var(--navy3);color:#fff;border-color:var(--navy3)}
-
-/* Dots */
 .btn-dots{background:none;border:1px solid transparent;border-radius:5px;cursor:pointer;padding:4px 8px;font-size:15px;color:var(--muted2);line-height:1;font-weight:700;letter-spacing:2px;display:block;transition:all .15s}
 .btn-dots:hover{background:var(--bg);color:#666;border-color:var(--border)}
 .dots-menu{display:none;position:fixed;background:var(--white);border:1px solid var(--border);border-radius:9px;box-shadow:var(--sh2);z-index:1000;min-width:172px;padding:5px 0}
@@ -166,8 +148,25 @@ tr:hover td{background:#FAFCFF}
 .dmi:hover{background:#F4F8FF;color:var(--navy3)}
 .dmsep{height:1px;background:#F0F0F0;margin:3px 0}
 .dmlabel{padding:6px 14px 3px;font-size:8.5px;color:var(--muted2);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+input[type=date]{border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:11px;color:#555;width:100%;font-family:var(--mono);background:var(--white);transition:border-color .15s}
+input[type=date]:focus{outline:none;border-color:var(--blue)}
 
-/* ─── IMPORT MODAL ─── */
+/* ─── SETTINGS PAGE ─── */
+.settings-section{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);margin-bottom:16px}
+.settings-h{font-size:14px;font-weight:700;color:var(--navy3);margin-bottom:6px}
+.settings-desc{font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.settings-months{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.settings-month{display:flex;flex-direction:column;gap:5px}
+.settings-month-lbl{font-size:11px;font-weight:600;color:var(--navy3)}
+.settings-month-input{border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;font-family:var(--mono);color:var(--text);width:100%;transition:border-color .15s;background:var(--bg)}
+.settings-month-input:focus{outline:none;border-color:var(--blue);background:#fff}
+.settings-month-input.has-value{border-color:var(--green);background:#F8FFF8}
+.settings-month-sub{font-size:10px;color:var(--muted)}
+.settings-save{background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.settings-save:hover{background:var(--navy)}
+.settings-ok{font-size:11px;color:var(--green);margin-left:12px;display:none}
+
+/* ─── MODAL ─── */
 .modal-bg{position:fixed;inset:0;background:rgba(13,31,74,.48);display:none;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(3px)}
 .modal-bg.open{display:flex}
 .modal{background:var(--white);border-radius:14px;padding:24px 26px;width:330px;box-shadow:var(--sh2);animation:mIn .18s ease-out}
@@ -175,7 +174,6 @@ tr:hover td{background:#FAFCFF}
 .modal-title{font-size:13.5px;font-weight:700;color:var(--navy3);margin-bottom:16px}
 .modal-opt{display:flex;align-items:flex-start;gap:12px;padding:13px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;margin-bottom:9px;transition:all .15s}
 .modal-opt:hover{background:#F4F8FF;border-color:var(--blue)}
-.modal-opt.disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
 .mopt-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mopt-label{font-size:12.5px;font-weight:600;color:var(--navy3)}
 .mopt-sub{font-size:10px;color:var(--muted);margin-top:2px}
@@ -185,11 +183,6 @@ tr:hover td{background:#FAFCFF}
 /* ─── COMING SOON ─── */
 .coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:10px;color:var(--muted)}
 .coming-soon h2{font-size:17px;font-weight:600;color:var(--muted2)}
-.coming-soon p{font-size:12px}
-
-/* ─── DATE INPUT ─── */
-input[type=date]{border:1px solid var(--border);border-radius:5px;padding:3px 6px;font-size:11px;color:#555;width:100%;font-family:var(--mono);background:var(--white);transition:border-color .15s}
-input[type=date]:focus{outline:none;border-color:var(--blue)}
 </style>
 </head>
 <body>
@@ -214,7 +207,6 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
     </div>
     <div class="sb-sub">NICE CENTRE VIEUX-NICE</div>
   </div>
-
   <nav class="nav">
     <div class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
       <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><rect x="1" y="7" width="4" height="6" rx=".8" fill="currentColor"/><rect x="5.5" y="4" width="4" height="9" rx=".8" fill="currentColor"/><rect x="10" y="1" width="3" height="12" rx=".8" fill="currentColor"/></svg>
@@ -245,11 +237,14 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       <span class="nav-ext">↗</span>
     </a>
   </nav>
-
   <div class="sb-foot">
     <button class="import-btn" onclick="openImportModal()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v7M4.5 6.5L7 9l2.5-2.5" stroke="rgba(255,255,255,.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.65)" stroke-width="1.4" stroke-linecap="round"/></svg>
       Importer un fichier
+    </button>
+    <button class="settings-btn" id="settings-btn" onclick="navigate('settings')">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.5 2.5l1 1M10.5 10.5l1 1M11.5 2.5l-1 1M3.5 10.5l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
   </div>
@@ -257,85 +252,45 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 
 <!-- ═══════════ MAIN ═══════════ -->
 <main class="main">
-
-  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-left">
+    <div style="display:flex;align-items:center;gap:10px">
       <div class="topbar-crumb">Novotel Nice &rsaquo; <span id="topbar-page">Tableau de bord</span></div>
       <div class="topbar-pill" id="last-import-label">Aucune importation</div>
     </div>
     <div class="topbar-right">
-      <div class="topbar-fb" id="firebase-status">
-        <span style="width:5px;height:5px;background:#CCC;border-radius:50%;display:inline-block"></span> Connexion...
-      </div>
+      <div class="topbar-fb" id="firebase-status"><span style="width:5px;height:5px;background:#CCC;border-radius:50%;display:inline-block"></span> Connexion...</div>
       <div class="topbar-date" id="topbar-date"></div>
     </div>
   </div>
 
-  <!-- IMPORT BANNER -->
   <div class="import-banner" id="import-banner">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13.5h13L8 2z" stroke="rgba(255,255,255,.8)" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6.5v3" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="#fff"/></svg>
     Données journalières non importées — les chiffres affichés peuvent être erronés
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
 
-    <!-- ─── PAGE DASHBOARD ─── -->
+    <!-- ─── DASHBOARD ─── -->
     <div class="page active" id="page-dashboard">
-
-      <!-- AUJOURD'HUI -->
       <div class="slbl" id="dash-today-label">Aujourd'hui</div>
       <div class="kpi-grid">
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-to-day">—</div>
-          <div class="kpi-lbl">TO du jour</div>
-          <div class="kpi-sub mu" id="kpi-to-day-sub">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-pm-day">—</div>
-          <div class="kpi-lbl">Prix moyen</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-revpar-day">—</div>
-          <div class="kpi-lbl">RevPAR</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-ca-day">—</div>
-          <div class="kpi-lbl">CA hébergement</div>
-        </div>
+        <div class="kpi"><div class="kpi-val" id="kpi-to-day">—</div><div class="kpi-lbl">TO du jour</div><div class="kpi-sub mu" id="kpi-to-day-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-pm-day">—</div><div class="kpi-lbl">Prix moyen</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-revpar-day">—</div><div class="kpi-lbl">RevPAR</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-ca-day">—</div><div class="kpi-lbl">CA hébergement</div></div>
       </div>
-
-      <!-- CUMULÉ MOIS -->
       <div class="slbl" id="dash-month-label">Cumulé — portefeuille complet</div>
       <div class="kpi-grid">
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-to-month">—</div>
-          <div class="kpi-lbl">TO cumulé</div>
-          <div class="kpi-sub mu" id="kpi-to-month-sub">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-ca-month">—</div>
-          <div class="kpi-lbl">CA hébergement</div>
-          <div class="kpi-sub mu" id="kpi-ca-month-sub">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-pm-month">—</div>
-          <div class="kpi-lbl">Prix moyen du mois</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val" id="kpi-advance">—</div>
-          <div class="kpi-lbl" id="kpi-advance-lbl">Avance budget</div>
-          <div class="kpi-sub" id="kpi-advance-sub">—</div>
-        </div>
+        <div class="kpi"><div class="kpi-val" id="kpi-to-month">—</div><div class="kpi-lbl">TO cumulé</div><div class="kpi-sub mu" id="kpi-to-month-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-ca-month">—</div><div class="kpi-lbl">CA hébergement</div><div class="kpi-sub" id="kpi-ca-month-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-pm-month">—</div><div class="kpi-lbl">Prix moyen du mois</div></div>
+        <div class="kpi"><div class="kpi-val" id="kpi-advance">—</div><div class="kpi-lbl" id="kpi-advance-lbl">Avance budget</div><div class="kpi-sub mu" id="kpi-advance-sub">—</div></div>
       </div>
-
-      <!-- CHARTS -->
       <div class="charts-row">
         <div class="card">
           <div class="card-title">Portefeuille TO — 7 prochains jours</div>
-          <div style="position:relative;width:100%;height:200px">
-            <canvas id="to-chart" role="img" aria-label="TO portefeuille 7 jours">Chargement...</canvas>
+          <div style="position:relative;width:100%;height:220px">
+            <canvas id="to-chart" role="img" aria-label="TO portefeuille 7 jours"></canvas>
           </div>
         </div>
         <div class="card">
@@ -344,17 +299,16 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
             <span><span class="leg-sq" style="background:#185FA5"></span>Réalisé</span>
             <span><span class="leg-sq" style="background:#EF9F27"></span>En cours</span>
             <span><span class="leg-sq" style="background:#5DCAA5"></span>Portefeuille</span>
-            <span><span class="leg-sq" style="background:transparent;border:1.5px solid #999;border-radius:2px"></span>Budget</span>
+            <span><span class="leg-line"></span>Budget</span>
           </div>
-          <div style="position:relative;width:100%;height:180px">
-            <canvas id="budget-chart" role="img" aria-label="CA vs budget mensuel 2026">Chargement...</canvas>
+          <div style="position:relative;width:100%;height:196px">
+            <canvas id="budget-chart" role="img" aria-label="CA vs budget mensuel 2026"></canvas>
           </div>
         </div>
       </div>
     </div>
-    <!-- /dashboard -->
 
-    <!-- ─── PAGE ENCOURS (ARRHES) ─── -->
+    <!-- ─── ENCOURS ─── -->
     <div class="page" id="page-arrhes">
       <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
         <div class="kpi"><div class="kpi-val" id="arrhes-stat-total">—</div><div class="kpi-lbl">Arrhes à traiter</div></div>
@@ -364,7 +318,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       <div id="arrhes-sections"></div>
     </div>
 
-    <!-- ─── PAGE FACTURES PERMANENTES ─── -->
+    <!-- ─── FP ─── -->
     <div class="page" id="page-fp">
       <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px">
         <div class="kpi"><div class="kpi-val" id="fp-stat-total">—</div><div class="kpi-lbl">Factures à traiter</div></div>
@@ -374,20 +328,36 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       <div id="fp-sections"></div>
     </div>
 
-    <!-- ─── PAGE DÉBITEURS ─── -->
+    <!-- ─── DÉBITEURS ─── -->
     <div class="page" id="page-debiteurs">
-      <div class="coming-soon">
-        <div style="font-size:48px;opacity:.2">🏗</div>
-        <h2>Débiteurs divers</h2>
-        <p>Ce module est en cours de développement.</p>
+      <div class="coming-soon"><div style="font-size:48px;opacity:.2">🏗</div><h2>Débiteurs divers</h2><p>Ce module est en cours de développement.</p></div>
+    </div>
+
+    <!-- ─── PARAMÈTRES ─── -->
+    <div class="page" id="page-settings">
+      <div class="settings-section">
+        <div class="settings-h">CA hébergement réalisé — mois passés</div>
+        <div class="settings-desc">Saisir le CA hébergement TTC réalisé pour chaque mois clôturé. Ces valeurs sont partagées en temps réel avec toute l'équipe et utilisées pour calculer l'avance ou le retard sur le budget annuel.</div>
+        <div class="settings-months" id="settings-months-grid"></div>
+        <div style="display:flex;align-items:center">
+          <button class="settings-save" onclick="saveSettings()">Sauvegarder</button>
+          <span class="settings-ok" id="settings-ok">✓ Enregistré</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-h">Informations</div>
+        <div class="settings-desc">
+          <strong>180 chambres</strong> — base de calcul TO et RevPAR.<br>
+          Budget 2026 : Jan 144 950 € · Fév 282 420 € · Mars 359 040 € · Avr 583 060 € · Mai 760 340 € · Juin 903 271 € · Juil 1 056 407 € · Août 1 104 640 € · Sept 857 915 € · Oct 630 925 € · Nov 173 310 € · Déc 226 064 €
+        </div>
       </div>
     </div>
 
-  </div><!-- /content -->
+  </div>
 </main>
-</div><!-- /app -->
+</div>
 
-<!-- ═══════════ IMPORT MODAL ═══════════ -->
+<!-- IMPORT MODAL -->
 <div class="modal-bg" id="import-modal" onclick="if(event.target===this)closeImportModal()">
   <div class="modal">
     <div class="modal-title">Quel fichier souhaitez-vous importer ?</div>
@@ -395,29 +365,22 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       <div class="mopt-icon" style="background:#EBF4FF">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="#1F3864" stroke-width="1.3"/><path d="M5 8h10M5 11h7" stroke="#1F3864" stroke-width="1.3" stroke-linecap="round"/></svg>
       </div>
-      <div>
-        <div class="mopt-label">Données journalières</div>
-        <div class="mopt-sub">CSV Oxygroup · TO, PM, CA du jour</div>
-      </div>
+      <div><div class="mopt-label">Données journalières</div><div class="mopt-sub">CSV Oxygroup · TO, PM, CA du jour</div></div>
     </div>
     <div class="modal-opt" onclick="triggerXLSImport()">
       <div class="mopt-icon" style="background:#FFF5E6">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="#E8A000" stroke-width="1.3"/><path d="M5 8h10M5 11h10M5 14h6" stroke="#E8A000" stroke-width="1.3" stroke-linecap="round"/></svg>
       </div>
-      <div>
-        <div class="mopt-label">Balance des encours</div>
-        <div class="mopt-sub">XLS balance · Arrhes + Factures perm.</div>
-      </div>
+      <div><div class="mopt-label">Balance des encours</div><div class="mopt-sub">XLS balance · Arrhes + Factures perm.</div></div>
     </div>
     <div class="modal-cancel" onclick="closeImportModal()">Annuler</div>
   </div>
 </div>
 
-<!-- Hidden file inputs -->
 <input type="file" id="file-input-xls" accept=".xls,.xlsx" style="display:none" onchange="handleXLS(this.files[0])">
 <input type="file" id="file-input-csv" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
 
-<!-- Dots menu — Arrhes -->
+<!-- DOTS MENUS -->
 <div id="dots-menu-arrhes" class="dots-menu">
   <div class="dmlabel">Déplacer vers</div>
   <div class="dmi" onclick="moveRow('reception')">Réception</div>
@@ -429,8 +392,6 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
   <div class="dmi" onclick="sendMail('commerciaux')">✉ Commerciaux</div>
   <div class="dmi" onclick="sendMail('comptabilite')">✉ Comptabilité</div>
 </div>
-
-<!-- Dots menu — FP -->
 <div id="dots-menu-fp" class="dots-menu">
   <div class="dmlabel">Déplacer vers</div>
   <div class="dmi" onclick="moveRowFP('reception')">Réception</div>
@@ -444,475 +405,397 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// CONSTANTES
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ CONSTANTES ═══════════════════════
 const NB_CHAMBRES = 180;
 const BUDGET_2026 = [144950,282420,359040,583060,760340,903271,1056407,1104640,857915,630925,173310,226064];
 const MOIS_LABELS = ['Jan.','Fév.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
 const MOIS_LONGS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-
-const SERVICES   = ['reception','commerciaux','comptabilite'];
-const SVC_LABEL  = {reception:'Réception',commerciaux:'Commerciaux',comptabilite:'Comptabilité'};
-const MAIL_DEST  = {
-  reception:    {to:'h1103-om1@accor.com', cc:'h1103-om@accor.com',  label:'Réception'},
-  commerciaux:  {to:'h1103-sb@accor.com',  cc:'h1103-re2@accor.com', label:'Service Commercial'},
-  comptabilite: {to:'h1103-gl@accor.com',  cc:'',                    label:'Comptabilité'},
+const SERVICES    = ['reception','commerciaux','comptabilite'];
+const SVC_LABEL   = {reception:'Réception',commerciaux:'Commerciaux',comptabilite:'Comptabilité'};
+const MAIL_DEST   = {
+  reception:    {to:'h1103-om1@accor.com',cc:'h1103-om@accor.com',  label:'Réception'},
+  commerciaux:  {to:'h1103-sb@accor.com', cc:'h1103-re2@accor.com', label:'Service Commercial'},
+  comptabilite: {to:'h1103-gl@accor.com', cc:'',                    label:'Comptabilité'},
 };
-const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers'};
+const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers',settings:'Paramètres'};
 
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ STATE ═══════════════════════
 let db = null;
 let stateArrhes    = {};
 let stateFP        = {};
 let stateDashboard = null;
+let stateSettings  = { pastCA: {} }; // { "2026-01": 150264.27, ... }
 let currentView    = 'dashboard';
 let activeDotsId   = null;
 let toChartInst    = null;
 let budgetChartInst = null;
 
-function clientId(client, nc) {
-  return `${nc}_${String(client).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`;
-}
+function clientId(c,n){ return `${n}_${String(c).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`; }
 
-// ═══════════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ NAVIGATION ═══════════════════════
 function navigate(view) {
   currentView = view;
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const navEl = document.getElementById('nav-' + view);
-  if (navEl) navEl.classList.add('active');
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + view);
-  if (pageEl) pageEl.classList.add('active');
-  document.getElementById('topbar-page').textContent = PAGE_NAMES[view] || view;
-  if (view === 'arrhes')    renderArrhes();
-  else if (view === 'fp')   renderFP();
-  else if (view === 'dashboard') renderDashboard();
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const ni = document.getElementById('nav-'+view);
+  if (ni) ni.classList.add('active');
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  const pe = document.getElementById('page-'+view);
+  if (pe) pe.classList.add('active');
+  document.getElementById('topbar-page').textContent = PAGE_NAMES[view]||view;
+  const sb = document.getElementById('settings-btn');
+  if (sb) sb.classList.toggle('active', view==='settings');
+  if (view==='arrhes')    renderArrhes();
+  else if (view==='fp')   renderFP();
+  else if (view==='dashboard') renderDashboard();
+  else if (view==='settings')  renderSettingsPage();
 }
 
-// ═══════════════════════════════════════════════════════
-// IMPORT MODAL
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ IMPORT MODAL ═══════════════════════
 function openImportModal()  { document.getElementById('import-modal').classList.add('open'); }
 function closeImportModal() { document.getElementById('import-modal').classList.remove('open'); }
 function triggerXLSImport() { closeImportModal(); document.getElementById('file-input-xls').click(); }
 function triggerCSVImport() { closeImportModal(); document.getElementById('file-input-csv').click(); }
 
-// ═══════════════════════════════════════════════════════
-// FIREBASE
-// ═══════════════════════════════════════════════════════
-function connectFirebase(config) {
+// ═══════════════════════ FIREBASE ═══════════════════════
+function connectFirebase(cfg) {
   try {
-    const {initializeApp, getDatabase, ref, onValue} = window._fbImports;
-    const app = initializeApp(config, 'pilotage-app');
+    const {initializeApp,getDatabase,ref,onValue} = window._fbImports;
+    const app = initializeApp(cfg,'pilotage-app');
     db = getDatabase(app);
-
-    onValue(ref(db,'encours'), snap => {
-      if (snap.val()) { stateArrhes = snap.val(); if (currentView==='arrhes') renderArrhes(); updateNavBadges(); }
+    onValue(ref(db,'encours'), s=>{
+      if(s.val()){stateArrhes=s.val();if(currentView==='arrhes')renderArrhes();updateNavBadges();}
     });
-    onValue(ref(db,'encoursFP'), snap => {
-      if (snap.val()) { stateFP = snap.val(); if (currentView==='fp') renderFP(); updateNavBadges(); }
+    onValue(ref(db,'encoursFP'), s=>{
+      if(s.val()){stateFP=s.val();if(currentView==='fp')renderFP();updateNavBadges();}
     });
-    onValue(ref(db,'dashboardData'), snap => {
-      if (snap.val()) {
-        stateDashboard = snap.val();
-        localStorage.setItem('dashboard_state', JSON.stringify(stateDashboard));
-        if (currentView==='dashboard') renderDashboard();
+    onValue(ref(db,'dashboardData'), s=>{
+      if(s.val()){
+        stateDashboard=s.val();
+        localStorage.setItem('dashboard_state',JSON.stringify(stateDashboard));
+        if(currentView==='dashboard')renderDashboard();
         checkImportBanner();
-        const li = stateDashboard.lastImport || '';
-        if (li) document.getElementById('last-import-label').textContent = 'Importé le ' + li;
+        const li=stateDashboard.lastImport||'';
+        if(li) setEl('last-import-label','Importé le '+li);
       }
     });
-
-    document.getElementById('firebase-status').innerHTML =
+    onValue(ref(db,'settings'), s=>{
+      if(s.val()){
+        stateSettings=s.val();
+        localStorage.setItem('settings_state',JSON.stringify(stateSettings));
+        if(currentView==='dashboard')renderDashboard();
+        if(currentView==='settings')renderSettingsPage();
+      }
+    });
+    document.getElementById('firebase-status').innerHTML=
       '<span style="width:5px;height:5px;background:#4CAF50;border-radius:50%;display:inline-block;animation:pulse 2.5s infinite"></span> Firebase · En direct';
-    document.getElementById('live-label').textContent = 'En direct';
+    setEl('live-label','En direct');
   } catch(e) {
     console.error(e);
-    document.getElementById('live-label').textContent = 'Hors ligne';
-    document.getElementById('firebase-status').textContent = 'Erreur Firebase';
+    setEl('live-label','Hors ligne');
+    document.getElementById('firebase-status').textContent='Erreur Firebase';
   }
 }
 
-function saveArrhesToFirebase() {
+function fbSet(path, data) {
   if (!db) { saveLocal(); return; }
   const {ref,set} = window._fbImports;
-  set(ref(db,'encours'), stateArrhes);
+  set(ref(db,path), data);
 }
-function saveFPToFirebase() {
-  if (!db) { saveLocal(); return; }
-  const {ref,set} = window._fbImports;
-  set(ref(db,'encoursFP'), stateFP);
-}
-function saveDashboardToFirebase(data) {
-  if (!db) { localStorage.setItem('dashboard_state', JSON.stringify(data)); return; }
-  const {ref,set} = window._fbImports;
-  set(ref(db,'dashboardData'), data);
-}
+function saveArrhesToFirebase() { fbSet('encours',stateArrhes); }
+function saveFPToFirebase()     { fbSet('encoursFP',stateFP); }
+function saveDashboard(data)    { fbSet('dashboardData',data); }
+function saveSettingsFB()       { fbSet('settings',stateSettings); }
+
 function saveLocal() {
-  try { localStorage.setItem('encours_state',    JSON.stringify(stateArrhes)); } catch(e){}
-  try { localStorage.setItem('encours_fp_state', JSON.stringify(stateFP));     } catch(e){}
+  try{localStorage.setItem('encours_state',JSON.stringify(stateArrhes));}catch(e){}
+  try{localStorage.setItem('encours_fp_state',JSON.stringify(stateFP));}catch(e){}
 }
 function loadLocal() {
-  try { const s=localStorage.getItem('encours_state');    if(s) stateArrhes=JSON.parse(s); } catch(e){}
-  try { const s=localStorage.getItem('encours_fp_state'); if(s) stateFP=JSON.parse(s);     } catch(e){}
-  try { const s=localStorage.getItem('dashboard_state');  if(s) stateDashboard=JSON.parse(s); } catch(e){}
+  try{const s=localStorage.getItem('encours_state');    if(s)stateArrhes=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('encours_fp_state'); if(s)stateFP=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('dashboard_state');  if(s)stateDashboard=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('settings_state');   if(s)stateSettings=JSON.parse(s);}catch(e){}
 }
 
-// ═══════════════════════════════════════════════════════
-// BANNER CHECK
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ BANNER ═══════════════════════
 function checkImportBanner() {
-  const banner = document.getElementById('import-banner');
-  if (!stateDashboard || !stateDashboard.lastImportDate) {
-    banner.classList.add('show'); return;
-  }
-  const today = new Date().toLocaleDateString('fr-FR');
-  banner.classList.toggle('show', stateDashboard.lastImportDate !== today);
+  const b = document.getElementById('import-banner');
+  if (!stateDashboard||!stateDashboard.lastImportDate) { b.classList.add('show'); return; }
+  b.classList.toggle('show', stateDashboard.lastImportDate !== new Date().toLocaleDateString('fr-FR'));
 }
 
-// ═══════════════════════════════════════════════════════
-// CSV PARSING (TRACKING JOURNALIER)
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ CSV PARSING ═══════════════════════
 function handleCSV(file) {
   if (!file) return;
   const reader = new FileReader();
-  reader.onerror = () => alert('Erreur de lecture du fichier CSV.');
-  reader.onload = e => {
+  reader.onerror = ()=>alert('Erreur de lecture du fichier CSV.');
+  reader.onload = e=>{
     try {
       const rows = parseCSVRows(e.target.result);
       const data = computeDashboardData(rows);
       stateDashboard = data;
-      saveDashboardToFirebase(data);
-      const d = data.lastImport;
-      document.getElementById('last-import-label').textContent = 'Importé le ' + d;
-      localStorage.setItem('last_import', d);
+      saveDashboard(data);
+      setEl('last-import-label','Importé le '+data.lastImport);
       checkImportBanner();
       renderDashboard();
-      document.getElementById('file-input-csv').value = '';
-    } catch(err) { console.error(err); alert('Erreur parsing CSV : ' + err.message); }
+      document.getElementById('file-input-csv').value='';
+    } catch(err){console.error(err);alert('Erreur parsing CSV : '+err.message);}
   };
-  reader.readAsText(file, 'utf-8');
+  reader.readAsText(file,'utf-8');
 }
 
 function parseCSVRows(text) {
-  text = text.replace(/^\uFEFF/, '');
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(';').map(h => h.replace(/^"(.*)"$/, '$1').trim());
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const vals = lines[i].split(';').map(v => v.replace(/^"(.*)"$/, '$1').trim());
-    const row = {};
-    headers.forEach((h, j) => row[h] = vals[j] || '');
-    rows.push(row);
-  }
-  return rows;
+  text = text.replace(/^\uFEFF/,'');
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+  if (lines.length<2) return [];
+  const headers = lines[0].split(';').map(h=>h.replace(/^"(.*)"$/,'$1').trim());
+  return lines.slice(1).map(line=>{
+    const vals = line.split(';').map(v=>v.replace(/^"(.*)"$/,'$1').trim());
+    const row={}; headers.forEach((h,j)=>row[h]=vals[j]||''); return row;
+  });
 }
 
-function pNum(s) { return parseFloat(String(s||'').replace(',','.')) || 0; }
+function pN(s){ return parseFloat(String(s||'').replace(',','.'))||0; }
 
 function parseCSVDate(s) {
-  if (!s) return null;
-  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-  if (!m) return null;
-  return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  const m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? new Date(+m[3],+m[2]-1,+m[1]) : null;
 }
 
 function computeDashboardData(rows) {
-  const now = new Date(); now.setHours(0,0,0,0);
-  const todayPrefix = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-  const currentYear  = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  const now=new Date(); now.setHours(0,0,0,0);
+  const todayPfx=`${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
+  const yr=now.getFullYear(), mo=now.getMonth()+1;
 
-  // Today A2
-  const todayA2 = rows.find(r => r.typeline==='A2' && r.cdate.startsWith(todayPrefix));
+  const todayA2 = rows.find(r=>r.typeline==='A2'&&r.cdate.startsWith(todayPfx));
 
-  // 7-day portfolio from A2
-  const portfolio7d = [];
-  for (let d = 0; d < 7; d++) {
-    const dt = new Date(now); dt.setDate(dt.getDate()+d);
-    const pf = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
-    const a2 = rows.find(r => r.typeline==='A2' && r.cdate.startsWith(pf));
-    portfolio7d.push(a2 ? {
-      label: `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`,
-      TO:    pNum(a2.occupancy_rate),
-      RN:    Math.round(pNum(a2.room_qty)),
-      PM:    pNum(a2.room_revenue_avg),
-      RevPAR:pNum(a2.REVPAR),
-      CA:    pNum(a2.room_revenue)
-    } : null);
+  // 7-day portfolio
+  const portfolio7d=[];
+  for(let d=0;d<7;d++){
+    const dt=new Date(now); dt.setDate(dt.getDate()+d);
+    const pf=`${pad(dt.getDate())}/${pad(dt.getMonth()+1)}/${dt.getFullYear()}`;
+    const a2=rows.find(r=>r.typeline==='A2'&&r.cdate.startsWith(pf));
+    if(a2) portfolio7d.push({label:`${pad(dt.getDate())}/${pad(dt.getMonth()+1)}`,TO:pN(a2.occupancy_rate),RN:Math.round(pN(a2.room_qty)),PM:pN(a2.room_revenue_avg),RevPAR:pN(a2.REVPAR),CA:pN(a2.room_revenue)});
   }
 
   // Monthly CA from A3 Individual+Group+Crew
-  const SEG = ['Individual','Group','Crew'];
-  const monthlyCA = {};
-  rows.forEach(r => {
-    if (r.typeline!=='A3') return;
-    if (!SEG.includes(r.slabel)) return;
-    const d = parseCSVDate(r.cdate); if(!d) return;
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    if (!monthlyCA[key]) monthlyCA[key] = {rn:0, ca:0};
-    monthlyCA[key].rn += pNum(r.room_qty);
-    monthlyCA[key].ca += pNum(r.room_revenue);
+  const SEG=['Individual','Group','Crew'];
+  const monthlyCA={};
+  rows.forEach(r=>{
+    if(r.typeline!=='A3'||!SEG.includes(r.slabel)) return;
+    const d=parseCSVDate(r.cdate); if(!d) return;
+    const k=`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+    if(!monthlyCA[k]) monthlyCA[k]={rn:0,ca:0};
+    monthlyCA[k].rn+=pN(r.room_qty); monthlyCA[k].ca+=pN(r.room_revenue);
   });
 
-  // Current month cumulated
-  const currKey = `${currentYear}-${String(currentMonth).padStart(2,'0')}`;
-  const md = monthlyCA[currKey] || {rn:0,ca:0};
-  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-  const monthTO     = md.rn > 0 ? md.rn / (NB_CHAMBRES * daysInMonth) * 100 : 0;
-  const monthPM     = md.rn > 0 ? md.ca / md.rn : 0;
-  const monthBudget = BUDGET_2026[currentMonth-1] || 0;
-
-  // Budget advance Jan → currentMonth
-  let advancePast = 0, advanceCurrent = 0;
-  for (let m = 1; m <= currentMonth; m++) {
-    const k = `${currentYear}-${String(m).padStart(2,'0')}`;
-    const v = (monthlyCA[k] || {ca:0}).ca;
-    const b = BUDGET_2026[m-1] || 0;
-    if (m < currentMonth) advancePast    += v - b;
-    else                   advanceCurrent = v - b;
-  }
-  const advanceTotal = advancePast + advanceCurrent;
-
-  // Past months labels for sub
-  const pastLabel = currentMonth > 1
-    ? MOIS_LONGS.slice(0, currentMonth-1).map(l => l.substring(0,3)).join('+') + ' ' + fmtAdvance(advancePast)
-    : null;
+  // Current month
+  const ck=`${yr}-${pad(mo)}`;
+  const md=monthlyCA[ck]||{rn:0,ca:0};
+  const dim=new Date(yr,mo,0).getDate();
+  const monthTO = md.rn>0 ? md.rn/(NB_CHAMBRES*dim)*100 : 0;
+  const monthPM = md.rn>0 ? md.ca/md.rn : 0;
+  const monthBud= BUDGET_2026[mo-1]||0;
 
   return {
-    lastImport:     new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+    lastImport:     new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
     lastImportDate: new Date().toLocaleDateString('fr-FR'),
-    today: todayA2 ? {
-      TO:     pNum(todayA2.occupancy_rate),
-      RN:     Math.round(pNum(todayA2.room_qty)),
-      PM:     pNum(todayA2.room_revenue_avg),
-      RevPAR: pNum(todayA2.REVPAR),
-      CA:     pNum(todayA2.room_revenue),
-      guests: Math.round(pNum(todayA2.guests_nb))
-    } : null,
-    monthCumul: {
-      month: currentMonth, year: currentYear,
-      TO: monthTO, RN: Math.round(md.rn), CA: md.ca,
-      PM: monthPM, budget: monthBudget,
-      advanceTotal, advancePast, advanceCurrent, pastLabel
-    },
-    portfolio7d: portfolio7d.filter(Boolean),
+    today: todayA2?{TO:pN(todayA2.occupancy_rate),RN:Math.round(pN(todayA2.room_qty)),PM:pN(todayA2.room_revenue_avg),RevPAR:pN(todayA2.REVPAR),CA:pN(todayA2.room_revenue),guests:Math.round(pN(todayA2.guests_nb))}:null,
+    monthCumul: {month:mo,year:yr,TO:monthTO,RN:Math.round(md.rn),CA:md.ca,PM:monthPM,budget:monthBud},
+    portfolio7d,
     monthlyCA
   };
 }
 
-function fmtAdvance(v) {
-  const sign = v >= 0 ? '+' : '−';
-  return sign + fmtAmt(Math.abs(v)) + ' €';
-}
+function pad(n){ return String(n).padStart(2,'0'); }
 
-// ═══════════════════════════════════════════════════════
-// XLS PARSING (BALANCE ENCOURS)
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ XLS PARSING ═══════════════════════
 function handleXLS(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onerror = () => alert('Erreur de lecture du fichier XLS.');
-  reader.onload = e => {
-    try {
-      if (typeof XLSX === 'undefined') { alert('Librairie XLSX non chargée.'); return; }
-      const wb   = XLSX.read(new Uint8Array(e.target.result), {type:'array',cellDates:false});
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1,raw:true,defval:null});
-      parseArrhesRows(rows);
-      parseFPRows(rows);
-      const d = new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-      localStorage.setItem('last_import_xls', d);
-      document.getElementById('last-import-label').textContent = 'Importé le ' + d;
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onerror=()=>alert('Erreur de lecture du fichier XLS.');
+  reader.onload=e=>{
+    try{
+      if(typeof XLSX==='undefined'){alert('Librairie XLSX non chargée.');return;}
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:null});
+      parseArrhesRows(rows); parseFPRows(rows);
+      const d=new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      setEl('last-import-label','Importé le '+d);
       saveArrhesToFirebase(); saveFPToFirebase();
-      if (currentView==='arrhes') renderArrhes();
-      if (currentView==='fp')     renderFP();
+      if(currentView==='arrhes')renderArrhes();
+      if(currentView==='fp')renderFP();
       updateNavBadges();
-      document.getElementById('file-input-xls').value = '';
-    } catch(err) { console.error(err); alert('Erreur parsing XLS : ' + err.message); }
+      document.getElementById('file-input-xls').value='';
+    }catch(err){console.error(err);alert('Erreur parsing XLS : '+err.message);}
   };
   reader.readAsArrayBuffer(file);
 }
 
-function xlsHasDate(v) {
-  if (v===null||v===undefined||v==='') return false;
-  if (typeof v==='number'&&v>1000) return true;
-  if (typeof v==='string'&&v.length>4) return true;
-  return false;
-}
-function xlsFmtDate(v) {
-  if (!v||v<1000) return '—';
-  return new Date((v-25569)*86400*1000).toLocaleDateString('fr-FR');
-}
-function xlsEndOfMonth(s) {
-  if (!s||s<1000) return '';
-  const d = new Date((s-25569)*86400*1000);
-  return new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().split('T')[0];
-}
+function xlsHasDate(v){if(v===null||v===undefined||v==='')return false;if(typeof v==='number'&&v>1000)return true;if(typeof v==='string'&&v.length>4)return true;return false;}
+function xlsFmtDate(v){if(!v||v<1000)return '—';return new Date((v-25569)*86400*1000).toLocaleDateString('fr-FR');}
+function xlsEOM(s){if(!s||s<1000)return '';const d=new Date((s-25569)*86400*1000);return new Date(d.getFullYear(),d.getMonth()+1,0).toISOString().split('T')[0];}
 
-function parseArrhesRows(rows) {
-  let inArrhes = false; const arr = [];
-  const STOPS = ['total','encours factures','encours s','balance de'];
-  for (let i=0;i<rows.length;i++) {
-    const row = rows[i]; if(!Array.isArray(row)) continue;
-    const c1=(row[1]!=null?String(row[1]).trim():''); const c1l=c1.toLowerCase();
-    if (!inArrhes) { if(c1l==='arrhes') inArrhes=true; continue; }
-    if (STOPS.some(s=>c1l.startsWith(s))) break;
-    const nc=parseFloat(row[9]); if(!nc||nc<1) continue;
-    if (!xlsHasDate(row[15])&&!xlsHasDate(row[21])) {
-      arr.push({client:c1, nc:Math.round(nc), montant:parseFloat(String(row[25]!=null?row[25]:0).replace(',','.'))||0});
-    }
+function parseArrhesRows(rows){
+  let inA=false; const arr=[];
+  const STOPS=['total','encours factures','encours s','balance de'];
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];if(!Array.isArray(row))continue;
+    const c1=(row[1]!=null?String(row[1]).trim():''),c1l=c1.toLowerCase();
+    if(!inA){if(c1l==='arrhes')inA=true;continue;}
+    if(STOPS.some(s=>c1l.startsWith(s)))break;
+    const nc=parseFloat(row[9]);if(!nc||nc<1)continue;
+    if(!xlsHasDate(row[15])&&!xlsHasDate(row[21]))arr.push({client:c1,nc:Math.round(nc),montant:parseFloat(String(row[25]!=null?row[25]:0).replace(',','.'))||0});
   }
-  const ids = new Set(arr.map(r=>clientId(r.client,r.nc)));
-  Object.keys(stateArrhes).forEach(id=>{ if(!ids.has(id)) delete stateArrhes[id]; });
-  arr.forEach(r => {
-    const id=clientId(r.client,r.nc); const ex=stateArrhes[id];
-    if (ex) {
-      const newNote=ex.commentaire&&ex.commentaire.trim()?(ex.notePrev?ex.notePrev+' → '+ex.commentaire:ex.commentaire):ex.notePrev||'';
-      stateArrhes[id]={...ex,client:r.client,montant:r.montant,notePrev:newNote,isNew:false};
-    } else {
-      stateArrhes[id]={client:r.client,nc:r.nc,montant:r.montant,service:null,commentaire:'',action:'',echeance:'',statut:'En attente',notePrev:'',dateMaj:'',isNew:true};
-    }
+  const ids=new Set(arr.map(r=>clientId(r.client,r.nc)));
+  Object.keys(stateArrhes).forEach(id=>{if(!ids.has(id))delete stateArrhes[id];});
+  arr.forEach(r=>{
+    const id=clientId(r.client,r.nc),ex=stateArrhes[id];
+    if(ex){const nn=ex.commentaire&&ex.commentaire.trim()?(ex.notePrev?ex.notePrev+' → '+ex.commentaire:ex.commentaire):ex.notePrev||'';stateArrhes[id]={...ex,client:r.client,montant:r.montant,notePrev:nn,isNew:false};}
+    else stateArrhes[id]={client:r.client,nc:r.nc,montant:r.montant,service:null,commentaire:'',action:'',echeance:'',statut:'En attente',notePrev:'',dateMaj:'',isNew:true};
   });
 }
 
-function parseFPRows(rows) {
-  let inFP=false; const fp=[];
+function parseFPRows(rows){
+  let inFP=false;const fp=[];
   const STOPS=['total','encours séjours','encours sejours','balance de'];
-  for (let i=0;i<rows.length;i++) {
-    const row=rows[i]; if(!Array.isArray(row)) continue;
-    const c1=(row[1]!=null?String(row[1]).trim():''); const c1l=c1.toLowerCase();
-    if (!inFP) { if(c1l==='encours factures permanentes'){inFP=true;continue;} continue; }
-    if (STOPS.some(s=>c1l.startsWith(s))||c1l==='total') break;
-    const nc=parseFloat(row[9]); if(!nc||nc<1) continue;
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];if(!Array.isArray(row))continue;
+    const c1=(row[1]!=null?String(row[1]).trim():''),c1l=c1.toLowerCase();
+    if(!inFP){if(c1l==='encours factures permanentes'){inFP=true;continue;}continue;}
+    if(STOPS.some(s=>c1l.startsWith(s))||c1l==='total')break;
+    const nc=parseFloat(row[9]);if(!nc||nc<1)continue;
     fp.push({client:c1,nc:Math.round(nc),montant:parseFloat(String(row[25]!=null?row[25]:0).replace(',','.'))||0,dateSerial:row[15]||null});
   }
   const ids=new Set(fp.map(r=>clientId(r.client,r.nc)));
-  Object.keys(stateFP).forEach(id=>{ if(!ids.has(id)) delete stateFP[id]; });
-  fp.forEach(r => {
-    const id=clientId(r.client,r.nc); const ex=stateFP[id];
-    const dateCreation=xlsFmtDate(r.dateSerial); const echeanceAuto=xlsEndOfMonth(r.dateSerial);
-    if (ex) { stateFP[id]={...ex,client:r.client,montant:r.montant,dateCreation,isNew:false}; }
-    else { stateFP[id]={client:r.client,nc:r.nc,montant:r.montant,dateCreation,service:null,commentaire:'',action:'',echeance:echeanceAuto,statut:'En attente',dateMaj:'',isNew:true}; }
+  Object.keys(stateFP).forEach(id=>{if(!ids.has(id))delete stateFP[id];});
+  fp.forEach(r=>{
+    const id=clientId(r.client,r.nc),ex=stateFP[id];
+    const dc=xlsFmtDate(r.dateSerial),ea=xlsEOM(r.dateSerial);
+    if(ex)stateFP[id]={...ex,client:r.client,montant:r.montant,dateCreation:dc,isNew:false};
+    else stateFP[id]={client:r.client,nc:r.nc,montant:r.montant,dateCreation:dc,service:null,commentaire:'',action:'',echeance:ea,statut:'En attente',dateMaj:'',isNew:true};
   });
 }
 
-// ═══════════════════════════════════════════════════════
-// RENDER DASHBOARD
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════ RENDER DASHBOARD ═══════════════════════
 function renderDashboard() {
-  if (!stateDashboard) { checkImportBanner(); return; }
-  const d = stateDashboard;
+  if(!stateDashboard){checkImportBanner();return;}
+  const d=stateDashboard;
+  const now=new Date();
+  const dayFr=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  setEl('dash-today-label','Aujourd\'hui — '+dayFr.charAt(0).toUpperCase()+dayFr.slice(1));
 
-  // Label aujourd'hui
-  const now = new Date();
-  const dayFr = now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  setEl('dash-today-label', 'Aujourd\'hui — ' + dayFr.charAt(0).toUpperCase() + dayFr.slice(1));
-
-  // KPIs jour
-  if (d.today) {
-    setEl('kpi-to-day',     fmtPct(d.today.TO));
-    setEl('kpi-to-day-sub', d.today.RN + ' RN · ' + d.today.guests + ' clients');
-    setEl('kpi-pm-day',     fmtE(d.today.PM));
-    setEl('kpi-revpar-day', fmtE(d.today.RevPAR));
-    setEl('kpi-ca-day',     fmtE(d.today.CA, true));
+  if(d.today){
+    setEl('kpi-to-day',   fmtPct(d.today.TO));
+    setEl('kpi-to-day-sub',d.today.RN+' RN · '+d.today.guests+' clients');
+    setEl('kpi-pm-day',   fmtE(d.today.PM));
+    setEl('kpi-revpar-day',fmtE(d.today.RevPAR));
+    setEl('kpi-ca-day',   fmtEShort(d.today.CA));
   } else {
-    ['kpi-to-day','kpi-pm-day','kpi-revpar-day','kpi-ca-day'].forEach(id => setEl(id,'—'));
+    ['kpi-to-day','kpi-pm-day','kpi-revpar-day','kpi-ca-day'].forEach(id=>setEl(id,'—'));
     setEl('kpi-to-day-sub','Pas de données pour aujourd\'hui');
   }
 
-  // KPIs mois
-  if (d.monthCumul) {
-    const mc = d.monthCumul;
-    const monthName = MOIS_LONGS[mc.month-1] + ' ' + mc.year;
-    setEl('dash-month-label', 'Cumulé ' + monthName + ' — portefeuille complet');
-
+  if(d.monthCumul){
+    const mc=d.monthCumul;
+    setEl('dash-month-label','Cumulé '+MOIS_LONGS[mc.month-1]+' '+mc.year+' — portefeuille complet');
     setEl('kpi-to-month',     fmtPct(mc.TO));
-    setEl('kpi-to-month-sub', mc.RN + ' RN');
-
-    setEl('kpi-ca-month',     fmtE(mc.CA, true));
-    const diffBud = mc.CA - mc.budget;
-    const subCaEl = document.getElementById('kpi-ca-month-sub');
-    subCaEl.textContent = 'Budget : ' + fmtAmt(mc.budget) + ' € (' + fmtAdvance(diffBud) + ')';
-    subCaEl.className   = 'kpi-sub ' + (diffBud >= 0 ? 'g' : 'a');
-
+    setEl('kpi-to-month-sub', mc.RN+' RN');
+    setEl('kpi-ca-month',     fmtEShort(mc.CA));
+    const diffBud=mc.CA-mc.budget;
+    const subCA=document.getElementById('kpi-ca-month-sub');
+    subCA.textContent='Budget : '+fmtAmt(mc.budget)+' € ('+fmtSign(diffBud)+')';
+    subCA.className='kpi-sub '+(diffBud>=0?'g':'a');
     setEl('kpi-pm-month', fmtE(mc.PM));
 
-    const advEl    = document.getElementById('kpi-advance');
-    const advLbl   = document.getElementById('kpi-advance-lbl');
-    const advSub   = document.getElementById('kpi-advance-sub');
-    const advTotal = mc.advanceTotal;
-    advEl.textContent  = fmtAdvance(advTotal);
-    advEl.style.color  = advTotal >= 0 ? 'var(--green)' : 'var(--red)';
-    advLbl.textContent = 'Avance budget Jan→' + MOIS_LONGS[mc.month-1].substring(0,4) + '.';
-    if (mc.pastLabel) {
-      advSub.textContent = mc.pastLabel + ' · ' + MOIS_LONGS[mc.month-1].substring(0,3) + '. ' + fmtAdvance(mc.advanceCurrent);
-      advSub.className   = 'kpi-sub mu';
-    } else {
-      advSub.textContent = '';
-    }
+    // Advance using settings.pastCA
+    const {advTotal,advPast,advCurr} = computeAdvance(mc.year, mc.month, d.monthlyCA||{});
+    const advEl=document.getElementById('kpi-advance');
+    advEl.textContent=fmtSign(advTotal);
+    advEl.style.color=advTotal>=0?'var(--green)':'var(--red)';
+    setEl('kpi-advance-lbl','Avance budget Jan→'+MOIS_LONGS[mc.month-1].substring(0,4)+'.');
+    const pastMonthsLabel = mc.month>1
+      ? MOIS_LONGS.slice(0,mc.month-1).map(l=>l.substring(0,3)).join('+')+' '+fmtSign(advPast)+' · '+MOIS_LONGS[mc.month-1].substring(0,3)+'. '+fmtSign(advCurr)
+      : MOIS_LONGS[0].substring(0,3)+'. '+fmtSign(advCurr);
+    setEl('kpi-advance-sub', pastMonthsLabel);
+    document.getElementById('kpi-advance-sub').className='kpi-sub mu';
   }
 
-  // Charts
-  if (d.portfolio7d && d.portfolio7d.length) renderTOChart(d.portfolio7d);
-  if (d.monthlyCA) renderBudgetChart(d.monthlyCA, d.monthCumul.year, d.monthCumul.month);
-
+  if(d.portfolio7d&&d.portfolio7d.length) renderTOChart(d.portfolio7d);
+  if(d.monthlyCA&&d.monthCumul)           renderBudgetChart(d.monthlyCA,d.monthCumul.year,d.monthCumul.month);
   checkImportBanner();
+}
+
+function computeAdvance(year, currentMonth, monthlyCA) {
+  const pc = (stateSettings&&stateSettings.pastCA) ? stateSettings.pastCA : {};
+  let advPast=0, advCurr=0;
+  for(let m=1;m<=currentMonth;m++){
+    const k=`${year}-${pad(m)}`;
+    const bud=BUDGET_2026[m-1]||0;
+    let ca=0;
+    if(m<currentMonth){
+      // Use settings pastCA if available, else CSV
+      ca = pc[k]!==undefined ? pc[k] : ((monthlyCA[k]||{ca:0}).ca);
+      advPast += ca-bud;
+    } else {
+      ca=(monthlyCA[k]||{ca:0}).ca;
+      advCurr = ca-bud;
+    }
+  }
+  return {advTotal:advPast+advCurr, advPast, advCurr};
 }
 
 // ─── TO CHART ───
 function renderTOChart(p7d) {
-  if (toChartInst) { toChartInst.destroy(); toChartInst = null; }
-  const canvas = document.getElementById('to-chart');
-  if (!canvas) return;
+  if(toChartInst){toChartInst.destroy();toChartInst=null;}
+  const canvas=document.getElementById('to-chart');if(!canvas)return;
+  const rnData=p7d.map(d=>d.RN);
+  const toData=p7d.map(d=>d.TO);
+  const bgColors=toData.map((v,i)=>i===0?'#185FA5':v<60?'#854F0B':'#4A90E2');
 
-  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
-  const gridC  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
-  const textC  = isDark ? 'rgba(255,255,255,.5)'  : 'rgba(0,0,0,.4)';
-  const labelC = isDark ? 'rgba(255,255,255,.7)'  : 'rgba(0,0,0,.55)';
-
-  const labels = p7d.map(d => d.label);
-  const toData = p7d.map(d => d.TO);
-  const rnData = p7d.map(d => d.RN);
-  const bgColors = toData.map((v,i) => i===0 ? '#185FA5' : v < 60 ? '#854F0B' : '#4A90E2');
-
-  const rnPlugin = {
+  const rnPlugin={
     id:'rnPlugin',
-    afterDatasetsDraw(chart) {
-      const ctx = chart.ctx;
-      chart.getDatasetMeta(0).data.forEach((bar, i) => {
+    afterDraw(chart){
+      const ctx=chart.ctx;
+      const meta=chart.getDatasetMeta(0);
+      meta.data.forEach((bar,i)=>{
+        const rn=rnData[i]; if(rn===undefined||rn===null)return;
         ctx.save();
-        ctx.fillStyle   = labelC;
-        ctx.font        = '600 10px DM Sans, Arial, sans-serif';
-        ctx.textAlign   = 'center';
-        ctx.textBaseline= 'bottom';
-        ctx.fillText(rnData[i] + '#', bar.x, bar.y - 3);
+        ctx.fillStyle='#444';
+        ctx.font='bold 11px DM Sans, Arial, sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='bottom';
+        ctx.fillText(rn+'#', bar.x, bar.y-5);
         ctx.restore();
       });
     }
   };
 
-  toChartInst = new Chart(canvas, {
+  toChartInst=new Chart(canvas,{
     type:'bar',
     data:{
-      labels,
-      datasets:[{ label:'TO %', data:toData, backgroundColor:bgColors, borderRadius:4, barPercentage:.65 }]
+      labels:p7d.map(d=>d.label),
+      datasets:[{label:'TO %',data:toData,backgroundColor:bgColors,borderRadius:5,barPercentage:.6}]
     },
     options:{
-      responsive:true, maintainAspectRatio:false,
-      layout:{ padding:{ top:22 } },
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:26,right:6,left:6,bottom:2}},
       plugins:{
         legend:{display:false},
-        tooltip:{ callbacks:{ label:c => c.raw.toFixed(1)+' % · '+rnData[c.dataIndex]+' RN' } }
+        tooltip:{callbacks:{label:c=>c.raw.toFixed(1)+' % · '+rnData[c.dataIndex]+' RN'}}
       },
       scales:{
-        x:{ grid:{color:gridC}, ticks:{color:textC,font:{size:11}} },
-        y:{ min:0,max:100, grid:{color:gridC}, ticks:{color:textC,font:{size:11},callback:v=>v+'%'} }
+        x:{
+          grid:{color:'rgba(0,0,0,.08)',drawTicks:true},
+          border:{color:'rgba(0,0,0,.15)'},
+          ticks:{color:'#555',font:{size:11,family:'DM Sans, Arial'},maxRotation:0}
+        },
+        y:{
+          min:0,max:100,
+          grid:{color:'rgba(0,0,0,.08)'},
+          border:{color:'rgba(0,0,0,.15)'},
+          ticks:{color:'#555',font:{size:11,family:'DM Mono, monospace'},callback:v=>v+'%',stepSize:25}
+        }
       }
     },
     plugins:[rnPlugin]
@@ -921,361 +804,304 @@ function renderTOChart(p7d) {
 
 // ─── BUDGET CHART ───
 function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
-  if (budgetChartInst) { budgetChartInst.destroy(); budgetChartInst = null; }
-  const canvas = document.getElementById('budget-chart');
-  if (!canvas) return;
+  if(budgetChartInst){budgetChartInst.destroy();budgetChartInst=null;}
+  const canvas=document.getElementById('budget-chart');if(!canvas)return;
+  const pc=(stateSettings&&stateSettings.pastCA)||{};
 
-  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
-  const gridC  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
-  const textC  = isDark ? 'rgba(255,255,255,.5)'  : 'rgba(0,0,0,.4)';
-
-  const caData   = [];
-  const caColors = [];
-  for (let m = 0; m < 12; m++) {
-    const key = `${currentYear}-${String(m+1).padStart(2,'0')}`;
-    const v   = (monthlyCA[key] || {ca:0}).ca;
-    caData.push(v > 0 ? v : null);
-    if      (m+1 < currentMonth)  caColors.push('#185FA5'); // réalisé
-    else if (m+1 === currentMonth) caColors.push('#EF9F27'); // en cours
-    else                           caColors.push('#5DCAA5'); // portefeuille
+  const caData=[], caColors=[];
+  for(let m=0;m<12;m++){
+    const k=`${currentYear}-${pad(m+1)}`;
+    let ca=null;
+    if(m+1<currentMonth){
+      // Realized: prefer settings.pastCA
+      const v=pc[k]!==undefined ? pc[k] : ((monthlyCA[k]||{ca:0}).ca);
+      if(v>0)ca=v;
+      caColors.push('#185FA5');
+    } else if(m+1===currentMonth){
+      const v=(monthlyCA[k]||{ca:0}).ca;
+      if(v>0)ca=v;
+      caColors.push('#EF9F27');
+    } else {
+      const v=(monthlyCA[k]||{ca:0}).ca;
+      if(v>0)ca=v;
+      caColors.push('#5DCAA5');
+    }
+    caData.push(ca);
   }
 
-  budgetChartInst = new Chart(canvas, {
+  budgetChartInst=new Chart(canvas,{
     type:'bar',
     data:{
-      labels: MOIS_LABELS,
+      labels:MOIS_LABELS,
       datasets:[
-        { label:'CA',     data:caData,    backgroundColor:caColors,
-          borderRadius:3, barPercentage:.6, categoryPercentage:.85, order:1 },
-        { label:'Budget', data:BUDGET_2026,
-          backgroundColor: isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',
-          borderWidth:1.5, borderColor: isDark?'rgba(255,255,255,.28)':'rgba(0,0,0,.22)',
-          borderRadius:3, barPercentage:.6, categoryPercentage:.85, order:2 }
+        {
+          type:'bar',label:'CA',data:caData,
+          backgroundColor:caColors,
+          borderRadius:4,barPercentage:.55,categoryPercentage:.85,order:2
+        },
+        {
+          type:'line',label:'Budget',
+          data:BUDGET_2026,
+          borderColor:'#888',
+          borderWidth:2.5,
+          borderDash:[5,4],
+          pointBackgroundColor:'#888',
+          pointRadius:3,
+          pointHoverRadius:5,
+          fill:false,
+          tension:0,
+          order:1
+        }
       ]
     },
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:8,right:6,left:2,bottom:2}},
       plugins:{
         legend:{display:false},
-        tooltip:{ callbacks:{ label:c => c.raw==null?null:c.dataset.label+' : '+Math.round(c.raw).toLocaleString('fr-FR')+' €' } }
+        tooltip:{
+          callbacks:{
+            label:c=>{
+              if(c.raw==null)return null;
+              return c.dataset.label+' : '+Math.round(c.raw).toLocaleString('fr-FR')+' €';
+            }
+          }
+        }
       },
       scales:{
-        x:{ grid:{color:gridC}, ticks:{color:textC,font:{size:10},maxRotation:0} },
-        y:{ grid:{color:gridC}, ticks:{ color:textC,font:{size:10},
-          callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M':v>=1000?(v/1000).toFixed(0)+'k':v }}
+        x:{
+          grid:{color:'rgba(0,0,0,.08)'},
+          border:{color:'rgba(0,0,0,.15)'},
+          ticks:{color:'#555',font:{size:10,family:'DM Sans, Arial'},maxRotation:0}
+        },
+        y:{
+          grid:{color:'rgba(0,0,0,.08)'},
+          border:{color:'rgba(0,0,0,.15)'},
+          ticks:{
+            color:'#555',font:{size:10,family:'DM Mono, monospace'},
+            callback:v=>v>=1000000?(v/1000000).toFixed(1)+'M€':v>=1000?Math.round(v/1000)+'k€':v
+          }
+        }
       }
     }
   });
 }
 
-// ═══════════════════════════════════════════════════════
-// RENDER ARRHES
-// ═══════════════════════════════════════════════════════
-function renderArrhes() {
-  const container = document.getElementById('arrhes-sections'); if(!container) return;
-  container.innerHTML = '';
-  const bySvc = {reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
-  Object.entries(stateArrhes).forEach(([id,row]) => (row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
-  const all   = Object.values(stateArrhes);
-  const total = all.reduce((s,r)=>s+(r.montant||0),0);
-  setEl('arrhes-stat-total',  all.length);
-  setEl('arrhes-stat-new',    all.filter(r=>r.isNew).length);
-  setEl('arrhes-stat-amount', fmtAmt(total)+' €');
-  if (bySvc.unassigned.length) container.appendChild(buildSectionArrhes('unassigned',bySvc.unassigned));
-  SERVICES.forEach(svc => { if(bySvc[svc].length) container.appendChild(buildSectionArrhes(svc,bySvc[svc])); });
+// ═══════════════════════ SETTINGS PAGE ═══════════════════════
+function renderSettingsPage() {
+  const now = new Date();
+  const currentYear  = now.getFullYear();
+  const currentMonth = now.getMonth()+1; // past months = 1 to currentMonth-1
+  const pc = (stateSettings&&stateSettings.pastCA)||{};
+  const grid = document.getElementById('settings-months-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  for (let m=1; m<currentMonth; m++) {
+    const k = `${currentYear}-${pad(m)}`;
+    const val = pc[k]!==undefined ? pc[k] : '';
+    const bud = BUDGET_2026[m-1]||0;
+    const diff = val!=='' ? val-bud : null;
+    const diffStr = diff!==null ? ' ('+fmtSign(diff)+')' : '';
+    const hasVal  = val!=='';
+
+    const div = document.createElement('div');
+    div.className = 'settings-month';
+    div.innerHTML = `
+      <div class="settings-month-lbl">${MOIS_LONGS[m-1]}</div>
+      <input class="settings-month-input${hasVal?' has-value':''}" type="number" step="0.01"
+        id="setting-${k}" value="${val}"
+        placeholder="CA réalisé (€)"
+        onchange="onSettingChange('${k}',this)">
+      <div class="settings-month-sub">Budget : ${Math.round(bud).toLocaleString('fr-FR')} €${diffStr}</div>`;
+    grid.appendChild(div);
+  }
+
+  if (currentMonth === 1) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1">Aucun mois clôturé pour l\'instant.</div>';
+  }
 }
 
-function buildSectionArrhes(svc, rows) {
+function onSettingChange(key, input) {
+  const v = parseFloat(input.value)||0;
+  if (!stateSettings.pastCA) stateSettings.pastCA={};
+  stateSettings.pastCA[key] = v;
+  input.classList.toggle('has-value', v>0);
+  // Update diff display
+  const m = parseInt(key.split('-')[1]);
+  const bud = BUDGET_2026[m-1]||0;
+  const diff = v-bud;
+  const sub = input.nextElementSibling;
+  if(sub) sub.textContent = 'Budget : '+Math.round(bud).toLocaleString('fr-FR')+' € ('+fmtSign(diff)+')';
+}
+
+function saveSettings() {
+  // Read all inputs
+  if(!stateSettings.pastCA) stateSettings.pastCA={};
+  const inputs = document.querySelectorAll('.settings-month-input');
+  inputs.forEach(inp=>{
+    const k = inp.id.replace('setting-','');
+    const v = parseFloat(inp.value)||0;
+    if(v>0) stateSettings.pastCA[k]=v;
+  });
+  saveSettingsFB();
+  localStorage.setItem('settings_state',JSON.stringify(stateSettings));
+  const ok=document.getElementById('settings-ok');
+  if(ok){ok.style.display='inline';setTimeout(()=>ok.style.display='none',2500);}
+  // Refresh dashboard
+  if(currentView==='dashboard') renderDashboard();
+  else { if(stateDashboard) renderDashboard(); }
+}
+
+// ═══════════════════════ RENDER ARRHES ═══════════════════════
+function renderArrhes(){
+  const c=document.getElementById('arrhes-sections');if(!c)return;c.innerHTML='';
+  const bySvc={reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
+  Object.entries(stateArrhes).forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
+  const all=Object.values(stateArrhes),total=all.reduce((s,r)=>s+(r.montant||0),0);
+  setEl('arrhes-stat-total',all.length);setEl('arrhes-stat-new',all.filter(r=>r.isNew).length);setEl('arrhes-stat-amount',fmtAmt(total)+' €');
+  if(bySvc.unassigned.length)c.appendChild(buildSectionArrhes('unassigned',bySvc.unassigned));
+  SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionArrhes(svc,bySvc[svc]));});
+}
+function buildSectionArrhes(svc,rows){
   const isU=svc==='unassigned';
   const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
   const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
-  const div=document.createElement('div'); div.className='section';
-  div.innerHTML=`
-    <div class="section-header">
-      <span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span>
-      <span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
-    </div>
-    <div class="table-wrap"><table>
-      <thead><tr>
-        <th style="width:18%">Client</th><th style="width:9%;text-align:right">Montant</th>
-        <th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th>
-        <th style="width:14%">Action requise</th><th style="width:8%">Échéance</th>
-        <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
-      </tr></thead>
-      <tbody id="tbody-a-${svc}"></tbody>
-    </table></div>`;
+  const div=document.createElement('div');div.className='section';
+  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:18%">Client</th><th style="width:9%;text-align:right">Montant</th><th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th><th style="width:14%">Action requise</th><th style="width:8%">Échéance</th><th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-a-${svc}"></tbody></table></div>`;
   const tbody=div.querySelector(`#tbody-a-${svc}`);
   rows.forEach(([id,row])=>tbody.appendChild(buildRowArrhes(id,row,isU)));
   return div;
 }
-
-function buildRowArrhes(id, row, isU) {
-  const tr=document.createElement('tr'); tr.id='row-'+id;
-  if (isU) {
-    tr.innerHTML=`
-      <td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td>
-      <td class="amount">${fmtAmt(row.montant)} €</td>
-      <td colspan="5" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
-      <td></td>
-      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;
-    return tr;
-  }
-  tr.innerHTML=`
-    <td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td>
-    <td class="amount">${fmtAmt(row.montant)} €</td>
-    <td><div class="note-prev">${esc(row.notePrev||'—')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td>
-    <td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td>
-    <td><select class="status-sel ${getStatClass(row.statut)}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td>
-    <td class="date-mj">${row.dateMaj||'—'}</td>
-    <td><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></td>`;
+function buildRowArrhes(id,row,isU){
+  const tr=document.createElement('tr');tr.id='row-'+id;
+  if(isU){tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td><td class="amount">${fmtAmt(row.montant)} €</td><td colspan="5" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td><td></td><td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;return tr;}
+  tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td><td class="amount">${fmtAmt(row.montant)} €</td><td><div class="note-prev">${esc(row.notePrev||'—')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td><td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td><td><select class="status-sel ${getStatClass(row.statut)}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td><td class="date-mj">${row.dateMaj||'—'}</td><td><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></td>`;
   return tr;
 }
 
-// ═══════════════════════════════════════════════════════
-// RENDER FP
-// ═══════════════════════════════════════════════════════
-function renderFP() {
-  const container=document.getElementById('fp-sections'); if(!container) return;
-  container.innerHTML='';
+// ═══════════════════════ RENDER FP ═══════════════════════
+function renderFP(){
+  const c=document.getElementById('fp-sections');if(!c)return;c.innerHTML='';
   const bySvc={reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
   Object.entries(stateFP).forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
-  const all=Object.values(stateFP);
-  const total=all.reduce((s,r)=>s+(r.montant||0),0);
-  const urgentCount=all.filter(r=>isOverdue(r.echeance)).length;
-  setEl('fp-stat-total',  all.length);
-  setEl('fp-stat-urgent', urgentCount);
-  document.getElementById('fp-stat-urgent').style.color=urgentCount>0?'var(--red)':'var(--muted)';
-  setEl('fp-stat-amount', fmtAmt(total)+' €');
-  if (bySvc.unassigned.length) container.appendChild(buildSectionFP('unassigned',bySvc.unassigned));
-  SERVICES.forEach(svc=>{ if(bySvc[svc].length) container.appendChild(buildSectionFP(svc,bySvc[svc])); });
+  const all=Object.values(stateFP),total=all.reduce((s,r)=>s+(r.montant||0),0),urgC=all.filter(r=>isOverdue(r.echeance)).length;
+  setEl('fp-stat-total',all.length);setEl('fp-stat-urgent',urgC);document.getElementById('fp-stat-urgent').style.color=urgC>0?'var(--red)':'var(--muted)';setEl('fp-stat-amount',fmtAmt(total)+' €');
+  if(bySvc.unassigned.length)c.appendChild(buildSectionFP('unassigned',bySvc.unassigned));
+  SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionFP(svc,bySvc[svc]));});
 }
-
-function buildSectionFP(svc, rows) {
+function buildSectionFP(svc,rows){
   const isU=svc==='unassigned';
   const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
   const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
-  const div=document.createElement('div'); div.className='section';
-  div.innerHTML=`
-    <div class="section-header">
-      <span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span>
-      <span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span>
-    </div>
-    <div class="table-wrap"><table>
-      <thead><tr>
-        <th style="width:16%">Client</th><th style="width:9%;text-align:right">Montant</th>
-        <th style="width:10%">Date création</th><th style="width:22%">Commentaire</th>
-        <th style="width:13%">Action requise</th><th style="width:9%">Échéance</th>
-        <th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th>
-      </tr></thead>
-      <tbody id="tbody-fp-${svc}"></tbody>
-    </table></div>`;
+  const div=document.createElement('div');div.className='section';
+  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:16%">Client</th><th style="width:9%;text-align:right">Montant</th><th style="width:10%">Date création</th><th style="width:22%">Commentaire</th><th style="width:13%">Action requise</th><th style="width:9%">Échéance</th><th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-fp-${svc}"></tbody></table></div>`;
   const tbody=div.querySelector(`#tbody-fp-${svc}`);
   rows.forEach(([id,row])=>tbody.appendChild(buildRowFP(id,row,isU)));
   return div;
 }
-
-function buildRowFP(id, row, isU) {
-  const tr=document.createElement('tr'); tr.id='row-'+id;
-  const overdue=isOverdue(row.echeance);
-  const sc=overdue?'s-urgent':getStatClass(row.statut);
-  const amtCls=row.montant<0?'amount amount-neg':'amount';
-  if (isU) {
-    tr.innerHTML=`
-      <td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td>
-      <td class="${amtCls}">${fmtAmt(row.montant)} €</td>
-      <td style="font-size:11px;color:#666;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td>
-      <td colspan="4" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td>
-      <td></td>
-      <td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','fp')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;
-    return tr;
-  }
-  const echeanceFmt=row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—';
-  tr.innerHTML=`
-    <td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td>
-    <td class="${amtCls}">${fmtAmt(row.montant)} €</td>
-    <td style="font-size:11px;color:#555;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="fp" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td>
-    <td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="fp" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td>
-    <td>
-      <input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="fp" onchange="saveField(this)"
-        style="border-color:${overdue?'var(--red)':'var(--border)'};color:${overdue?'var(--red)':'#555'};font-weight:${overdue?'700':'400'}">
-      ${overdue?`<div style="font-size:9px;color:var(--red);font-weight:700;margin-top:2px">⚠ ${echeanceFmt}</div>`:''}
-    </td>
-    <td><select class="status-sel ${sc}" data-id="${id}" data-field="statut" data-view="fp" onchange="saveField(this)">${statusOptions(overdue?'URGENT':row.statut)}</select></td>
-    <td class="date-mj">${row.dateMaj||'—'}</td>
-    <td><button class="btn-dots" onclick="openDots(event,'${id}','fp')">···</button></td>`;
+function buildRowFP(id,row,isU){
+  const tr=document.createElement('tr');tr.id='row-'+id;
+  const overdue=isOverdue(row.echeance),sc=overdue?'s-urgent':getStatClass(row.statut),amtCls=row.montant<0?'amount amount-neg':'amount';
+  if(isU){tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td><td class="${amtCls}">${fmtAmt(row.montant)} €</td><td style="font-size:11px;color:#666;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td><td colspan="4" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service</td><td></td><td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','fp')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;return tr;}
+  const ef=row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—';
+  tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td><td class="${amtCls}">${fmtAmt(row.montant)} €</td><td style="font-size:11px;color:#555;font-family:var(--mono)">${esc(row.dateCreation||'—')}</td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="fp" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="fp" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td><td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="fp" onchange="saveField(this)" style="border-color:${overdue?'var(--red)':'var(--border)'};color:${overdue?'var(--red)':'#555'};font-weight:${overdue?700:400}">${overdue?`<div style="font-size:9px;color:var(--red);font-weight:700;margin-top:2px">⚠ ${ef}</div>`:''}</td><td><select class="status-sel ${sc}" data-id="${id}" data-field="statut" data-view="fp" onchange="saveField(this)">${statusOptions(overdue?'URGENT':row.statut)}</select></td><td class="date-mj">${row.dateMaj||'—'}</td><td><button class="btn-dots" onclick="openDots(event,'${id}','fp')">···</button></td>`;
   return tr;
 }
 
-// ═══════════════════════════════════════════════════════
-// ACTIONS
-// ═══════════════════════════════════════════════════════
-function saveField(el) {
-  const id=el.dataset.id, field=el.dataset.field, view=el.dataset.view;
+// ═══════════════════════ ACTIONS ═══════════════════════
+function saveField(el){
+  const id=el.dataset.id,field=el.dataset.field,view=el.dataset.view;
   const val=el.tagName==='DIV'?el.innerText.trim():el.value;
   const st=view==='fp'?stateFP:stateArrhes;
-  if (!st[id]) return;
-  st[id][field]=val; st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
-  if (field==='statut'&&!isOverdue(st[id].echeance)) el.className='status-sel '+getStatClass(val);
-  if (view==='fp') saveFPToFirebase(); else saveArrhesToFirebase();
+  if(!st[id])return;
+  st[id][field]=val;st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
+  if(field==='statut'&&!isOverdue(st[id].echeance))el.className='status-sel '+getStatClass(val);
+  if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();
   const tr=document.getElementById('row-'+id);
-  if (tr) { const dtd=tr.querySelector('.date-mj'); if(dtd) dtd.textContent=st[id].dateMaj; }
+  if(tr){const dtd=tr.querySelector('.date-mj');if(dtd)dtd.textContent=st[id].dateMaj;}
 }
-
-function assignService(id, svc, view) {
-  const st=view==='fp'?stateFP:stateArrhes;
-  if (!st[id]) return;
-  st[id].service=svc; st[id].isNew=false;
-  if (view==='fp') saveFPToFirebase(); else saveArrhesToFirebase();
-  if (view==='fp') renderFP(); else renderArrhes();
+function assignService(id,svc,view){
+  const st=view==='fp'?stateFP:stateArrhes;if(!st[id])return;
+  st[id].service=svc;st[id].isNew=false;
+  if(view==='fp'){saveFPToFirebase();renderFP();}else{saveArrhesToFirebase();renderArrhes();}
   updateNavBadges();
 }
-
-function openDots(e, id, view) {
-  e.stopPropagation(); activeDotsId=id;
+function openDots(e,id,view){
+  e.stopPropagation();activeDotsId=id;
   document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
   const menu=document.getElementById(view==='fp'?'dots-menu-fp':'dots-menu-arrhes');
   const rect=e.currentTarget.getBoundingClientRect();
-  menu.style.top=(rect.bottom+4)+'px'; menu.style.right=(window.innerWidth-rect.right)+'px'; menu.style.left='auto';
+  menu.style.top=(rect.bottom+4)+'px';menu.style.right=(window.innerWidth-rect.right)+'px';menu.style.left='auto';
   menu.classList.add('open');
 }
+function moveRow(svc){if(!activeDotsId||!stateArrhes[activeDotsId])return;stateArrhes[activeDotsId].service=svc;document.getElementById('dots-menu-arrhes').classList.remove('open');saveArrhesToFirebase();renderArrhes();updateNavBadges();}
+function moveRowFP(svc){if(!activeDotsId||!stateFP[activeDotsId])return;stateFP[activeDotsId].service=svc;document.getElementById('dots-menu-fp').classList.remove('open');saveFPToFirebase();renderFP();updateNavBadges();}
+document.addEventListener('click',()=>document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open')));
 
-function moveRow(svc) {
-  if (!activeDotsId||!stateArrhes[activeDotsId]) return;
-  stateArrhes[activeDotsId].service=svc;
-  document.getElementById('dots-menu-arrhes').classList.remove('open');
-  saveArrhesToFirebase(); renderArrhes(); updateNavBadges();
-}
-function moveRowFP(svc) {
-  if (!activeDotsId||!stateFP[activeDotsId]) return;
-  stateFP[activeDotsId].service=svc;
-  document.getElementById('dots-menu-fp').classList.remove('open');
-  saveFPToFirebase(); renderFP(); updateNavBadges();
-}
-
-document.addEventListener('click', () => {
-  document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
-});
-
-// ═══════════════════════════════════════════════════════
-// BADGES NAV
-// ═══════════════════════════════════════════════════════
-function updateNavBadges() {
+function updateNavBadges(){
   const newA=Object.values(stateArrhes).filter(r=>r.isNew).length;
   const urgF=Object.values(stateFP).filter(r=>isOverdue(r.echeance)).length;
-  const ba=document.getElementById('nav-badge-arrhes');
-  if (ba) { ba.textContent=newA; ba.style.display=newA>0?'inline-flex':'none'; }
-  const bf=document.getElementById('nav-badge-fp');
-  if (bf) { bf.textContent=urgF; bf.style.display=urgF>0?'inline-flex':'none'; }
+  const ba=document.getElementById('nav-badge-arrhes');if(ba){ba.textContent=newA;ba.style.display=newA>0?'inline-flex':'none';}
+  const bf=document.getElementById('nav-badge-fp');if(bf){bf.textContent=urgF;bf.style.display=urgF>0?'inline-flex':'none';}
 }
 
-// ═══════════════════════════════════════════════════════
-// MAIL
-// ═══════════════════════════════════════════════════════
-function sendMail(svc) {
+// ═══════════════════════ MAIL ═══════════════════════
+function sendMail(svc){
   document.getElementById('dots-menu-arrhes').classList.remove('open');
-  if (!activeDotsId||!stateArrhes[activeDotsId]) return;
-  const row=stateArrhes[activeDotsId]; const dest=MAIL_DEST[svc];
+  if(!activeDotsId||!stateArrhes[activeDotsId])return;
+  const row=stateArrhes[activeDotsId],dest=MAIL_DEST[svc];
   const subject=`Suivi encours — ${row.client} (N°${row.nc}) — Demande de mise à jour`;
   const message=`Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${fmtAmt(row.montant)} €\nStatut actuel: ${row.statut||'En attente'}\n${row.notePrev?'Note précédente : '+row.notePrev:''}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEmailJS(dest,subject,message,row,activeDotsId,'arrhes');
+  sendEJS(dest,subject,message,row,activeDotsId,'arrhes');
 }
-
-function sendMailFP(svc) {
+function sendMailFP(svc){
   document.getElementById('dots-menu-fp').classList.remove('open');
-  if (!activeDotsId||!stateFP[activeDotsId]) return;
-  const row=stateFP[activeDotsId]; const dest=MAIL_DEST[svc];
-  const overdue=isOverdue(row.echeance);
+  if(!activeDotsId||!stateFP[activeDotsId])return;
+  const row=stateFP[activeDotsId],dest=MAIL_DEST[svc],overdue=isOverdue(row.echeance);
   const subject=`Facture Permanente — ${row.client} (N°${row.nc})${overdue?' ⚠ URGENT':' — Demande de mise à jour'}`;
   const message=`Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${fmtAmt(row.montant)} €\nDate de création: ${row.dateCreation||'—'}\nÉchéance        : ${row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—'}${overdue?' ⚠ DÉPASSÉE':''}\nStatut          : ${overdue?'URGENT':(row.statut||'En attente')}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEmailJS(dest,subject,message,row,activeDotsId,'fp');
+  sendEJS(dest,subject,message,row,activeDotsId,'fp');
 }
-
-function sendEmailJS(dest,subject,message,row,id,view) {
+function sendEJS(dest,subject,message,row,id,view){
   const btn=document.querySelector('#row-'+id+' .btn-dots');
-  if (btn) { btn.textContent='...'; btn.disabled=true; }
-  emailjs.send('service_dd2nn5g','template_3aeinef',{
-    to_email:dest.to, cc_email:dest.cc||'', to_name:dest.label,
-    subject, message, client:row.client, nc:row.nc,
-    montant:fmtAmt(row.montant)+' €', statut:row.statut||'En attente',
-  })
-  .then(()=>{
-    if(btn){btn.textContent='···';btn.disabled=false;}
-    alert('✓ Mail envoyé à '+dest.label+' ('+dest.to+')');
-    const st=view==='fp'?stateFP:stateArrhes;
-    if (st[id]) {
-      st[id].dernierMail='Envoyé à '+dest.label+' le '+new Date().toLocaleDateString('fr-FR');
-      st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
-      if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();
-    }
-  })
-  .catch(err=>{
-    if(btn){btn.textContent='···';btn.disabled=false;}
-    alert('Erreur envoi mail : '+JSON.stringify(err));
-  });
+  if(btn){btn.textContent='...';btn.disabled=true;}
+  emailjs.send('service_dd2nn5g','template_3aeinef',{to_email:dest.to,cc_email:dest.cc||'',to_name:dest.label,subject,message,client:row.client,nc:row.nc,montant:fmtAmt(row.montant)+' €',statut:row.statut||'En attente'})
+  .then(()=>{if(btn){btn.textContent='···';btn.disabled=false;}alert('✓ Mail envoyé à '+dest.label+' ('+dest.to+')');const st=view==='fp'?stateFP:stateArrhes;if(st[id]){st[id].dernierMail='Envoyé à '+dest.label+' le '+new Date().toLocaleDateString('fr-FR');st[id].dateMaj=new Date().toLocaleDateString('fr-FR');if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();}})
+  .catch(err=>{if(btn){btn.textContent='···';btn.disabled=false;}alert('Erreur envoi mail : '+JSON.stringify(err));});
 }
 
-// ═══════════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════════
-function fmtAmt(n) { return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function fmtE(n, short=false) {
-  if (short && Math.abs(n) >= 10000) return Math.round(n).toLocaleString('fr-FR') + ' €';
-  return fmtAmt(n) + ' €';
-}
-function fmtPct(n) { return n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1}) + ' %'; }
-function esc(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function setEl(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
-function isOverdue(e){ if(!e) return false; return new Date(e)<new Date(new Date().toDateString()); }
-function getStatClass(s){
-  return {'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent'}[s]||'s-attente';
-}
-function statusOptions(current){
-  const opts=['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];
-  if(current==='URGENT') opts.unshift('URGENT');
-  return opts.map(s=>`<option${current===s?' selected':''}>${s}</option>`).join('');
-}
+// ═══════════════════════ UTILS ═══════════════════════
+function fmtAmt(n){return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtE(n){return fmtAmt(n)+' €';}
+function fmtEShort(n){if(Math.abs(n)>=10000)return Math.round(n).toLocaleString('fr-FR')+' €';return fmtAmt(n)+' €';}
+function fmtPct(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';}
+function fmtSign(v){const s=v>=0?'+':'−';return s+fmtAmt(Math.abs(v))+' €';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setEl(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function isOverdue(e){if(!e)return false;return new Date(e)<new Date(new Date().toDateString());}
+function getStatClass(s){return({'En attente':'s-attente','En cours':'s-encours','Remboursement':'s-rembours','Report':'s-report','Soldé':'s-solde','À vérifier':'s-verifier','URGENT':'s-urgent'}[s])||'s-attente';}
+function statusOptions(c){const opts=['En attente','En cours','Remboursement','Report','Soldé','À vérifier'];if(c==='URGENT')opts.unshift('URGENT');return opts.map(s=>`<option${c===s?' selected':''}>${s}</option>`).join('');}
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  // Date topbar
-  const updateDate = () => {
-    const el=document.getElementById('topbar-date'); if(!el) return;
-    el.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  };
-  updateDate(); setInterval(updateDate, 60000);
-
-  // EmailJS
-  if (typeof emailjs!=='undefined') emailjs.init({publicKey:'IOJCHQiqGloMl8p4k'});
-
-  // Load local state first (instant display)
+// ═══════════════════════ INIT ═══════════════════════
+window.addEventListener('load',()=>{
+  const upd=()=>{const e=document.getElementById('topbar-date');if(e)e.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
+  upd();setInterval(upd,60000);
+  if(typeof emailjs!=='undefined')emailjs.init({publicKey:'IOJCHQiqGloMl8p4k'});
   loadLocal();
   updateNavBadges();
   checkImportBanner();
-  if (stateDashboard) renderDashboard();
+  if(stateDashboard)renderDashboard();
 
-  // Last import labels
-  const liXLS=localStorage.getItem('last_import_xls');
-  if (liXLS) document.getElementById('last-import-label').textContent='Importé le '+liXLS;
-
-  // Firebase
-  const fbConfig = {
-    apiKey:            "AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
-    projectId:         "suivi-encours-novotel",
-    databaseURL:       "https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
-    authDomain:        "suivi-encours-novotel.firebaseapp.com",
-    storageBucket:     "suivi-encours-novotel.appspot.com",
-    messagingSenderId: "0",
-    appId:             "0"
+  const fbConfig={
+    apiKey:"AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
+    projectId:"suivi-encours-novotel",
+    databaseURL:"https://suivi-encours-novotel-default-rtdb.europe-west1.firebasedatabase.app",
+    authDomain:"suivi-encours-novotel.firebaseapp.com",
+    storageBucket:"suivi-encours-novotel.appspot.com",
+    messagingSenderId:"0",appId:"0"
   };
-  const tryFB = () => {
-    if (window._fbImports&&window._fbImports.initializeApp) connectFirebase(fbConfig);
-    else setTimeout(tryFB, 200);
-  };
+  const tryFB=()=>{if(window._fbImports&&window._fbImports.initializeApp)connectFirebase(fbConfig);else setTimeout(tryFB,200);};
   tryFB();
 });
 </script>
