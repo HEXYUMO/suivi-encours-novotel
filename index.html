@@ -404,13 +404,30 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
           </button>
         </div>
 
-        <!-- KPIs -->
-        <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
-          <div class="kpi"><div class="kpi-val" id="dd-kpi-total" style="font-size:18px">—</div><div class="kpi-lbl">Total encours</div><div class="kpi-sub mu" id="dd-kpi-total-sub">—</div></div>
-          <div class="kpi"><div class="kpi-val" id="dd-kpi-actions" style="color:var(--amber)">—</div><div class="kpi-lbl">Actions requises</div><div class="kpi-sub mu" id="dd-kpi-actions-sub">—</div></div>
-          <div class="kpi"><div class="kpi-val" id="dd-kpi-med" style="color:var(--red);font-size:18px">—</div><div class="kpi-lbl">Mise en demeure</div><div class="kpi-sub mu" id="dd-kpi-med-sub">—</div></div>
-          <div class="kpi"><div class="kpi-val" id="dd-kpi-danger" style="color:#4A0000">—</div><div class="kpi-lbl">Créances en danger</div><div class="kpi-sub mu" id="dd-kpi-danger-sub">—</div></div>
+      <!-- Bandeau retard traitement -->
+      <div id="dd-overdue-banner" style="display:none;background:var(--red);color:#fff;border-radius:9px;padding:10px 16px;margin-bottom:14px;font-size:12px;font-weight:600;display:none;align-items:center;gap:10px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13.5h13L8 2z" stroke="rgba(255,255,255,.8)" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6v4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.5" r=".7" fill="#fff"/></svg>
+        <span id="dd-overdue-text">Traitement mensuel en retard</span>
+      </div>
+
+      <!-- Ligne de statut traitement -->
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 1fr;gap:10px;margin-bottom:16px">
+        <div class="kpi"><div class="kpi-val" id="dd-kpi-total" style="font-size:18px">—</div><div class="kpi-lbl">Total encours</div><div class="kpi-sub mu" id="dd-kpi-total-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="dd-kpi-actions" style="color:var(--amber)">—</div><div class="kpi-lbl">Actions requises</div><div class="kpi-sub mu" id="dd-kpi-actions-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="dd-kpi-med" style="color:var(--red);font-size:18px">—</div><div class="kpi-lbl">Mise en demeure</div><div class="kpi-sub mu" id="dd-kpi-med-sub">—</div></div>
+        <div class="kpi"><div class="kpi-val" id="dd-kpi-danger" style="color:#4A0000">—</div><div class="kpi-lbl">Créances en danger</div><div class="kpi-sub mu" id="dd-kpi-danger-sub">—</div></div>
+        <!-- Carte traitement mensuel -->
+        <div class="kpi" id="dd-kpi-traitement" style="border:1.5px solid var(--border);position:relative">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between">
+            <div>
+              <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Traitement mensuel</div>
+              <div style="font-size:13px;font-weight:700;color:var(--navy3)" id="dd-last-treatment-val">—</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px" id="dd-next-treatment-label">—</div>
+            </div>
+            <button class="btn-dots" onclick="openDDTreatmentMenu(event)" style="margin-top:-4px;font-size:13px">···</button>
+          </div>
         </div>
+      </div>
 
         <!-- Charts + tableau résumé -->
         <div class="charts-row" style="grid-template-columns:320px 1fr;gap:14px;margin-bottom:14px">
@@ -426,7 +443,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
             <div class="card-title" style="padding:0 6px;margin-bottom:8px">Détail des créances</div>
             <table style="min-width:unset;width:100%">
               <thead><tr>
-                <th>Client</th><th>Facture</th><th style="text-align:right">Montant</th><th>Niveau</th><th style="width:32px"></th>
+                <th>Client</th><th>Facture</th><th>Date</th><th>Jours</th><th style="text-align:right">Montant</th><th>Niveau</th><th style="width:32px"></th>
               </tr></thead>
               <tbody id="dd-summary-table"></tbody>
             </table>
@@ -1350,18 +1367,26 @@ function renderDDDashboard() {
     setEl2('dd-last-import-label', 'Dernier export : '+stateDDSuivi.meta.dernier_export);
   }
 
+  // ─── Carte traitement mensuel + bandeau retard ───
+  renderDDTreatmentCard();
+
   renderDDPie('dd-pie-chart','dd-legend','dd-pie-tooltip', byCat, total);
 
-  // Fix 3+4 : toutes les lignes, triées, avec menu ···
+  // Fix 3+4 : toutes les lignes, triées, avec date/jours et menu ···
   const tbody = document.getElementById('dd-summary-table');
   if(tbody) {
     tbody.innerHTML = entries.map(([num, f]) => {
-      const niv = f.niveau_actuel || 0;
-      const cat = ddClassifyNiveau(niv);
+      const niv  = f.niveau_actuel || 0;
+      const cat  = ddClassifyNiveau(niv);
       const [bg,fg] = DD_CAT_COLORS[cat] || ['#eee','#333'];
+      const jours = ddJoursDepuis(f.date_facture);
+      const joursStr = jours !== null ? jours+'j' : '—';
+      const joursColor = jours > 120 ? 'var(--red)' : jours > 60 ? 'var(--amber)' : 'var(--muted)';
       return `<tr id="ddrow-${num}">
         <td style="font-weight:600;color:var(--navy3);font-size:11px;padding:6px 8px">${ddEsc(f.client)}</td>
         <td style="font-family:var(--mono);font-size:11px;padding:6px 8px">${num}</td>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:6px 8px;white-space:nowrap">${f.date_facture||'—'}</td>
+        <td style="font-family:var(--mono);font-size:11px;font-weight:600;color:${joursColor};padding:6px 8px">${joursStr}</td>
         <td style="text-align:right;font-family:var(--mono);font-size:11px;padding:6px 8px">${ddFmtAmt(f.montant_original||0)} €</td>
         <td style="padding:6px 8px"><span class="dd-cat-pill" style="background:${bg};color:${fg}">${DD_CAT_LABELS[cat]||cat}</span></td>
         <td style="padding:4px 4px 4px 0">
@@ -1490,13 +1515,12 @@ function ddBuildSuivi(rows) {
 }
 
 function ddUpdateSuivi(suivi, rows) {
-  // Firebase sérialise {} en null — protection critique
   if(!suivi.factures_reglees) suivi.factures_reglees = {};
   if(!suivi.factures) suivi.factures = {};
-  const act=new Set(rows.filter(f=>f.valide).map(f=>f.facture));
-  const prev=new Set(Object.keys(suivi.factures));
+  const act = new Set(rows.filter(f=>f.valide).map(f=>f.facture));
+  const prev = new Set(Object.keys(suivi.factures));
 
-  // Factures réglées ce mois → archiver
+  // Factures disparues du CSV → réglées
   for(const n of prev){
     if(!act.has(n)){
       suivi.factures_reglees[n]={...suivi.factures[n],date_reglement:DD_TSTR};
@@ -1504,19 +1528,52 @@ function ddUpdateSuivi(suivi, rows) {
     }
   }
 
-  // Nouvelles factures → initialiser à 0
-  rows.filter(f=>f.valide&&!prev.has(f.facture)).forEach(f=>{
-    suivi.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};
+  // Nouvelles factures → initialiser
+  rows.filter(f=>f.valide && !prev.has(f.facture)).forEach(f=>{
+    suivi.factures[f.facture]={
+      client:f.client, montant_original:f.montantOriginal,
+      date_facture:f.dateStr, niveau_actuel:0,
+      historique:[], adresse:null, avoir_decision:null
+    };
   });
 
-  // ✅ Auto-incrément mensuel : factures toujours impayées depuis >60j avec relance en cours
-  rows.filter(f=>f.valide && f.jours>60 && suivi.factures[f.facture]).forEach(f=>{
+  // Mettre à jour date_facture et montant sur les existantes
+  rows.filter(f=>f.valide && prev.has(f.facture)).forEach(f=>{
     const e = suivi.factures[f.facture];
-    if(e.niveau_actuel >= 1) e.niveau_actuel += 1;
+    if(e){ e.date_facture = f.dateStr; e.montant_original = f.montantOriginal; }
   });
 
-  suivi.meta.dernier_export=DD_TSTR;
+  // ✅ AUTO-INCRÉMENT MENSUEL :
+  // Toute facture encore impayée (présente dans le CSV) avec niveau >= 1
+  // → la relance du mois dernier a été envoyée → on passe au niveau suivant
+  act.forEach(num => {
+    const e = suivi.factures[num];
+    if(e && e.niveau_actuel >= 1) e.niveau_actuel += 1;
+  });
+
+  suivi.meta.dernier_export = DD_TSTR;
   return suivi;
+}
+
+// Stocker la date lors du 1er import aussi
+function ddBuildSuivi(rows) {
+  const s={meta:{hotel:'H1103',premier_export:DD_TSTR,dernier_export:DD_TSTR},factures:{},factures_reglees:{}};
+  rows.filter(f=>f.valide).forEach(f=>{
+    s.factures[f.facture]={
+      client:f.client, montant_original:f.montantOriginal,
+      date_facture:f.dateStr, niveau_actuel:0,
+      historique:[], adresse:null, avoir_decision:null
+    };
+  });
+  return s;
+}
+
+function ddJoursDepuis(dateStr) {
+  if(!dateStr) return null;
+  const p = dateStr.split('/');
+  if(p.length !== 3) return null;
+  const d = new Date(+p[2], +p[1]-1, +p[0]);
+  return Math.round((DD_TODAY - d) / 86400000);
 }
 
 function ddAnalyzeData() {
@@ -1809,6 +1866,11 @@ function ddDownloadAll() {
 
   saveDDToFirebase();
   renderDDPage();
+  // Marquer automatiquement la date du traitement
+  if(stateDDSuivi?.meta) {
+    stateDDSuivi.meta.last_treatment = DD_TSTR;
+    saveDDToFirebase();
+  }
 
   const html     = ddGenerateRapport();
   const htmlBlob = new Blob([html],{type:'text/html;charset=utf-8'});
@@ -1952,7 +2014,117 @@ function ddSetStep(n) {
     if(el2) el2.className=cls;
   });
 }
-// ─── Menu 3 points DD ───
+// ─── Carte traitement mensuel + bandeau retard ───
+function renderDDTreatmentCard() {
+  const now     = new Date(); now.setHours(0,0,0,0);
+  const day     = now.getDate();
+  const month   = now.getMonth();
+  const year    = now.getFullYear();
+
+  // Dernier traitement (meta.dernier_export ou meta.last_treatment)
+  const lastStr = stateDDSuivi?.meta?.last_treatment || stateDDSuivi?.meta?.dernier_export || null;
+  const lastEl  = document.getElementById('dd-last-treatment-val');
+  if(lastEl) lastEl.textContent = lastStr || '—';
+
+  // Prochain 20 du mois
+  let nextDate;
+  if(day <= 20) nextDate = new Date(year, month, 20);
+  else          nextDate = new Date(year, month+1, 20);
+
+  const daysUntil = Math.ceil((nextDate - now) / 86400000);
+
+  // Est-on en retard ? (après le 20 ET dernier traitement avant ce mois)
+  let isLate = false;
+  if(day > 20) {
+    if(!lastStr) { isLate = true; }
+    else {
+      const p = lastStr.split('/');
+      if(p.length === 3) {
+        const lastDate = new Date(+p[2], +p[1]-1, +p[0]);
+        // En retard si le dernier traitement est avant le 20 du mois courant
+        const this20th = new Date(year, month, 20);
+        isLate = lastDate < this20th;
+      }
+    }
+  }
+
+  // Bandeau rouge
+  const banner = document.getElementById('dd-overdue-banner');
+  const bannerText = document.getElementById('dd-overdue-text');
+  if(banner) {
+    banner.style.display = isLate ? 'flex' : 'none';
+    if(bannerText) bannerText.textContent = `⚠ Traitement DD du 20/${String(month+1).padStart(2,'0')}/${year} non effectué — en retard de ${day-20} jours`;
+  }
+
+  // Couleur KPI traitement
+  const kpiCard = document.getElementById('dd-kpi-traitement');
+  if(kpiCard) kpiCard.style.borderColor = isLate ? 'var(--red)' : 'var(--border)';
+
+  // Label countdown
+  const nextLbl = document.getElementById('dd-next-treatment-label');
+  if(nextLbl) {
+    if(isLate) {
+      nextLbl.innerHTML = `<span style="color:var(--red);font-weight:600">EN RETARD</span>`;
+    } else if(daysUntil === 0) {
+      nextLbl.innerHTML = `<span style="color:var(--amber);font-weight:600">Aujourd'hui !</span>`;
+    } else {
+      nextLbl.innerHTML = `Prochain : 20/${String(nextDate.getMonth()+1).padStart(2,'0')}/${nextDate.getFullYear()} <span style="color:var(--muted)">dans ${daysUntil}j</span>`;
+    }
+  }
+}
+
+function openDDTreatmentMenu(e) {
+  e.stopPropagation();
+  let menu = document.getElementById('dd-treatment-menu');
+  if(!menu){
+    menu = document.createElement('div');
+    menu.id = 'dd-treatment-menu';
+    menu.className = 'dots-menu';
+    menu.innerHTML = `
+      <div class="dmlabel">Dernier traitement</div>
+      <div class="dmi" onclick="openDDEditTreatmentDate()">📅 Modifier la date</div>
+      <div class="dmi" onclick="setDDTreatmentDateToday()">✓ Marquer aujourd'hui</div>`;
+    document.body.appendChild(menu);
+  }
+  document.querySelectorAll('.dots-menu').forEach(m=>m.classList.remove('open'));
+  const rect = e.currentTarget.getBoundingClientRect();
+  menu.style.top   = (rect.bottom+4)+'px';
+  menu.style.right = (window.innerWidth-rect.right)+'px';
+  menu.style.left  = 'auto';
+  menu.classList.add('open');
+}
+
+function setDDTreatmentDateToday() {
+  document.getElementById('dd-treatment-menu')?.classList.remove('open');
+  if(!stateDDSuivi) return;
+  if(!stateDDSuivi.meta) stateDDSuivi.meta = {};
+  stateDDSuivi.meta.last_treatment = DD_TSTR;
+  saveDDToFirebase();
+  renderDDTreatmentCard();
+}
+
+function openDDEditTreatmentDate() {
+  document.getElementById('dd-treatment-menu')?.classList.remove('open');
+  document.getElementById('dd-edit-treatment-overlay').classList.add('open');
+  const inp = document.getElementById('dd-edit-treatment-input');
+  const current = stateDDSuivi?.meta?.last_treatment || DD_TSTR;
+  // Convertir DD/MM/YYYY → YYYY-MM-DD pour l'input date
+  const p = current.split('/');
+  if(inp && p.length===3) inp.value = `${p[2]}-${p[1]}-${p[0]}`;
+}
+
+function saveDDTreatmentDate() {
+  const inp = document.getElementById('dd-edit-treatment-input');
+  if(!inp || !inp.value) return;
+  const d = new Date(inp.value);
+  const str = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  if(!stateDDSuivi.meta) stateDDSuivi.meta = {};
+  stateDDSuivi.meta.last_treatment = str;
+  saveDDToFirebase();
+  renderDDTreatmentCard();
+  document.getElementById('dd-edit-treatment-overlay').classList.remove('open');
+}
+// ─── FIN carte traitement ───
 let ddActiveRowNum = null;
 const DD_ROW_MENU_ID = 'dd-row-menu';
 
@@ -2144,6 +2316,24 @@ window.addEventListener('load',()=>{
     <div style="display:flex;justify-content:space-between;margin-top:16px">
       <button class="dd-btn-secondary" onclick="skipDDAdresse()" id="dd-adr-skip-btn">Passer</button>
       <button class="dd-btn-primary" onclick="saveDDAdresse()">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Édition Date Traitement -->
+<div class="dd-overlay" id="dd-edit-treatment-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="dd-modal" style="max-width:340px">
+    <div class="dd-modal-head">
+      <div class="dd-modal-title">Date du dernier traitement</div>
+      <button class="dd-close" onclick="document.getElementById('dd-edit-treatment-overlay').classList.remove('open')">×</button>
+    </div>
+    <div class="dd-form-group">
+      <label>Date du traitement effectué</label>
+      <input type="date" id="dd-edit-treatment-input" style="width:100%;border:1.5px solid var(--border);border-radius:7px;padding:10px 12px;font-size:13px;font-family:var(--mono)">
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:16px">
+      <button class="dd-btn-secondary" onclick="document.getElementById('dd-edit-treatment-overlay').classList.remove('open')">Annuler</button>
+      <button class="dd-btn-primary" onclick="saveDDTreatmentDate()">Enregistrer</button>
     </div>
   </div>
 </div>
