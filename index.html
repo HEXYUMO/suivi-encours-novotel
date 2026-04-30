@@ -1307,10 +1307,6 @@ function updateNavBadges(){
   // Les badges sont désactivés — fonction conservée pour compatibilité
 }
 
-function updateDDNavBadge() {
-  // Badge DD supprimé de la sidebar
-}
-
 // ═══════════════════════ MAIL ═══════════════════════
 function sendMail(svc){
   document.getElementById('dots-menu-arrhes').classList.remove('open');
@@ -1637,12 +1633,6 @@ function ddParseCSV(text) {
   });
 }
 
-function ddBuildSuivi(rows) {
-  const s={meta:{hotel:'H1103',premier_export:DD_TSTR,dernier_export:DD_TSTR},factures:{},factures_reglees:{}};
-  rows.filter(f=>f.valide).forEach(f=>{s.factures[f.facture]={client:f.client,montant_original:f.montantOriginal,niveau_actuel:0,historique:[],adresse:null,avoir_decision:null};});
-  return s;
-}
-
 function ddUpdateSuivi(suivi, rows) {
   if(!suivi.factures_reglees) suivi.factures_reglees = {};
   if(!suivi.factures) suivi.factures = {};
@@ -1685,7 +1675,7 @@ function ddUpdateSuivi(suivi, rows) {
   return suivi;
 }
 
-// Stocker la date lors du 1er import aussi
+// Stocker la date lors du 1er import
 function ddBuildSuivi(rows) {
   const s={meta:{hotel:'H1103',premier_export:DD_TSTR,dernier_export:DD_TSTR},factures:{},factures_reglees:{}};
   rows.filter(f=>f.valide).forEach(f=>{
