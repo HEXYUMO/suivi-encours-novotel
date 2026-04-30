@@ -1543,12 +1543,13 @@ function ddUpdateSuivi(suivi, rows) {
     if(e){ e.date_facture = f.dateStr; e.montant_original = f.montantOriginal; }
   });
 
-  // ✅ AUTO-INCRÉMENT MENSUEL :
-  // Toute facture encore impayée (présente dans le CSV) avec niveau >= 1
-  // → la relance du mois dernier a été envoyée → on passe au niveau suivant
+  // ✅ AUTO-INCRÉMENT MENSUEL
   act.forEach(num => {
     const e = suivi.factures[num];
-    if(e && e.niveau_actuel >= 1) e.niveau_actuel += 1;
+    if(!e) return;
+    // Firebase sérialise [] en null
+    if(!e.historique || !Array.isArray(e.historique)) e.historique = [];
+    if(e.niveau_actuel >= 1) e.niveau_actuel += 1;
   });
 
   suivi.meta.dernier_export = DD_TSTR;
@@ -1630,7 +1631,9 @@ function validateDDHistorique() {
     const niv = parseInt(document.getElementById('ddh-niv-'+f.facture).value)||0;
     if(!stateDDSuivi.factures[f.facture]) return;
     const entry = stateDDSuivi.factures[f.facture];
-    entry.niveau_actuel=niv; entry.historique=[];
+    // ✅ Firebase sérialise [] en null
+    if(!entry.historique || !Array.isArray(entry.historique)) entry.historique = [];
+    entry.niveau_actuel=niv;
     if(niv>=1) entry.historique.push({niveau:1,type:'email',date:'inconnue'});
     if(niv>=2){const d1=document.getElementById('ddh-d1-'+f.facture)?.value||'';entry.historique.push({niveau:2,type:'courrier',date:d1||'inconnue'});}
     if(niv>=3){const d2=document.getElementById('ddh-d2-'+f.facture)?.value||'';entry.historique.push({niveau:3,type:'courrier',date:d2||'inconnue'});}
@@ -1652,15 +1655,21 @@ function ddBuildInvoices(rows, suivi) {
     let cat, niveau, hist;
     if(!entry){cat='NE PAS RELANCER';niveau=0;hist=[];}
     else {
-      niveau=entry.niveau_actuel; hist=entry.historique||[];
-      if(niveau===0&&f.jours>60){
-        entry.niveau_actuel=1; entry.historique.push({niveau:1,type:'email',date:DD_TSTR});
+      // ✅ Firebase sérialise [] en null — protection obligatoire
+      if(!entry.historique || !Array.isArray(entry.historique)) entry.historique = [];
+      niveau = entry.niveau_actuel || 0;
+      hist   = entry.historique;
+      if(niveau===0 && f.jours>60){
+        entry.niveau_actuel=1;
+        entry.historique.push({niveau:1,type:'email',date:DD_TSTR});
         niveau=1; cat='1ERE RELANCE';
       } else if(niveau===0){cat='NE PAS RELANCER';}
       else {
         cat=ddClassifyNiveau(niveau);
         const last=hist[hist.length-1];
-        if(!last||last.date!==DD_TSTR){entry.historique.push({niveau,type:niveau===1?'email':'courrier',date:DD_TSTR});}
+        if(!last||last.date!==DD_TSTR){
+          entry.historique.push({niveau,type:niveau===1?'email':'courrier',date:DD_TSTR});
+        }
       }
     }
     const paiementPartiel=f.montantOriginal>0&&Math.abs(f.montantOriginal-f.solde)>0.01;
