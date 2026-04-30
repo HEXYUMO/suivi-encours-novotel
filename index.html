@@ -320,7 +320,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.18.1</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.18.2</div>
   </div>
 </aside>
 
@@ -1492,7 +1492,10 @@ function renderDDDashboard() {
           <div class="dd-expand-content">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
               <div>
-                <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Historique des relances</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Historique des relances</div>
+                  <button onclick="event.stopPropagation();ddAddRelance('${num}')" style="background:var(--navy3);color:#fff;border:none;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">+ Ajouter</button>
+                </div>
                 <div class="dd-timeline">${timelineHTML}</div>
               </div>
               <div>
@@ -2150,7 +2153,7 @@ function ddSetStep(n) {
   });
 }
 // ─── Tri tableau DD ───
-let ddSortCol = 'niveau';
+let ddSortCol = 'jours';
 let ddSortDir = 'desc';
 
 function ddSort(col) {
@@ -2178,7 +2181,25 @@ function renderDDAgeWidget(entries) {
 }
 
 // ─── Édition / suppression relances dans ligne dépliée ───
-function ddEditRelance(num, idx) {
+function ddAddRelance(num) {
+  const e = stateDDSuivi?.factures?.[num];
+  if(!e) return;
+  if(!Array.isArray(e.historique)) e.historique = [];
+  const nextNiveau = e.historique.length > 0 ? Math.max(...e.historique.map(x=>x.niveau)) + 1 : 1;
+  const nivLabels = {1:'email',2:'courrier',3:'courrier',4:'courrier',5:'courrier'};
+  const date = prompt('Date de la relance (JJ/MM/AAAA) :', DD_TSTR);
+  if(date === null) return;
+  const niv = parseInt(prompt('Niveau (1=email, 2=2ème relance, 3=3ème, 4=MED, 5=danger) :', nextNiveau)) || nextNiveau;
+  e.historique.push({ niveau: niv, type: nivLabels[niv]||'courrier', date: date.trim() });
+  e.historique.sort((a,b) => a.niveau - b.niveau);
+  e.niveau_actuel = Math.max(...e.historique.map(x=>x.niveau));
+  saveDDToFirebase();
+  renderDDDashboard();
+  setTimeout(() => {
+    const row = document.getElementById('ddexp-'+num);
+    if(row) row.classList.add('open');
+  }, 50);
+}
   const e = stateDDSuivi?.factures?.[num];
   if(!e || !Array.isArray(e.historique)) return;
   const h = e.historique[idx];
