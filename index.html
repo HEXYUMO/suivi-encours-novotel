@@ -184,8 +184,25 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 .coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:10px;color:var(--muted)}
 .coming-soon h2{font-size:17px;font-weight:600;color:var(--muted2)}
 
-/* ─── DD MODULE ─── */
-.dd-days-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+/* ─── DD LIGNE DÉPLIABLE ─── */
+.dd-row-main{cursor:pointer;transition:background .12s}
+.dd-row-main:hover td{background:#F5F8FF}
+.dd-row-expand{display:none;background:#F8FAFF}
+.dd-row-expand.open{display:table-row}
+.dd-expand-content{padding:10px 14px 14px 14px;border-bottom:1px solid var(--border)}
+.dd-timeline{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.dd-timeline-item{display:flex;align-items:center;gap:10px;font-size:11px}
+.dd-timeline-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dd-timeline-date{color:var(--muted);font-family:var(--mono);min-width:80px}
+.dd-timeline-label{color:var(--text);font-weight:500}
+.dd-comment-area{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;font-family:var(--font);resize:vertical;min-height:52px;background:#fff;color:var(--text);transition:border-color .15s}
+.dd-comment-area:focus{outline:none;border-color:var(--blue)}
+.dd-comment-row{display:flex;align-items:flex-start;gap:8px}
+.dd-comment-save{background:var(--navy3);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap;margin-top:0;align-self:flex-end}
+.dd-comment-save:hover{background:var(--navy)}
+.dd-bubble{font-size:11px;line-height:1;opacity:.7;margin-left:3px}
+</style>
+/* ─── DD MODULE ─── */;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
 .dd-cat-pill{display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
 .dd-overlay{position:fixed;inset:0;background:rgba(13,31,74,.55);display:none;align-items:center;justify-content:center;z-index:600;backdrop-filter:blur(3px)}
 .dd-overlay.open{display:flex}
@@ -304,6 +321,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.18</div>
   </div>
 </aside>
 
@@ -741,6 +759,12 @@ function checkImportBanner() {
 // ═══════════════════════ CSV PARSING ═══════════════════════
 function handleCSV(file) {
   if (!file) return;
+  // ✅ Vérification H1103
+  if(!file.name.includes('H1103')) {
+    alert('❌ Fichier refusé\n\nCe fichier ne correspond pas à l\'hôtel H1103.\nVeuillez importer uniquement les données de cet établissement.');
+    document.getElementById('file-input-csv').value='';
+    return;
+  }
   const reader = new FileReader();
   reader.onerror = ()=>alert('Erreur de lecture du fichier CSV.');
   reader.onload = e=>{
@@ -826,6 +850,12 @@ function pad(n){ return String(n).padStart(2,'0'); }
 // ═══════════════════════ XLS PARSING ═══════════════════════
 function handleXLS(file) {
   if(!file) return;
+  // ✅ Vérification H1103
+  if(!file.name.includes('H1103')) {
+    alert('❌ Fichier refusé\n\nCe fichier ne correspond pas à l\'hôtel H1103.\nVeuillez importer uniquement les données de cet établissement.');
+    document.getElementById('file-input-xls').value='';
+    return;
+  }
   const reader=new FileReader();
   reader.onerror=()=>alert('Erreur de lecture du fichier XLS.');
   reader.onload=e=>{
@@ -1051,19 +1081,19 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
       labels:MOIS_LABELS,
       datasets:[
         {
-          type:'bar', label:'CA', data:caData,
-          backgroundColor:caColors,
-          borderColor:caBorderColors,
-          borderWidth:0,
-          borderRadius:4, barPercentage:.5, categoryPercentage:.85, order:2
-        },
-        {
           type:'bar', label:'Budget',
           data:BUDGET_2026,
           backgroundColor:'rgba(150,150,150,0.18)',
           borderColor:'rgba(150,150,150,0.7)',
           borderWidth:1.5,
           borderRadius:4, barPercentage:.75, categoryPercentage:.85, order:1
+        },
+        {
+          type:'bar', label:'CA', data:caData,
+          backgroundColor:caColors,
+          borderColor:caBorderColors,
+          borderWidth:0,
+          borderRadius:4, barPercentage:.5, categoryPercentage:.85, order:2
         }
       ]
     },
@@ -1372,7 +1402,7 @@ function renderDDDashboard() {
 
   renderDDPie('dd-pie-chart','dd-legend','dd-pie-tooltip', byCat, total);
 
-  // Fix 3+4 : toutes les lignes, triées, avec date/jours et menu ···
+  // Toutes les lignes avec dépliage + commentaire + icône 💬
   const tbody = document.getElementById('dd-summary-table');
   if(tbody) {
     tbody.innerHTML = entries.map(([num, f]) => {
@@ -1382,15 +1412,51 @@ function renderDDDashboard() {
       const jours = ddJoursDepuis(f.date_facture);
       const joursStr = jours !== null ? jours+'j' : '—';
       const joursColor = jours > 120 ? 'var(--red)' : jours > 60 ? 'var(--amber)' : 'var(--muted)';
-      return `<tr id="ddrow-${num}">
-        <td style="font-weight:600;color:var(--navy3);font-size:11px;padding:6px 8px">${ddEsc(f.client)}</td>
+      const hasComment = f.commentaire && f.commentaire.trim().length > 0;
+      const bubble = hasComment ? '<span class="dd-bubble">💬</span>' : '';
+
+      // Historique relances
+      const hist = Array.isArray(f.historique) ? f.historique : [];
+      const nivLabels = {1:'1ère relance (email)',2:'2ème relance (courrier)',3:'3ème relance (courrier)',4:'Mise en demeure',5:'Créance en danger'};
+      const nivColors = {1:'#FFC107',2:'#FF9800',3:'#F44336',4:'#B71C1C',5:'#4A0000'};
+      const timelineHTML = hist.length > 0
+        ? hist.map(h=>`<div class="dd-timeline-item">
+            <div class="dd-timeline-dot" style="background:${nivColors[h.niveau]||'#ccc'}"></div>
+            <div class="dd-timeline-date">${h.date||'—'}</div>
+            <div class="dd-timeline-label">${nivLabels[h.niveau]||'Niveau '+h.niveau}</div>
+          </div>`).join('')
+        : '<div style="font-size:11px;color:var(--muted);font-style:italic">Aucune relance enregistrée</div>';
+
+      const commentVal = ddEsc(f.commentaire||'');
+
+      return `<tr class="dd-row-main" onclick="toggleDDRow('${num}')">
+        <td style="font-weight:600;color:var(--navy3);font-size:11px;padding:6px 8px">${ddEsc(f.client)}${bubble}</td>
         <td style="font-family:var(--mono);font-size:11px;padding:6px 8px">${num}</td>
         <td style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:6px 8px;white-space:nowrap">${f.date_facture||'—'}</td>
         <td style="font-family:var(--mono);font-size:11px;font-weight:600;color:${joursColor};padding:6px 8px">${joursStr}</td>
         <td style="text-align:right;font-family:var(--mono);font-size:11px;padding:6px 8px">${ddFmtAmt(f.montant_original||0)} €</td>
         <td style="padding:6px 8px"><span class="dd-cat-pill" style="background:${bg};color:${fg}">${DD_CAT_LABELS[cat]||cat}</span></td>
-        <td style="padding:4px 4px 4px 0">
+        <td style="padding:4px 4px 4px 0" onclick="event.stopPropagation()">
           <button class="btn-dots" onclick="openDDRowMenu(event,'${num}')" style="font-size:14px;padding:2px 6px">···</button>
+        </td>
+      </tr>
+      <tr class="dd-row-expand" id="ddexp-${num}">
+        <td colspan="7" style="padding:0">
+          <div class="dd-expand-content">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Historique des relances</div>
+                <div class="dd-timeline">${timelineHTML}</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Commentaire</div>
+                <div class="dd-comment-row">
+                  <textarea class="dd-comment-area" id="ddcmt-${num}" placeholder="Ajouter un commentaire…">${commentVal}</textarea>
+                  <button class="dd-comment-save" onclick="saveDDComment('${num}')">Sauver</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </td>
       </tr>`;
     }).join('');
@@ -1465,6 +1531,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if(inp) {
     inp.addEventListener('change', e => {
       const file = e.target.files[0]; if(!file) return;
+      // ✅ Vérification H1103
+      if(!file.name.includes('H1103')) {
+        const b = document.getElementById('dd-badge-csv');
+        if(b){b.textContent='❌ Fichier non reconnu — H1103 requis';b.className='dd-badge warn';}
+        document.getElementById('dd-btn-analyze').disabled = true;
+        inp.value = '';
+        return;
+      }
       const r = new FileReader();
       r.onload = ev => {
         ddCsvData = ev.target.result;
@@ -1482,6 +1556,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dz.addEventListener('drop', e=>{
       e.preventDefault(); dz.classList.remove('drag');
       const file=e.dataTransfer.files[0]; if(!file) return;
+      if(!file.name.includes('H1103')) {
+        const b=document.getElementById('dd-badge-csv');
+        if(b){b.textContent='❌ Fichier non reconnu — H1103 requis';b.className='dd-badge warn';}
+        return;
+      }
       const inp=document.getElementById('dd-input-csv');
       const dt=new DataTransfer(); dt.items.add(file); inp.files=dt.files;
       inp.dispatchEvent(new Event('change'));
@@ -2023,6 +2102,30 @@ function ddSetStep(n) {
     if(el2) el2.className=cls;
   });
 }
+// ─── Dépliage lignes + commentaires ───
+function toggleDDRow(num) {
+  const row = document.getElementById('ddexp-'+num);
+  if(!row) return;
+  const isOpen = row.classList.contains('open');
+  document.querySelectorAll('.dd-row-expand.open').forEach(r => r.classList.remove('open'));
+  if(!isOpen) row.classList.add('open');
+}
+
+function saveDDComment(num) {
+  const ta = document.getElementById('ddcmt-'+num);
+  if(!ta || !stateDDSuivi?.factures?.[num]) return;
+  stateDDSuivi.factures[num].commentaire = ta.value;
+  saveDDToFirebase();
+  renderDDDashboard();
+  setTimeout(()=>{
+    const row = document.getElementById('ddexp-'+num);
+    if(row) row.classList.add('open');
+    const ta2 = document.getElementById('ddcmt-'+num);
+    if(ta2) ta2.focus();
+  }, 50);
+}
+// ─── FIN dépliage ───
+
 // ─── Carte traitement mensuel + bandeau retard ───
 function renderDDTreatmentCard() {
   const now     = new Date(); now.setHours(0,0,0,0);
