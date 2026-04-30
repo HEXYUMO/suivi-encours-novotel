@@ -2190,6 +2190,8 @@ function ddAddRelance(num) {
     if(row) row.classList.add('open');
   }, 50);
 }
+
+function ddEditRelance(num, idx) {
   const e = stateDDSuivi?.factures?.[num];
   if(!e || !Array.isArray(e.historique)) return;
   const h = e.historique[idx];
