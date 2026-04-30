@@ -320,7 +320,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.18</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.18.1</div>
   </div>
 </aside>
 
@@ -455,12 +455,33 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
               <div id="dd-pie-tooltip" style="display:none;position:absolute;background:rgba(0,0,0,.8);color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;pointer-events:none;white-space:nowrap;z-index:10;"></div>
             </div>
             <div id="dd-legend" style="width:100%;padding:0 8px;"></div>
+            <!-- Widget ancienneté moyenne -->
+            <div id="dd-age-widget" style="width:100%;padding:10px 8px 4px;margin-top:8px;border-top:1px solid var(--border)">
+              <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Ancienneté moyenne</div>
+              <div style="position:relative;height:28px;margin-bottom:5px">
+                <div style="position:absolute;top:10px;left:0;right:0;height:6px;border-radius:3px;background:linear-gradient(to right,#4CAF50 0%,#4CAF50 20%,#FFC107 20%,#FFC107 40%,#FF9800 40%,#FF9800 60%,#F44336 60%,#F44336 80%,#B71C1C 80%,#B71C1C 100%)"></div>
+                <div id="dd-age-thumb" style="position:absolute;top:3px;left:0;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #555;transition:left .4s ease;transform:translateX(-50%)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:var(--mono);margin-bottom:8px">
+                <span>0j</span><span>60j</span><span>120j</span><span>180j</span><span>240j</span><span>360j+</span>
+              </div>
+              <div style="display:flex;justify-content:flex-end;align-items:baseline;gap:5px">
+                <span id="dd-age-val" style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--navy3)">—</span>
+                <span style="font-size:10px;color:var(--muted)" id="dd-age-sub">jours moy.</span>
+              </div>
+            </div>
           </div>
           <div class="card" style="overflow:auto;padding:14px 10px">
             <div class="card-title" style="padding:0 6px;margin-bottom:8px">Détail des créances</div>
             <table style="min-width:unset;width:100%">
-              <thead><tr>
-                <th>Client</th><th>Facture</th><th>Date</th><th>Jours</th><th style="text-align:right">Montant</th><th>Niveau</th><th style="width:32px"></th>
+              <thead><tr id="dd-sort-header">
+                <th onclick="ddSort('client')" style="cursor:pointer;user-select:none">Client <span id="dds-client"></span></th>
+                <th onclick="ddSort('facture')" style="cursor:pointer;user-select:none">Facture <span id="dds-facture"></span></th>
+                <th onclick="ddSort('date')" style="cursor:pointer;user-select:none">Date <span id="dds-date"></span></th>
+                <th onclick="ddSort('jours')" style="cursor:pointer;user-select:none">Jours <span id="dds-jours"></span></th>
+                <th onclick="ddSort('montant')" style="cursor:pointer;user-select:none;text-align:right">Montant <span id="dds-montant"></span></th>
+                <th onclick="ddSort('niveau')" style="cursor:pointer;user-select:none">Niveau <span id="dds-niveau"></span></th>
+                <th style="width:32px"></th>
               </tr></thead>
               <tbody id="dd-summary-table"></tbody>
             </table>
@@ -1080,19 +1101,19 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
       labels:MOIS_LABELS,
       datasets:[
         {
+          type:'bar', label:'CA', data:caData,
+          backgroundColor:caColors,
+          borderColor:caBorderColors,
+          borderWidth:0,
+          borderRadius:4, barPercentage:.5, categoryPercentage:.85, order:2
+        },
+        {
           type:'bar', label:'Budget',
           data:BUDGET_2026,
           backgroundColor:'rgba(150,150,150,0.18)',
           borderColor:'rgba(150,150,150,0.7)',
           borderWidth:1.5,
           borderRadius:4, barPercentage:.75, categoryPercentage:.85, order:1
-        },
-        {
-          type:'bar', label:'CA', data:caData,
-          backgroundColor:caColors,
-          borderColor:caBorderColors,
-          borderWidth:0,
-          borderRadius:4, barPercentage:.5, categoryPercentage:.85, order:2
         }
       ]
     },
@@ -1360,11 +1381,31 @@ function renderDDDashboard() {
   const entries = Object.entries(factures)
     .filter(([, f]) => f.montant_original && f.montant_original > 0);
 
-  // Fix 3 : trier par niveau décroissant, puis montant décroissant
+  // Tri dynamique
   entries.sort((a, b) => {
-    const nivDiff = (b[1].niveau_actuel||0) - (a[1].niveau_actuel||0);
-    if(nivDiff !== 0) return nivDiff;
-    return (b[1].montant_original||0) - (a[1].montant_original||0);
+    const dir = ddSortDir === 'asc' ? 1 : -1;
+    switch(ddSortCol) {
+      case 'client':  return dir * ddEsc(a[1].client||'').localeCompare(ddEsc(b[1].client||''));
+      case 'facture': return dir * (parseInt(a[0])||0 - (parseInt(b[0])||0));
+      case 'date': {
+        const da = ddJoursDepuis(a[1].date_facture)||0;
+        const db = ddJoursDepuis(b[1].date_facture)||0;
+        return dir * (db - da);
+      }
+      case 'jours': {
+        const ja = ddJoursDepuis(a[1].date_facture)||0;
+        const jb = ddJoursDepuis(b[1].date_facture)||0;
+        return dir * (jb - ja);
+      }
+      case 'montant': return dir * ((b[1].montant_original||0) - (a[1].montant_original||0));
+      case 'niveau':  return dir * ((b[1].niveau_actuel||0) - (a[1].niveau_actuel||0));
+      default:        return (b[1].niveau_actuel||0) - (a[1].niveau_actuel||0);
+    }
+  });
+  // Indicateurs visuels tri
+  ['client','facture','date','jours','montant','niveau'].forEach(c => {
+    const el = document.getElementById('dds-'+c);
+    if(el) el.textContent = ddSortCol===c ? (ddSortDir==='asc'?' ▲':' ▼') : '';
   });
 
   let total = 0, actions = 0, medMontant = 0, medCount = 0, dangerCount = 0, dangerMontant = 0;
@@ -1400,6 +1441,7 @@ function renderDDDashboard() {
   renderDDTreatmentCard();
 
   renderDDPie('dd-pie-chart','dd-legend','dd-pie-tooltip', byCat, total);
+  renderDDAgeWidget(entries);
 
   // Toutes les lignes avec dépliage + commentaire + icône 💬
   const tbody = document.getElementById('dd-summary-table');
@@ -1419,10 +1461,16 @@ function renderDDDashboard() {
       const nivLabels = {1:'1ère relance (email)',2:'2ème relance (courrier)',3:'3ème relance (courrier)',4:'Mise en demeure',5:'Créance en danger'};
       const nivColors = {1:'#FFC107',2:'#FF9800',3:'#F44336',4:'#B71C1C',5:'#4A0000'};
       const timelineHTML = hist.length > 0
-        ? hist.map(h=>`<div class="dd-timeline-item">
-            <div class="dd-timeline-dot" style="background:${nivColors[h.niveau]||'#ccc'}"></div>
-            <div class="dd-timeline-date">${h.date||'—'}</div>
-            <div class="dd-timeline-label">${nivLabels[h.niveau]||'Niveau '+h.niveau}</div>
+        ? hist.map((h, idx)=>`<div class="dd-timeline-item" style="justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="dd-timeline-dot" style="background:${nivColors[h.niveau]||'#ccc'}"></div>
+              <div class="dd-timeline-date">${h.date||'—'}</div>
+              <div class="dd-timeline-label">${nivLabels[h.niveau]||'Niveau '+h.niveau}</div>
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0">
+              <button onclick="event.stopPropagation();ddEditRelance('${num}',${idx})" style="background:none;border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;color:var(--navy3);font-family:var(--font)">✏ Modifier</button>
+              <button onclick="event.stopPropagation();ddDeleteRelance('${num}',${idx})" style="background:none;border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;cursor:pointer;color:var(--red);font-family:var(--font)">✕ Supprimer</button>
+            </div>
           </div>`).join('')
         : '<div style="font-size:11px;color:var(--muted);font-style:italic">Aucune relance enregistrée</div>';
 
@@ -2101,7 +2149,70 @@ function ddSetStep(n) {
     if(el2) el2.className=cls;
   });
 }
-// ─── Dépliage lignes + commentaires ───
+// ─── Tri tableau DD ───
+let ddSortCol = 'niveau';
+let ddSortDir = 'desc';
+
+function ddSort(col) {
+  if(ddSortCol === col) ddSortDir = ddSortDir === 'asc' ? 'desc' : 'asc';
+  else { ddSortCol = col; ddSortDir = col === 'client' ? 'asc' : 'desc'; }
+  renderDDDashboard();
+}
+
+// ─── Widget ancienneté moyenne ───
+function renderDDAgeWidget(entries) {
+  const withDates = entries.filter(([,f]) => f.date_facture && ddJoursDepuis(f.date_facture) !== null);
+  if(!withDates.length) return;
+  const avg = Math.round(withDates.reduce((s,[,f]) => s + ddJoursDepuis(f.date_facture), 0) / withDates.length);
+  const MAX = 360;
+  const pct = Math.min(avg / MAX * 100, 100);
+  const thumb = document.getElementById('dd-age-thumb');
+  const val   = document.getElementById('dd-age-val');
+  const sub   = document.getElementById('dd-age-sub');
+  if(thumb) thumb.style.left = pct + '%';
+  if(val)   val.textContent  = avg + 'j';
+  if(sub)   sub.textContent  = 'moyenne · ' + withDates.length + ' factures';
+  // Couleur du curseur selon zone
+  const color = avg < 60 ? '#4CAF50' : avg < 120 ? '#FFC107' : avg < 180 ? '#FF9800' : avg < 240 ? '#F44336' : '#B71C1C';
+  if(thumb) thumb.style.borderColor = color;
+}
+
+// ─── Édition / suppression relances dans ligne dépliée ───
+function ddEditRelance(num, idx) {
+  const e = stateDDSuivi?.factures?.[num];
+  if(!e || !Array.isArray(e.historique)) return;
+  const h = e.historique[idx];
+  if(!h) return;
+  const newDate = prompt('Date de la relance (JJ/MM/AAAA) :', h.date || '');
+  if(newDate === null) return;
+  const newType = prompt('Type (email / courrier) :', h.type || 'courrier');
+  if(newType === null) return;
+  e.historique[idx].date = newDate.trim();
+  e.historique[idx].type = newType.trim();
+  saveDDToFirebase();
+  renderDDDashboard();
+  setTimeout(() => {
+    const row = document.getElementById('ddexp-'+num);
+    if(row) row.classList.add('open');
+  }, 50);
+}
+
+function ddDeleteRelance(num, idx) {
+  const e = stateDDSuivi?.factures?.[num];
+  if(!e || !Array.isArray(e.historique)) return;
+  const h = e.historique[idx];
+  if(!confirm('Supprimer la relance du ' + (h.date||'?') + ' ?')) return;
+  e.historique.splice(idx, 1);
+  // Recalculer niveau_actuel depuis l'historique restant
+  e.niveau_actuel = e.historique.length > 0 ? Math.max(...e.historique.map(x=>x.niveau)) : 0;
+  saveDDToFirebase();
+  renderDDDashboard();
+  setTimeout(() => {
+    const row = document.getElementById('ddexp-'+num);
+    if(row) row.classList.add('open');
+  }, 50);
+}
+// ─── FIN édition relances ───
 function toggleDDRow(num) {
   const row = document.getElementById('ddexp-'+num);
   if(!row) return;
