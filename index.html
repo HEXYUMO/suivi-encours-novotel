@@ -535,9 +535,9 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
     <!-- ─── PARAMÈTRES ─── -->
     <div class="page" id="page-settings">
       <div class="settings-section">
-        <div class="settings-h">CA hébergement réalisé — mois passés</div>
-        <div class="settings-desc">Saisir le CA hébergement TTC réalisé pour chaque mois clôturé. Ces valeurs sont partagées en temps réel avec toute l'équipe et utilisées pour calculer l'avance ou le retard sur le budget annuel.</div>
-        <div class="settings-months" id="settings-months-grid"></div>
+        <div class="settings-h">Budget & CA réalisé — par mois</div>
+        <div class="settings-desc">Modifiez le budget mensuel et saisissez le CA hébergement TTC réalisé pour les mois passés. Ces valeurs sont partagées en temps réel avec toute l'équipe.</div>
+        <div class="settings-months" id="settings-months-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
         <div style="display:flex;align-items:center">
           <button class="settings-save" onclick="saveSettings()">Sauvegarder</button>
           <span class="settings-ok" id="settings-ok">✓ Enregistré</span>
@@ -627,7 +627,12 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 <script>
 // ═══════════════════════ CONSTANTES ═══════════════════════
 const NB_CHAMBRES = 180;
-const BUDGET_2026 = [144950,282420,359040,583060,760340,903271,1056407,1104640,857915,630925,173310,226064];
+const BUDGET_2026_DEFAULT = [144950,282420,359040,583060,760340,903271,1056407,1104640,857915,630925,173310,226064];
+function getBudget(month) { // month = 1-12
+  const k = `budget-${pad(month)}`;
+  return (stateSettings&&stateSettings.budget&&stateSettings.budget[k]!==undefined) ? stateSettings.budget[k] : (BUDGET_2026_DEFAULT[month-1]||0);
+}
+function getBudgetArray() { return Array.from({length:12},(_,i)=>getBudget(i+1)); }
 const MOIS_LABELS = ['Jan.','Fév.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
 const MOIS_LONGS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const SERVICES    = ['reception','commerciaux','comptabilite'];
@@ -809,7 +814,7 @@ function initGmailClient() {
     client_id: GMAIL_CLIENT_ID,
     scope: GMAIL_SCOPES,
     callback: (resp) => {
-      if(resp.error) { console.error('Gmail auth error', resp); return; }
+      if(resp.error) { console.error('Gmail auth error', resp); showToast('Erreur connexion Gmail : '+resp.error, 'red'); return; }
       gmailToken = resp.access_token;
       checkGmailForCSV();
     }
@@ -864,9 +869,8 @@ async function checkGmailForCSV() {
 
 async function sendGmail(dest, subject, body) {
   if(!gmailToken) {
-    gmailTokenClient?.requestAccessToken({ prompt: '' });
-    showToast('Connexion Gmail en cours… Réessayez dans 3s', 'amber');
-    return;
+    showToast('Gmail non connecté — allez dans Paramètres pour connecter ulyssepilotageh1103@gmail.com', 'amber');
+    return false;
   }
   const to = dest.to + (dest.cc ? ',' + dest.cc : '');
   const raw = [`From: ${GMAIL_SENDER}`, `To: ${dest.to}`, dest.cc ? `Cc: ${dest.cc}` : '', `Subject: ${subject}`, 'Content-Type: text/plain; charset=utf-8', '', body].filter(Boolean).join('\r\n');
@@ -1079,7 +1083,7 @@ function computeDashboardData(rows) {
   const dim=new Date(yr,mo,0).getDate();
   const monthTO = md.rn>0 ? md.rn/(NB_CHAMBRES*dim)*100 : 0;
   const monthPM = md.rn>0 ? md.ca/md.rn : 0;
-  const monthBud= BUDGET_2026[mo-1]||0;
+  const monthBud= getBudget(mo)||0;
 
   return {
     lastImport:     new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
@@ -1222,7 +1226,7 @@ function computeAdvance(year, currentMonth, monthlyCA) {
   let advPast=0, advCurr=0;
   for(let m=1;m<=currentMonth;m++){
     const k=`${year}-${pad(m)}`;
-    const bud=BUDGET_2026[m-1]||0;
+    const bud=getBudget(m)||0;
     let ca=0;
     if(m<currentMonth){
       // Use settings pastCA if available, else CSV
@@ -1336,7 +1340,7 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
         },
         {
           type:'bar', label:'Budget',
-          data:BUDGET_2026,
+          data:getBudgetArray(),
           backgroundColor:'rgba(150,150,150,0.18)',
           borderColor:'rgba(150,150,150,0.7)',
           borderWidth:1.5,
@@ -1382,34 +1386,61 @@ function renderBudgetChart(monthlyCA, currentYear, currentMonth) {
 function renderSettingsPage() {
   const now = new Date();
   const currentYear  = now.getFullYear();
-  const currentMonth = now.getMonth()+1; // past months = 1 to currentMonth-1
-  const pc = (stateSettings&&stateSettings.pastCA)||{};
+  const currentMonth = now.getMonth()+1;
+  const pc  = (stateSettings&&stateSettings.pastCA)||{};
+  const bgt = (stateSettings&&stateSettings.budget)||{};
   const grid = document.getElementById('settings-months-grid');
   if (!grid) return;
   grid.innerHTML = '';
 
-  for (let m=1; m<currentMonth; m++) {
-    const k = `${currentYear}-${pad(m)}`;
-    const val = pc[k]!==undefined ? pc[k] : '';
-    const bud = BUDGET_2026[m-1]||0;
-    const diff = val!=='' ? val-bud : null;
-    const diffStr = diff!==null ? ' ('+fmtSign(diff)+')' : '';
-    const hasVal  = val!=='';
+  for (let m=1; m<=12; m++) {
+    const kca  = `${currentYear}-${pad(m)}`;
+    const kbud = `budget-${pad(m)}`;
+    const caVal  = pc[kca]!==undefined ? pc[kca] : '';
+    const budVal = bgt[kbud]!==undefined ? bgt[kbud] : BUDGET_2026_DEFAULT[m-1];
+    const diff = caVal!=='' ? Number(caVal)-Number(budVal) : null;
+    const isFut  = m > currentMonth;
+    const isCurr = m === currentMonth;
 
     const div = document.createElement('div');
     div.className = 'settings-month';
     div.innerHTML = `
-      <div class="settings-month-lbl">${MOIS_LONGS[m-1]}</div>
-      <input class="settings-month-input${hasVal?' has-value':''}" type="number" step="0.01"
-        id="setting-${k}" value="${val}"
+      <div class="settings-month-lbl" style="display:flex;align-items:center;gap:5px">
+        ${MOIS_LONGS[m-1]}
+        ${isCurr?'<span style="font-size:8px;background:var(--amber-l);color:var(--amber);padding:1px 5px;border-radius:3px;font-weight:700">EN COURS</span>':''}
+        ${isFut?'<span style="font-size:8px;color:var(--muted2);font-style:italic">à venir</span>':''}
+      </div>
+      <div style="font-size:9px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin:6px 0 3px">Budget</div>
+      <input class="settings-month-input has-value" type="number" step="1"
+        id="bud-${kbud}" value="${budVal}"
+        placeholder="Budget (€)"
+        onchange="onBudgetChange('${kbud}',this)"
+        style="border-color:rgba(74,144,226,.4);background:#F5F9FF">
+      ${!isFut ? `<div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin:6px 0 3px">CA réalisé</div>
+      <input class="settings-month-input${caVal!==''?' has-value':''}" type="number" step="0.01"
+        id="setting-${kca}" value="${caVal}"
         placeholder="CA réalisé (€)"
-        onchange="onSettingChange('${k}',this)">
-      <div class="settings-month-sub">Budget : ${Math.round(bud).toLocaleString('fr-FR')} €${diffStr}</div>`;
+        onchange="onSettingChange('${kca}',this)">
+      <div class="settings-month-sub" id="diff-${kca}" style="margin-top:4px">${diff!==null?'vs budget : <span style="color:'+(diff>=0?'var(--green)':'var(--red)')+'">'+fmtSign(diff)+'</span>':'—'}</div>` : ''}
+    `;
     grid.appendChild(div);
   }
+}
 
-  if (currentMonth === 1) {
-    grid.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1">Aucun mois clôturé pour l\'instant.</div>';
+function onBudgetChange(key, input) {
+  const v = parseFloat(input.value)||0;
+  if(!stateSettings.budget) stateSettings.budget={};
+  stateSettings.budget[key] = v;
+  input.classList.toggle('has-value', v>0);
+  // Mettre à jour l'affichage diff du CA si présent
+  const m = parseInt(key.split('-')[1]);
+  const now = new Date();
+  const kca = `${now.getFullYear()}-${pad(m)}`;
+  const caEl = document.getElementById('setting-'+kca);
+  const diffEl = document.getElementById('diff-'+kca);
+  if(caEl && diffEl && caEl.value) {
+    const diff = parseFloat(caEl.value)-v;
+    diffEl.innerHTML = 'vs budget : <span style="color:'+(diff>=0?'var(--green)':'var(--red)')+'">'+fmtSign(diff)+'</span>';
   }
 }
 
@@ -1418,30 +1449,33 @@ function onSettingChange(key, input) {
   if (!stateSettings.pastCA) stateSettings.pastCA={};
   stateSettings.pastCA[key] = v;
   input.classList.toggle('has-value', v>0);
-  // Update diff display
   const m = parseInt(key.split('-')[1]);
-  const bud = BUDGET_2026[m-1]||0;
+  const bud = getBudget(m)||0;
   const diff = v-bud;
-  const sub = input.nextElementSibling;
-  if(sub) sub.textContent = 'Budget : '+Math.round(bud).toLocaleString('fr-FR')+' € ('+fmtSign(diff)+')';
+  const diffEl = document.getElementById('diff-'+key);
+  if(diffEl) diffEl.innerHTML = 'vs budget : <span style="color:'+(diff>=0?'var(--green)':'var(--red)')+'">'+fmtSign(diff)+'</span>';
 }
 
 function saveSettings() {
-  // Read all inputs
   if(!stateSettings.pastCA) stateSettings.pastCA={};
-  const inputs = document.querySelectorAll('.settings-month-input');
-  inputs.forEach(inp=>{
+  if(!stateSettings.budget) stateSettings.budget={};
+  // Sauvegarder CA réalisés
+  document.querySelectorAll('[id^="setting-"]').forEach(inp=>{
     const k = inp.id.replace('setting-','');
-    const v = parseFloat(inp.value)||0;
-    if(v>0) stateSettings.pastCA[k]=v;
+    const v = parseFloat(inp.value);
+    if(!isNaN(v) && v>0) stateSettings.pastCA[k]=v;
+  });
+  // Sauvegarder budgets
+  document.querySelectorAll('[id^="bud-budget-"]').forEach(inp=>{
+    const k = inp.id.replace('bud-','');
+    const v = parseFloat(inp.value);
+    if(!isNaN(v) && v>0) stateSettings.budget[k]=v;
   });
   saveSettingsFB();
   localStorage.setItem('settings_state',JSON.stringify(stateSettings));
   const ok=document.getElementById('settings-ok');
   if(ok){ok.style.display='inline';setTimeout(()=>ok.style.display='none',2500);}
-  // Refresh dashboard
-  if(currentView==='dashboard') renderDashboard();
-  else { if(stateDashboard) renderDashboard(); }
+  if(stateDashboard) renderDashboard();
   renderSnapshotList();
 }
 
@@ -1468,6 +1502,9 @@ function renderSnapshotList() {
 function renderArrhes(){
   const c=document.getElementById('arrhes-sections');if(!c)return;
   const q=searchArrhes.toLowerCase().trim();
+  // Sauvegarder le focus avant re-render
+  const hadFocus = document.activeElement?.classList.contains('search-input') && document.activeElement.closest('#arrhes-sections');
+  const cursorPos = hadFocus ? document.activeElement.selectionStart : null;
   let entries=Object.entries(stateArrhes);
   if(q) entries=entries.filter(([,r])=>(r.client||'').toLowerCase().includes(q)||(r.commentaire||'').toLowerCase().includes(q)||(r.statut||'').toLowerCase().includes(q)||(String(r.nc||'')).includes(q));
   if(sortArrhesCol){entries.sort((a,b)=>{const dir=sortArrhesDir==='asc'?1:-1;switch(sortArrhesCol){case 'client':return dir*(a[1].client||'').localeCompare(b[1].client||'');case 'montant':return dir*((a[1].montant||0)-(b[1].montant||0));case 'statut':return dir*(a[1].statut||'').localeCompare(b[1].statut||'');case 'echeance':return dir*((a[1].echeance||'')>(b[1].echeance||'')?1:-1);default:return 0;}});}
@@ -1477,10 +1514,15 @@ function renderArrhes(){
   setEl('arrhes-stat-total',all.length);setEl('arrhes-stat-new',all.filter(r=>r.isNew).length);setEl('arrhes-stat-amount',fmtAmt(total)+' €');
   // Search bar
   const searchWrap=document.createElement('div');searchWrap.className='search-bar-wrap';
-  searchWrap.innerHTML=`<input class="search-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchArrhes)}" oninput="searchArrhes=this.value;renderArrhes()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
+  searchWrap.innerHTML=`<input class="search-input" id="search-arrhes-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchArrhes)}" oninput="searchArrhes=this.value;renderArrhes()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
   c.innerHTML='';c.appendChild(searchWrap);
   if(bySvc.unassigned.length)c.appendChild(buildSectionArrhes('unassigned',bySvc.unassigned));
   SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionArrhes(svc,bySvc[svc]));});
+  // Restaurer le focus
+  if(hadFocus || cursorPos !== null) {
+    const inp = document.getElementById('search-arrhes-input');
+    if(inp) { inp.focus(); if(cursorPos!==null) inp.setSelectionRange(cursorPos,cursorPos); }
+  }
 }
 function sortArrhes(col){if(sortArrhesCol===col)sortArrhesDir=sortArrhesDir==='asc'?'desc':'asc';else{sortArrhesCol=col;sortArrhesDir='asc';}renderArrhes();}
 function buildSectionArrhes(svc,rows){
@@ -1505,6 +1547,8 @@ function buildRowArrhes(id,row,isU){
 function renderFP(){
   const c=document.getElementById('fp-sections');if(!c)return;
   const q=searchFP.toLowerCase().trim();
+  const hadFocus = document.activeElement?.id === 'search-fp-input';
+  const cursorPos = hadFocus ? document.activeElement.selectionStart : null;
   let entries=Object.entries(stateFP);
   if(q) entries=entries.filter(([,r])=>(r.client||'').toLowerCase().includes(q)||(r.commentaire||'').toLowerCase().includes(q)||(r.statut||'').toLowerCase().includes(q)||(String(r.nc||'')).includes(q));
   if(sortFPCol){entries.sort((a,b)=>{const dir=sortFPDir==='asc'?1:-1;switch(sortFPCol){case 'client':return dir*(a[1].client||'').localeCompare(b[1].client||'');case 'montant':return dir*((a[1].montant||0)-(b[1].montant||0));case 'statut':return dir*(a[1].statut||'').localeCompare(b[1].statut||'');case 'echeance':return dir*((a[1].echeance||'')>(b[1].echeance||'')?1:-1);default:return 0;}});}
@@ -1512,12 +1556,12 @@ function renderFP(){
   entries.forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
   const all=Object.values(stateFP),total=all.reduce((s,r)=>s+(r.montant||0),0),urgC=all.filter(r=>isOverdue(r.echeance)).length;
   setEl('fp-stat-total',all.length);setEl('fp-stat-urgent',urgC);document.getElementById('fp-stat-urgent').style.color=urgC>0?'var(--red)':'var(--muted)';setEl('fp-stat-amount',fmtAmt(total)+' €');
-  // Search bar
   const searchWrap=document.createElement('div');searchWrap.className='search-bar-wrap';
-  searchWrap.innerHTML=`<input class="search-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchFP)}" oninput="searchFP=this.value;renderFP()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
+  searchWrap.innerHTML=`<input class="search-input" id="search-fp-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchFP)}" oninput="searchFP=this.value;renderFP()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
   c.innerHTML='';c.appendChild(searchWrap);
   if(bySvc.unassigned.length)c.appendChild(buildSectionFP('unassigned',bySvc.unassigned));
   SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionFP(svc,bySvc[svc]));});
+  if(hadFocus){const inp=document.getElementById('search-fp-input');if(inp){inp.focus();if(cursorPos!==null)inp.setSelectionRange(cursorPos,cursorPos);}}
 }
 function sortFP(col){if(sortFPCol===col)sortFPDir=sortFPDir==='asc'?'desc':'asc';else{sortFPCol=col;sortFPDir='asc';}renderFP();}
 function buildSectionFP(svc,rows){
@@ -2808,15 +2852,8 @@ window.addEventListener('load',()=>{
   checkImportBanner();
   if(stateDashboard) renderDashboard();
   if(stateDDSuivi)   renderDDPage();
-  // Init Gmail (avec délai pour laisser Google Identity Services se charger)
-  setTimeout(() => {
-    initGmailClient();
-    // Auto-check Gmail si pas encore importé aujourd'hui
-    const li = stateDashboard?.lastImportDate;
-    if(li !== new Date().toLocaleDateString('fr-FR')) {
-      gmailTokenClient?.requestAccessToken({ prompt: '' });
-    }
-  }, 2000);
+  // Init Gmail silencieux — pas de popup automatique au chargement
+  setTimeout(() => { initGmailClient(); }, 2000);
 
   const fbConfig={
     apiKey:"AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
