@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Novotel Nice — Pilotage</title>
+<title>Novotel Nice — Pilotage v1.19</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBkMWY0YSIvPjxyZWN0IHg9IjYiIHk9IjE0IiB3aWR0aD0iMjAiIGhlaWdodD0iMTIiIHJ4PSIxIiBmaWxsPSIjZmZmIi8+PHJlY3QgeD0iNiIgeT0iMTIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIzIiByeD0iMSIgZmlsbD0iIzRBOTBFMiIvPjxwb2x5Z29uIHBvaW50cz0iMTYsMiA1LDEzIDI3LDEzIiBmaWxsPSIjMkI1MkExIi8+PC9zdmc+">
 <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -67,6 +67,32 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .sb-live{display:flex;align-items:center;gap:6px;font-size:9px;color:rgba(255,255,255,.26)}
 .live-dot{width:6px;height:6px;background:#4CAF50;border-radius:50%;animation:pulse 2.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ─── OFFLINE BANNER ─── */
+.offline-bar{position:fixed;top:0;left:0;right:0;z-index:9999;background:#C62828;color:#fff;font-size:12px;font-weight:600;padding:9px 22px;display:none;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .3s}
+.offline-bar.show{display:flex}
+.offline-dot{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite;flex-shrink:0}
+.offline-bar-msg{flex:1}
+.offline-bar-queue{font-size:10px;opacity:.75;margin-left:6px}
+
+/* ─── SEARCH BAR ─── */
+.search-bar-wrap{margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.search-input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 12px 7px 32px;font-size:12px;font-family:var(--font);color:var(--text);background:var(--white);transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238896B3' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+.search-input:focus{outline:none;border-color:var(--blue);background-color:#F5F9FF}
+.search-input::placeholder{color:var(--muted2)}
+.search-count{font-size:10px;color:var(--muted);white-space:nowrap}
+
+/* ─── SNAPSHOT SECTION ─── */
+.snapshot-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.snapshot-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:12px}
+.snapshot-type{font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.snapshot-type-csv{background:#E3F0FF;color:#1565C0}
+.snapshot-type-xls{background:#E8F5E9;color:#2E7D32}
+.snapshot-type-dd{background:#EDE7F6;color:#4527A0}
+.snapshot-date{color:var(--muted);flex:1;font-family:var(--mono);font-size:11px}
+.snapshot-file{color:var(--navy3);font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.snapshot-restore{background:var(--navy3);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:background .15s}
+.snapshot-restore:hover{background:var(--navy)}
 
 /* ─── MAIN ─── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -262,6 +288,10 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 </style>
 </head>
 <body>
+<div class="offline-bar" id="offline-bar">
+  <div class="offline-dot"></div>
+  <div class="offline-bar-msg">Connexion perdue — modifications mises en file d'attente<span class="offline-bar-queue" id="offline-queue-label"></span></div>
+</div>
 <div class="app">
 
 <!-- ═══════════ SIDEBAR ═══════════ -->
@@ -520,6 +550,19 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
           Budget 2026 : Jan 144 950 € · Fév 282 420 € · Mars 359 040 € · Avr 583 060 € · Mai 760 340 € · Juin 903 271 € · Juil 1 056 407 € · Août 1 104 640 € · Sept 857 915 € · Oct 630 925 € · Nov 173 310 € · Déc 226 064 €
         </div>
       </div>
+      <div class="settings-section">
+        <div class="settings-h">Historique des imports — Restauration</div>
+        <div class="settings-desc">Les 5 derniers imports sont sauvegardés localement. Vous pouvez restaurer n'importe lequel en cas d'erreur d'importation.</div>
+        <div id="snapshot-list-cont"><div style="font-size:12px;color:var(--muted);font-style:italic">Aucun import enregistré.</div></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-h">Import automatique Gmail</div>
+        <div class="settings-desc">Connectez le compte Gmail dédié pour importer automatiquement le CSV chaque matin depuis votre boîte mail Outlook.</div>
+        <button onclick="gmailAuth(()=>showToast('✓ Gmail connecté — vérification en cours…','green'))" style="background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background .15s" onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--navy3)'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" rx="2" stroke="rgba(255,255,255,.7)" stroke-width="1.3"/><path d="M4 6l8 7 8-7" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Connecter Gmail · ulyssepilotageh1103@gmail.com
+        </button>
+      </div>
     </div>
 
   </div>
@@ -542,9 +585,17 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       </div>
       <div><div class="mopt-label">Balance des encours</div><div class="mopt-sub">XLS balance · Arrhes + Factures perm.</div></div>
     </div>
+    <div class="modal-opt" onclick="triggerDDCSVImport()">
+      <div class="mopt-icon" style="background:var(--pur-l)">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="#4527A0" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke="#4527A0" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <div><div class="mopt-label">Balance âgée DD</div><div class="mopt-sub">CSV Débiteurs divers · Mise à jour des créances</div></div>
+    </div>
     <div class="modal-cancel" onclick="closeImportModal()">Annuler</div>
   </div>
 </div>
+
+<input type="file" id="file-input-dd-csv" accept=".csv" style="display:none" onchange="closeImportModal();ddSilentImportFromFile(this.files[0]);this.value=''">
 
 <input type="file" id="file-input-xls" accept=".xls,.xlsx" style="display:none" onchange="handleXLS(this.files[0])">
 <input type="file" id="file-input-csv" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
@@ -582,9 +633,9 @@ const MOIS_LONGS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet',
 const SERVICES    = ['reception','commerciaux','comptabilite'];
 const SVC_LABEL   = {reception:'Réception',commerciaux:'Commerciaux',comptabilite:'Comptabilité'};
 const MAIL_DEST   = {
-  reception:    {to:'h1103-om1@accor.com',cc:'h1103-om@accor.com',  label:'Réception'},
-  commerciaux:  {to:'h1103-sb@accor.com', cc:'h1103-re2@accor.com', label:'Service Commercial'},
-  comptabilite: {to:'h1103-gl@accor.com', cc:'',                    label:'Comptabilité'},
+  reception:    {to:'h1103-om@accor.com',  cc:'h1103-om1@accor.com', label:'Réception'},
+  commerciaux:  {to:'h1103-sb@accor.com',  cc:'h1103-cc@accor.com,h1103-re2@accor.com', label:'Commerciaux'},
+  comptabilite: {to:'h1103-gl@accor.com',  cc:'', label:'Comptabilité'},
 };
 const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers',settings:'Paramètres'};
 
@@ -670,7 +721,175 @@ function ddClassifyNiveau(n){
 
 function clientId(c,n){ return `${n}_${String(c).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`; }
 
-// ═══════════════════════ NAVIGATION ═══════════════════════
+// ═══════════════════════ CONFIG GMAIL ═══════════════════════
+const GMAIL_CLIENT_ID = '810974037955-2j2is4jnuc89shkkvv8e6ieq5mpldit8.apps.googleusercontent.com';
+const GMAIL_SENDER    = 'ulyssepilotageh1103@gmail.com';
+const GMAIL_SCOPES    = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
+const GMAIL_SUBJECT_FILTER = 'STATISTIQUES PAR SEGMENTATION';
+let   gmailToken      = null;
+let   gmailTokenClient = null;
+
+// ═══════════════════════ OFFLINE SYSTEM ═══════════════════════
+let offlineQueue = [];
+let isOnline = navigator.onLine;
+
+function initOfflineDetection() {
+  window.addEventListener('online', () => {
+    isOnline = true;
+    document.getElementById('offline-bar').classList.remove('show');
+    if(offlineQueue.length > 0) flushOfflineQueue();
+  });
+  window.addEventListener('offline', () => {
+    isOnline = false;
+    document.getElementById('offline-bar').classList.add('show');
+    updateOfflineQueueLabel();
+  });
+}
+
+function updateOfflineQueueLabel() {
+  const el = document.getElementById('offline-queue-label');
+  if(el) el.textContent = offlineQueue.length > 0 ? `· ${offlineQueue.length} modification(s) en attente` : '';
+}
+
+function flushOfflineQueue() {
+  if(!db || offlineQueue.length === 0) return;
+  offlineQueue.forEach(({path, data}) => fbSet(path, data));
+  offlineQueue = [];
+  updateOfflineQueueLabel();
+}
+
+// ═══════════════════════ SNAPSHOT SYSTEM ═══════════════════════
+const SNAP_KEY = 'import_snapshots';
+const SNAP_MAX = 5;
+
+function saveSnapshot(type, fileName, stateData) {
+  try {
+    let snaps = JSON.parse(localStorage.getItem(SNAP_KEY) || '[]');
+    snaps.unshift({ type, fileName, date: new Date().toLocaleString('fr-FR'), data: stateData });
+    if(snaps.length > SNAP_MAX) snaps = snaps.slice(0, SNAP_MAX);
+    localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+  } catch(e) { console.error('Snapshot save error', e); }
+}
+
+function getSnapshots() {
+  try { return JSON.parse(localStorage.getItem(SNAP_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function restoreSnapshot(idx) {
+  const snaps = getSnapshots();
+  const snap = snaps[idx];
+  if(!snap) return;
+  if(!confirm(`Restaurer l'import "${snap.fileName}" du ${snap.date} ?\n\nCela remplacera les données actuelles.`)) return;
+  try {
+    if(snap.type === 'csv') {
+      stateDashboard = snap.data;
+      saveDashboard(stateDashboard);
+      renderDashboard();
+    } else if(snap.type === 'xls') {
+      stateArrhes = snap.data.arrhes || {};
+      stateFP     = snap.data.fp || {};
+      saveArrhesToFirebase(); saveFPToFirebase();
+      if(currentView==='arrhes') renderArrhes();
+      if(currentView==='fp') renderFP();
+    } else if(snap.type === 'dd') {
+      stateDDSuivi = snap.data;
+      saveDDToFirebase();
+      if(currentView==='debiteurs') renderDDPage();
+    }
+    alert('✓ Données restaurées avec succès.');
+    renderSettingsPage();
+  } catch(e) { alert('Erreur restauration : ' + e.message); }
+}
+
+// ═══════════════════════ GMAIL API ═══════════════════════
+function initGmailClient() {
+  if(typeof google === 'undefined' || !google.accounts) return;
+  gmailTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GMAIL_CLIENT_ID,
+    scope: GMAIL_SCOPES,
+    callback: (resp) => {
+      if(resp.error) { console.error('Gmail auth error', resp); return; }
+      gmailToken = resp.access_token;
+      checkGmailForCSV();
+    }
+  });
+}
+
+function gmailAuth(callback) {
+  if(gmailToken) { callback(); return; }
+  if(!gmailTokenClient) { initGmailClient(); }
+  if(gmailTokenClient) gmailTokenClient.requestAccessToken({ prompt: '' });
+  else console.warn('Gmail client non prêt');
+}
+
+async function checkGmailForCSV() {
+  if(!gmailToken) return;
+  try {
+    const today = new Date().toISOString().split('T')[0].replace(/-/g,'');
+    const query = encodeURIComponent(`subject:"${GMAIL_SUBJECT_FILTER}" after:${today} has:attachment`);
+    const res = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}&maxResults=1`, {
+      headers: { Authorization: 'Bearer ' + gmailToken }
+    });
+    const data = await res.json();
+    if(!data.messages || data.messages.length === 0) {
+      console.log('Aucun nouveau CSV aujourd\'hui');
+      return;
+    }
+    const msgId = data.messages[0].id;
+    const msgRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`, {
+      headers: { Authorization: 'Bearer ' + gmailToken }
+    });
+    const msg = await msgRes.json();
+    const parts = msg.payload.parts || [];
+    const attachment = parts.find(p => p.filename && (p.filename.includes('H1103') || p.mimeType === 'text/csv'));
+    if(!attachment) { console.log('Pièce jointe H1103 non trouvée'); return; }
+    const attId = attachment.body.attachmentId;
+    const attRes = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/attachments/${attId}`, {
+      headers: { Authorization: 'Bearer ' + gmailToken }
+    });
+    const attData = await attRes.json();
+    const raw = atob(attData.data.replace(/-/g,'+').replace(/_/g,'/'));
+    saveSnapshot('csv', attachment.filename, stateDashboard);
+    const rows = parseCSVRows(raw);
+    const computed = computeDashboardData(rows);
+    stateDashboard = computed;
+    saveDashboard(computed);
+    renderDashboard();
+    checkImportBanner();
+    setEl('last-import-label','Auto-importé le ' + computed.lastImport);
+    showToast('✓ CSV importé automatiquement depuis Gmail', 'green');
+  } catch(e) { console.error('Gmail fetch error', e); }
+}
+
+async function sendGmail(dest, subject, body) {
+  if(!gmailToken) {
+    gmailTokenClient?.requestAccessToken({ prompt: '' });
+    showToast('Connexion Gmail en cours… Réessayez dans 3s', 'amber');
+    return;
+  }
+  const to = dest.to + (dest.cc ? ',' + dest.cc : '');
+  const raw = [`From: ${GMAIL_SENDER}`, `To: ${dest.to}`, dest.cc ? `Cc: ${dest.cc}` : '', `Subject: ${subject}`, 'Content-Type: text/plain; charset=utf-8', '', body].filter(Boolean).join('\r\n');
+  const encoded = btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_');
+  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + gmailToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw: encoded })
+  });
+  if(res.ok) return true;
+  throw new Error('Gmail send failed: ' + res.status);
+}
+
+function showToast(msg, color='blue') {
+  let t = document.getElementById('app-toast');
+  if(!t) { t = document.createElement('div'); t.id='app-toast'; t.style.cssText='position:fixed;bottom:22px;right:22px;z-index:9999;padding:10px 18px;border-radius:9px;font-size:12px;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:opacity .3s;max-width:320px'; document.body.appendChild(t); }
+  const colors = { blue:'#1565C0', green:'#2E7D32', amber:'#E8A000', red:'#C62828' };
+  t.style.background = colors[color] || colors.blue;
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.style.opacity = '0', 3500);
+}
 function navigate(view) {
   currentView = view;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
@@ -685,7 +904,7 @@ function navigate(view) {
   if (view==='arrhes')       renderArrhes();
   else if (view==='fp')      renderFP();
   else if (view==='dashboard') renderDashboard();
-  else if (view==='settings')  renderSettingsPage();
+  else if (view==='settings')  { renderSettingsPage(); renderSnapshotList(); }
   else if (view==='debiteurs') renderDDPage();
 }
 
@@ -694,6 +913,7 @@ function openImportModal()  { document.getElementById('import-modal').classList.
 function closeImportModal() { document.getElementById('import-modal').classList.remove('open'); }
 function triggerXLSImport() { closeImportModal(); document.getElementById('file-input-xls').click(); }
 function triggerCSVImport() { closeImportModal(); document.getElementById('file-input-csv').click(); }
+function triggerDDCSVImport() { closeImportModal(); document.getElementById('file-input-dd-csv').click(); }
 
 // ═══════════════════════ FIREBASE ═══════════════════════
 function connectFirebase(cfg) {
@@ -748,7 +968,12 @@ function connectFirebase(cfg) {
 }
 
 function fbSet(path, data) {
-  if (!db) { saveLocal(); return; }
+  if (!db || !isOnline) {
+    offlineQueue.push({path, data});
+    saveLocal();
+    updateOfflineQueueLabel();
+    return;
+  }
   const {ref,set} = window._fbImports;
   set(ref(db,path), data);
 }
@@ -791,6 +1016,7 @@ function handleCSV(file) {
     try {
       const rows = parseCSVRows(e.target.result);
       const data = computeDashboardData(rows);
+      saveSnapshot('csv', file.name, stateDashboard);
       stateDashboard = data;
       saveDashboard(data);
       setEl('last-import-label','Importé le '+data.lastImport);
@@ -883,6 +1109,7 @@ function handleXLS(file) {
       if(typeof XLSX==='undefined'){alert('Librairie XLSX non chargée.');return;}
       const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false});
       const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:null});
+      saveSnapshot('xls', file.name, {arrhes: JSON.parse(JSON.stringify(stateArrhes)), fp: JSON.parse(JSON.stringify(stateFP))});
       parseArrhesRows(rows); parseFPRows(rows);
       const d=new Date().toLocaleDateString('fr-FR')+' '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
       setEl('last-import-label','Importé le '+d);
@@ -1215,24 +1442,54 @@ function saveSettings() {
   // Refresh dashboard
   if(currentView==='dashboard') renderDashboard();
   else { if(stateDashboard) renderDashboard(); }
+  renderSnapshotList();
+}
+
+function renderSnapshotList() {
+  const cont = document.getElementById('snapshot-list-cont');
+  if(!cont) return;
+  const snaps = getSnapshots();
+  if(snaps.length === 0) {
+    cont.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic">Aucun import enregistré.</div>';
+    return;
+  }
+  const typeLabel = {csv:'CSV Dashboard', xls:'XLS Encours', dd:'CSV Débiteurs'};
+  const typeClass = {csv:'snapshot-type-csv', xls:'snapshot-type-xls', dd:'snapshot-type-dd'};
+  cont.innerHTML = '<div class="snapshot-list">' + snaps.map((s, i) => `
+    <div class="snapshot-item">
+      <span class="snapshot-type ${typeClass[s.type]||''}">${typeLabel[s.type]||s.type}</span>
+      <span class="snapshot-file">${s.fileName||'—'}</span>
+      <span class="snapshot-date">${s.date}</span>
+      <button class="snapshot-restore" onclick="restoreSnapshot(${i})">Restaurer</button>
+    </div>`).join('') + '</div>';
 }
 
 // ═══════════════════════ RENDER ARRHES ═══════════════════════
 function renderArrhes(){
-  const c=document.getElementById('arrhes-sections');if(!c)return;c.innerHTML='';
+  const c=document.getElementById('arrhes-sections');if(!c)return;
+  const q=searchArrhes.toLowerCase().trim();
+  let entries=Object.entries(stateArrhes);
+  if(q) entries=entries.filter(([,r])=>(r.client||'').toLowerCase().includes(q)||(r.commentaire||'').toLowerCase().includes(q)||(r.statut||'').toLowerCase().includes(q)||(String(r.nc||'')).includes(q));
+  if(sortArrhesCol){entries.sort((a,b)=>{const dir=sortArrhesDir==='asc'?1:-1;switch(sortArrhesCol){case 'client':return dir*(a[1].client||'').localeCompare(b[1].client||'');case 'montant':return dir*((a[1].montant||0)-(b[1].montant||0));case 'statut':return dir*(a[1].statut||'').localeCompare(b[1].statut||'');case 'echeance':return dir*((a[1].echeance||'')>(b[1].echeance||'')?1:-1);default:return 0;}});}
   const bySvc={reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
-  Object.entries(stateArrhes).forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
+  entries.forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
   const all=Object.values(stateArrhes),total=all.reduce((s,r)=>s+(r.montant||0),0);
   setEl('arrhes-stat-total',all.length);setEl('arrhes-stat-new',all.filter(r=>r.isNew).length);setEl('arrhes-stat-amount',fmtAmt(total)+' €');
+  // Search bar
+  const searchWrap=document.createElement('div');searchWrap.className='search-bar-wrap';
+  searchWrap.innerHTML=`<input class="search-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchArrhes)}" oninput="searchArrhes=this.value;renderArrhes()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
+  c.innerHTML='';c.appendChild(searchWrap);
   if(bySvc.unassigned.length)c.appendChild(buildSectionArrhes('unassigned',bySvc.unassigned));
   SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionArrhes(svc,bySvc[svc]));});
 }
+function sortArrhes(col){if(sortArrhesCol===col)sortArrhesDir=sortArrhesDir==='asc'?'desc':'asc';else{sortArrhesCol=col;sortArrhesDir='asc';}renderArrhes();}
 function buildSectionArrhes(svc,rows){
   const isU=svc==='unassigned';
   const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
   const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
+  const si=c=>sortArrhesCol===c?(sortArrhesDir==='asc'?' ▲':' ▼'):'';
   const div=document.createElement('div');div.className='section';
-  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:18%">Client</th><th style="width:9%;text-align:right">Montant</th><th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th><th style="width:14%">Action requise</th><th style="width:8%">Échéance</th><th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-a-${svc}"></tbody></table></div>`;
+  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:18%;cursor:pointer;user-select:none" onclick="sortArrhes('client')">Client${si('client')}</th><th style="width:9%;text-align:right;cursor:pointer;user-select:none" onclick="sortArrhes('montant')">Montant${si('montant')}</th><th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th><th style="width:14%">Action requise</th><th style="width:8%;cursor:pointer;user-select:none" onclick="sortArrhes('echeance')">Échéance${si('echeance')}</th><th style="width:10%;cursor:pointer;user-select:none" onclick="sortArrhes('statut')">Statut${si('statut')}</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-a-${svc}"></tbody></table></div>`;
   const tbody=div.querySelector(`#tbody-a-${svc}`);
   rows.forEach(([id,row])=>tbody.appendChild(buildRowArrhes(id,row,isU)));
   return div;
@@ -1246,20 +1503,30 @@ function buildRowArrhes(id,row,isU){
 
 // ═══════════════════════ RENDER FP ═══════════════════════
 function renderFP(){
-  const c=document.getElementById('fp-sections');if(!c)return;c.innerHTML='';
+  const c=document.getElementById('fp-sections');if(!c)return;
+  const q=searchFP.toLowerCase().trim();
+  let entries=Object.entries(stateFP);
+  if(q) entries=entries.filter(([,r])=>(r.client||'').toLowerCase().includes(q)||(r.commentaire||'').toLowerCase().includes(q)||(r.statut||'').toLowerCase().includes(q)||(String(r.nc||'')).includes(q));
+  if(sortFPCol){entries.sort((a,b)=>{const dir=sortFPDir==='asc'?1:-1;switch(sortFPCol){case 'client':return dir*(a[1].client||'').localeCompare(b[1].client||'');case 'montant':return dir*((a[1].montant||0)-(b[1].montant||0));case 'statut':return dir*(a[1].statut||'').localeCompare(b[1].statut||'');case 'echeance':return dir*((a[1].echeance||'')>(b[1].echeance||'')?1:-1);default:return 0;}});}
   const bySvc={reception:[],commerciaux:[],comptabilite:[],unassigned:[]};
-  Object.entries(stateFP).forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
+  entries.forEach(([id,row])=>(row.service?bySvc[row.service]:bySvc.unassigned).push([id,row]));
   const all=Object.values(stateFP),total=all.reduce((s,r)=>s+(r.montant||0),0),urgC=all.filter(r=>isOverdue(r.echeance)).length;
   setEl('fp-stat-total',all.length);setEl('fp-stat-urgent',urgC);document.getElementById('fp-stat-urgent').style.color=urgC>0?'var(--red)':'var(--muted)';setEl('fp-stat-amount',fmtAmt(total)+' €');
+  // Search bar
+  const searchWrap=document.createElement('div');searchWrap.className='search-bar-wrap';
+  searchWrap.innerHTML=`<input class="search-input" type="search" placeholder="Rechercher client, commentaire, statut…" value="${esc(searchFP)}" oninput="searchFP=this.value;renderFP()"><span class="search-count">${entries.length} / ${all.length} lignes</span>`;
+  c.innerHTML='';c.appendChild(searchWrap);
   if(bySvc.unassigned.length)c.appendChild(buildSectionFP('unassigned',bySvc.unassigned));
   SERVICES.forEach(svc=>{if(bySvc[svc].length)c.appendChild(buildSectionFP(svc,bySvc[svc]));});
 }
+function sortFP(col){if(sortFPCol===col)sortFPDir=sortFPDir==='asc'?'desc':'asc';else{sortFPCol=col;sortFPDir='asc';}renderFP();}
 function buildSectionFP(svc,rows){
   const isU=svc==='unassigned';
   const bc={reception:'sbadge-green',commerciaux:'sbadge-purple',comptabilite:'sbadge-amber',unassigned:'sbadge-todo'}[svc];
   const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
+  const si=c=>sortFPCol===c?(sortFPDir==='asc'?' ▲':' ▼'):'';
   const div=document.createElement('div');div.className='section';
-  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:16%">Client</th><th style="width:9%;text-align:right">Montant</th><th style="width:10%">Date création</th><th style="width:22%">Commentaire</th><th style="width:13%">Action requise</th><th style="width:9%">Échéance</th><th style="width:10%">Statut</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-fp-${svc}"></tbody></table></div>`;
+  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:16%;cursor:pointer;user-select:none" onclick="sortFP('client')">Client${si('client')}</th><th style="width:9%;text-align:right;cursor:pointer;user-select:none" onclick="sortFP('montant')">Montant${si('montant')}</th><th style="width:10%">Date création</th><th style="width:22%">Commentaire</th><th style="width:13%">Action requise</th><th style="width:9%;cursor:pointer;user-select:none" onclick="sortFP('echeance')">Échéance${si('echeance')}</th><th style="width:10%;cursor:pointer;user-select:none" onclick="sortFP('statut')">Statut${si('statut')}</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-fp-${svc}"></tbody></table></div>`;
   const tbody=div.querySelector(`#tbody-fp-${svc}`);
   rows.forEach(([id,row])=>tbody.appendChild(buildRowFP(id,row,isU)));
   return div;
@@ -1313,23 +1580,34 @@ function sendMail(svc){
   if(!activeDotsId||!stateArrhes[activeDotsId])return;
   const row=stateArrhes[activeDotsId],dest=MAIL_DEST[svc];
   const subject=`Suivi encours — ${row.client} (N°${row.nc}) — Demande de mise à jour`;
-  const message=`Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${fmtAmt(row.montant)} €\nStatut actuel: ${row.statut||'En attente'}\n${row.notePrev?'Note précédente : '+row.notePrev:''}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEJS(dest,subject,message,row,activeDotsId,'arrhes');
+  const message=`Bonjour,\n\nDans le cadre du suivi des encours du Novotel Nice Centre Vieux-Nice, je reviens vers vous concernant :\n\n─────────────────────────────────\nClient       : ${row.client}\nN° Client    : ${row.nc}\nMontant      : ${fmtAmt(row.montant)} €\nStatut actuel: ${row.statut||'En attente'}\n${row.notePrev?'Note précédente : '+row.notePrev:''}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour :\n  • Où en est ce dossier ?\n  • Y a-t-il un séjour, un événement ou un remboursement prévu ?\n  • Quelle est l'échéance estimée ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,\n${DD_HOTEL.auteur}\n${DD_HOTEL.titreAuteur}`;
+  doSendMail(dest, subject, message, row, activeDotsId, 'arrhes');
 }
 function sendMailFP(svc){
   document.getElementById('dots-menu-fp').classList.remove('open');
   if(!activeDotsId||!stateFP[activeDotsId])return;
   const row=stateFP[activeDotsId],dest=MAIL_DEST[svc],overdue=isOverdue(row.echeance);
   const subject=`Facture Permanente — ${row.client} (N°${row.nc})${overdue?' ⚠ URGENT':' — Demande de mise à jour'}`;
-  const message=`Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${fmtAmt(row.montant)} €\nDate de création: ${row.dateCreation||'—'}\nÉchéance        : ${row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—'}${overdue?' ⚠ DÉPASSÉE':''}\nStatut          : ${overdue?'URGENT':(row.statut||'En attente')}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,`;
-  sendEJS(dest,subject,message,row,activeDotsId,'fp');
+  const message=`Bonjour,\n\nDans le cadre du suivi des factures permanentes du Novotel Nice Centre Vieux-Nice :\n\n─────────────────────────────────\nClient          : ${row.client}\nN° Client       : ${row.nc}\nMontant         : ${fmtAmt(row.montant)} €\nDate de création: ${row.dateCreation||'—'}\nÉchéance        : ${row.echeance?new Date(row.echeance).toLocaleDateString('fr-FR'):'—'}${overdue?' ⚠ DÉPASSÉE':''}\nStatut          : ${overdue?'URGENT':(row.statut||'En attente')}\n${row.commentaire?'Commentaire : '+row.commentaire:''}\n─────────────────────────────────\n\nPourriez-vous me faire un retour sur cette facture ?\n\nMerci de me tenir informé(e).\n\nBien cordialement,\n${DD_HOTEL.auteur}\n${DD_HOTEL.titreAuteur}`;
+  doSendMail(dest, subject, message, row, activeDotsId, 'fp');
 }
-function sendEJS(dest,subject,message,row,id,view){
-  const btn=document.querySelector('#row-'+id+' .btn-dots');
+async function doSendMail(dest, subject, message, row, id, view) {
+  const btn = document.querySelector('#row-'+id+' .btn-dots');
   if(btn){btn.textContent='...';btn.disabled=true;}
-  emailjs.send('service_dd2nn5g','template_3aeinef',{to_email:dest.to,cc_email:dest.cc||'',to_name:dest.label,subject,message,client:row.client,nc:row.nc,montant:fmtAmt(row.montant)+' €',statut:row.statut||'En attente'})
-  .then(()=>{if(btn){btn.textContent='···';btn.disabled=false;}alert('✓ Mail envoyé à '+dest.label+' ('+dest.to+')');const st=view==='fp'?stateFP:stateArrhes;if(st[id]){st[id].dernierMail='Envoyé à '+dest.label+' le '+new Date().toLocaleDateString('fr-FR');st[id].dateMaj=new Date().toLocaleDateString('fr-FR');if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();}})
-  .catch(err=>{if(btn){btn.textContent='···';btn.disabled=false;}alert('Erreur envoi mail : '+JSON.stringify(err));});
+  try {
+    await sendGmail(dest, subject, message);
+    if(btn){btn.textContent='···';btn.disabled=false;}
+    showToast('✓ Mail envoyé à '+dest.label+' ('+dest.to+')', 'green');
+    const st=view==='fp'?stateFP:stateArrhes;
+    if(st[id]){
+      st[id].dernierMail='Envoyé à '+dest.label+' le '+new Date().toLocaleDateString('fr-FR');
+      st[id].dateMaj=new Date().toLocaleDateString('fr-FR');
+      if(view==='fp')saveFPToFirebase();else saveArrhesToFirebase();
+    }
+  } catch(err) {
+    if(btn){btn.textContent='···';btn.disabled=false;}
+    showToast('Erreur envoi mail : '+err.message, 'red');
+  }
 }
 
 // ═══════════════════════ UTILS ═══════════════════════
@@ -1559,8 +1837,72 @@ function renderDDPie(canvasId, legendId, tooltipId, byCat, grandTotal) {
   }
 }
 
-// ─── Import CSV DD ───
+// ─── Import CSV DD silencieux (depuis la sidebar) ───
+function ddSilentImportFromFile(file) {
+  if(!file) return;
+  if(!file.name.includes('H1103')) {
+    showToast('❌ Fichier refusé — H1103 requis', 'red'); return;
+  }
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const rows = ddParseCSV(ev.target.result);
+      if(!stateDDSuivi) {
+        stateDDSuivi = ddBuildSuivi(rows);
+      } else {
+        // Mise à jour silencieuse : on ne touche qu'aux montants/dates, pas aux niveaux/commentaires/adresses
+        ddSilentUpdateSuivi(stateDDSuivi, rows);
+      }
+      saveSnapshot('dd', file.name, JSON.parse(JSON.stringify(stateDDSuivi)));
+      if(!stateDDSuivi.meta) stateDDSuivi.meta = {};
+      stateDDSuivi.meta.dernier_export = DD_TSTR;
+      stateDDSuivi.meta.last_silent_import = DD_TSTR;
+      saveDDToFirebase();
+      if(currentView === 'debiteurs') renderDDPage();
+      updateDDNavBadge();
+      setEl('dd-last-import-label', 'Dernier import : ' + DD_TSTR);
+      showToast('✓ Balance DD mise à jour — niveaux et commentaires conservés', 'green');
+    } catch(e) { showToast('Erreur import DD : ' + e.message, 'red'); }
+  };
+  r.readAsText(file, 'utf-8');
+}
+
+function ddSilentUpdateSuivi(suivi, rows) {
+  if(!suivi.factures) suivi.factures = {};
+  if(!suivi.factures_reglees) suivi.factures_reglees = {};
+  const act = new Set(rows.filter(f=>f.valide).map(f=>f.facture));
+  const prev = new Set(Object.keys(suivi.factures));
+  // Factures disparues → réglées
+  for(const n of prev) {
+    if(!act.has(n)) {
+      suivi.factures_reglees[n] = {...suivi.factures[n], date_reglement: DD_TSTR};
+      delete suivi.factures[n];
+    }
+  }
+  // Nouvelles factures → ajouter avec niveau 0
+  rows.filter(f=>f.valide && !prev.has(f.facture)).forEach(f=>{
+    suivi.factures[f.facture] = {
+      client: f.client, montant_original: f.montantOriginal,
+      date_facture: f.dateStr, niveau_actuel: 0,
+      historique: [], adresse: null, avoir_decision: null, commentaire: ''
+    };
+  });
+  // Existantes → mise à jour montant et date uniquement
+  rows.filter(f=>f.valide && prev.has(f.facture)).forEach(f=>{
+    const e = suivi.factures[f.facture];
+    if(e) { e.date_facture = f.dateStr; e.montant_original = f.montantOriginal; }
+  });
+}
+
 function triggerDDImport() {
+  // Si déjà importé aujourd'hui → sauter l'étape import et aller directement à l'analyse
+  const lastSilent = stateDDSuivi?.meta?.last_silent_import;
+  if(lastSilent === DD_TSTR && stateDDSuivi && Object.keys(stateDDSuivi.factures||{}).length > 0) {
+    // Lancer directement l'analyse sans CSV
+    ddCsvData = null; // signal pour ddAnalyzeData2
+    ddAnalyzeDataDirect();
+    return;
+  }
   document.getElementById('dd-import-overlay').classList.add('open');
   ddSetStep(1);
 }
@@ -1696,16 +2038,33 @@ function ddJoursDepuis(dateStr) {
   return Math.round((DD_TODAY - d) / 86400000);
 }
 
+function ddAnalyzeDataDirect() {
+  // Traitement mensuel sans import CSV (déjà importé aujourd'hui)
+  if(!stateDDSuivi || !stateDDSuivi.factures) { triggerDDImport(); return; }
+  // Construire les invoices à partir des données existantes
+  const fakeRows = Object.entries(stateDDSuivi.factures).map(([num, f]) => ({
+    client: f.client, facture: num, dateStr: f.date_facture,
+    jours: ddJoursDepuis(f.date_facture), montantOriginal: f.montant_original,
+    solde: f.montant_original, negatif: false, valide: true
+  }));
+  // Copie de travail temporaire (pas de sauvegarde avant le bouton final)
+  window._ddWorkingCopy = JSON.parse(JSON.stringify(stateDDSuivi));
+  ddProcessAndShow(fakeRows, true);
+}
+
 function ddAnalyzeData() {
   const rows = ddParseCSV(ddCsvData);
   const eligible = rows.filter(f=>f.valide&&f.jours>60);
-  if(!stateDDSuivi) {
-    stateDDSuivi = ddBuildSuivi(rows);
+  // Copie de travail temporaire
+  const workingCopy = stateDDSuivi ? JSON.parse(JSON.stringify(stateDDSuivi)) : null;
+  if(!workingCopy) {
+    const newSuivi = ddBuildSuivi(rows);
+    window._ddWorkingCopy = newSuivi;
     if(eligible.length > 0) ddShowHistoriqueForm(rows, eligible);
-    else ddProcessAndShow(rows);
+    else ddProcessAndShow(rows, false);
   } else {
-    stateDDSuivi = ddUpdateSuivi(stateDDSuivi, rows);
-    ddProcessAndShow(rows);
+    window._ddWorkingCopy = ddUpdateSuivi(workingCopy, rows);
+    ddProcessAndShow(rows, false);
   }
   document.getElementById('dd-import-overlay').classList.remove('open');
 }
@@ -1746,11 +2105,11 @@ function ddUpdateHistoFields(facture) {
 function closeDDHistorique() { document.getElementById('dd-historique-overlay').classList.remove('open'); }
 
 function validateDDHistorique() {
+  const workCopy = window._ddWorkingCopy;
   window._ddHistoEligible.forEach(f => {
     const niv = parseInt(document.getElementById('ddh-niv-'+f.facture).value)||0;
-    if(!stateDDSuivi.factures[f.facture]) return;
-    const entry = stateDDSuivi.factures[f.facture];
-    // ✅ Firebase sérialise [] en null
+    if(!workCopy.factures[f.facture]) return;
+    const entry = workCopy.factures[f.facture];
     if(!entry.historique || !Array.isArray(entry.historique)) entry.historique = [];
     entry.niveau_actuel=niv;
     if(niv>=1) entry.historique.push({niveau:1,type:'email',date:'inconnue'});
@@ -1759,13 +2118,13 @@ function validateDDHistorique() {
     if(niv>=4) entry.historique.push({niveau:4,type:'courrier',date:'inconnue'});
   });
   closeDDHistorique();
-  // Sauvegarde Firebase avec les niveaux initiaux
-  saveDDToFirebase();
-  ddProcessAndShow(window._ddHistoRows);
+  // Pas de sauvegarde Firebase — on attend le bouton final
+  ddProcessAndShow(window._ddHistoRows, false);
 }
 
 // ─── Construction des factures ───
 function ddBuildInvoices(rows, suivi) {
+  if(!suivi) suivi = window._ddWorkingCopy || stateDDSuivi || {factures:{}};
   const inv=[], neg=[];
   rows.forEach(f=>{
     if(f.negatif){neg.push(f);return;}
@@ -1798,11 +2157,11 @@ function ddBuildInvoices(rows, suivi) {
   return{inv,neg};
 }
 
-function ddProcessAndShow(rows) {
-  const{inv,neg}=ddBuildInvoices(rows,stateDDSuivi);
+function ddProcessAndShow(rows, isDirect) {
+  const workCopy = window._ddWorkingCopy || stateDDSuivi;
+  const{inv,neg}=ddBuildInvoices(rows, workCopy);
   ddInvoices=inv; ddNegatifs=neg;
-  // Sauvegarde immédiate en Firebase (niveaux mis à jour)
-  saveDDToFirebase();
+  // ⚠️ PAS de sauvegarde Firebase ici — uniquement au clic sur le bouton final
   ddRenderAnalysis();
   ddSetStep(2);
   document.getElementById('dd-analysis-overlay').classList.add('open');
@@ -1992,6 +2351,11 @@ function ddDownloadAll() {
   if(retour) retour.style.display = 'none';
   const dateTag = DD_TSTR.replace(/\//g,'');
 
+  // ✅ C'EST ICI QUE LES NIVEAUX SONT VALIDÉS ET SAUVEGARDÉS EN FIREBASE
+  if(window._ddWorkingCopy) {
+    stateDDSuivi = window._ddWorkingCopy;
+    window._ddWorkingCopy = null;
+  }
   saveDDToFirebase();
   renderDDPage();
   // Marquer automatiquement la date du traitement
@@ -2025,7 +2389,7 @@ function closeDDRapportAll() {
   });
   const btn    = document.getElementById('dd-btn-download');
   const retour = document.getElementById('dd-btn-retour');
-  if(btn)    { btn.textContent = 'Télécharger le rapport'; btn.disabled = false; btn.style.background = ''; }
+  if(btn)    { btn.textContent = 'Télécharger le rapport et mettre à jour le niveau des factures'; btn.disabled = false; btn.style.background = ''; }
   if(retour) { retour.textContent = 'Retour'; retour.onclick = closeDDRapport; }
   ddSetStep(1);
   ddCsvData = null;
@@ -2145,6 +2509,14 @@ function ddSetStep(n) {
 // ─── Tri tableau DD ───
 let ddSortCol = 'jours';
 let ddSortDir = 'desc';
+
+// Search + sort state
+let searchArrhes = '';
+let searchFP = '';
+let sortArrhesCol = '';
+let sortArrhesDir = 'asc';
+let sortFPCol = '';
+let sortFPDir = 'asc';
 
 function ddSort(col) {
   if(ddSortCol === col) ddSortDir = ddSortDir === 'asc' ? 'desc' : 'asc';
@@ -2429,13 +2801,22 @@ function openDDEditAdresse() {
 window.addEventListener('load',()=>{
   const upd=()=>{const e=document.getElementById('topbar-date');if(e)e.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
   upd();setInterval(upd,60000);
-  if(typeof emailjs!=='undefined')emailjs.init({publicKey:'IOJCHQiqGloMl8p4k'});
+  initOfflineDetection();
   loadLocal();
   updateNavBadges();
   updateDDNavBadge();
   checkImportBanner();
   if(stateDashboard) renderDashboard();
   if(stateDDSuivi)   renderDDPage();
+  // Init Gmail (avec délai pour laisser Google Identity Services se charger)
+  setTimeout(() => {
+    initGmailClient();
+    // Auto-check Gmail si pas encore importé aujourd'hui
+    const li = stateDashboard?.lastImportDate;
+    if(li !== new Date().toLocaleDateString('fr-FR')) {
+      gmailTokenClient?.requestAccessToken({ prompt: '' });
+    }
+  }, 2000);
 
   const fbConfig={
     apiKey:"AIzaSyC-NtreTDGDG401aX5aLY_C_J-vFWTqd3k",
@@ -2619,7 +3000,7 @@ window.addEventListener('load',()=>{
       <div class="dd-modal-title">Rapport prêt</div>
       <div style="display:flex;gap:8px">
         <button class="dd-btn-secondary" id="dd-btn-retour" onclick="closeDDRapport()" style="font-size:11px;padding:6px 12px">Retour</button>
-        <button class="dd-btn-green" id="dd-btn-download" onclick="ddDownloadAll()">Télécharger le rapport</button>
+        <button class="dd-btn-green" id="dd-btn-download" onclick="ddDownloadAll()">Télécharger le rapport et mettre à jour le niveau des factures</button>
       </div>
     </div>
     <div class="dd-rapport-ok">
