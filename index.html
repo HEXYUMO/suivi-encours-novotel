@@ -9,9 +9,10 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  window._fbImports = { initializeApp, getDatabase, ref, set, onValue };
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  window._fbImports = { initializeApp, getApps, getDatabase, ref, set, onValue, get, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail };
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,6 +207,53 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
 .modal-cancel{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;cursor:pointer;padding:4px}
 .modal-cancel:hover{color:var(--red)}
 
+/* ─── LOGIN SCREEN ─── */
+.login-overlay{position:fixed;inset:0;background:var(--navy);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.login-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:36px 40px;width:360px}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:6px;justify-content:center}
+.login-logo-icon{width:42px;height:42px;background:var(--blue);border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(74,144,226,.5)}
+.login-wordmark{color:#fff;font-size:17px;font-weight:700;letter-spacing:2px}
+.login-subtitle{color:rgba(255,255,255,.3);font-size:9px;letter-spacing:1.5px;text-align:center;margin-bottom:28px;text-transform:uppercase}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;color:rgba(255,255,255,.45);font-size:10px;font-weight:600;letter-spacing:.8px;margin-bottom:6px;text-transform:uppercase}
+.login-field input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s}
+.login-field input::placeholder{color:rgba(255,255,255,.2)}
+.login-field input:focus{border-color:var(--blue);background:rgba(74,144,226,.1)}
+.login-submit{width:100%;background:var(--blue);border:none;border-radius:9px;padding:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:8px;transition:all .15s;letter-spacing:.3px}
+.login-submit:hover:not(:disabled){background:#3a7fd5;box-shadow:0 4px 16px rgba(74,144,226,.4)}
+.login-submit:disabled{background:rgba(74,144,226,.35);cursor:not-allowed}
+.login-error{color:#ff7070;font-size:11px;text-align:center;margin-top:12px;min-height:18px;line-height:1.5}
+/* ─── SIDEBAR USER BLOCK ─── */
+.sb-user-block{padding:8px 14px 4px;display:none;align-items:center;gap:8px}
+.sb-user-avatar{width:26px;height:26px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:10px;font-weight:600;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role-lbl{font-size:8px;color:rgba(255,255,255,.28);letter-spacing:.4px}
+.logout-btn{background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:4px 8px;color:rgba(255,255,255,.3);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s;flex-shrink:0}
+.logout-btn:hover{background:rgba(220,50,50,.2);border-color:rgba(220,50,50,.4);color:#ff7070}
+/* ─── ADMIN PANEL ─── */
+.admin-section{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;box-shadow:var(--sh);margin-bottom:16px}
+.admin-h{font-size:14px;font-weight:700;color:var(--navy3);margin-bottom:6px}
+.admin-desc{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6}
+.admin-user-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:7px;font-size:12px;flex-wrap:wrap}
+.admin-user-email{flex:1;font-weight:500;color:var(--navy3);min-width:160px}
+.admin-role-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--blue-l);color:#1565C0}
+.admin-role-badge.admin{background:var(--pur-l);color:var(--pur)}
+.admin-disabled-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;background:var(--red-l);color:var(--red)}
+.admin-date{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.admin-btn{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;color:#555;font-family:var(--font);transition:all .15s}
+.admin-btn:hover{background:var(--navy3);color:#fff;border-color:var(--navy3)}
+.admin-btn.danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.admin-btn.success:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.admin-create-form{background:var(--bg);border:1.5px dashed var(--border);border-radius:10px;padding:18px;margin-top:14px}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.admin-form-group{display:flex;flex-direction:column;gap:5px}
+.admin-form-group label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.admin-form-group input,.admin-form-group select{border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;font-family:var(--font);color:var(--text);background:var(--white);transition:border-color .15s}
+.admin-form-group input:focus,.admin-form-group select:focus{outline:none;border-color:var(--blue)}
+.admin-create-btn{background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.admin-create-btn:hover{background:var(--navy)}
+.admin-create-btn:disabled{background:var(--muted2);cursor:not-allowed}
 /* ─── COMING SOON ─── */
 .coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:10px;color:var(--muted)}
 .coming-soon h2{font-size:17px;font-weight:600;color:var(--muted2)}
@@ -292,7 +340,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
   <div class="offline-dot"></div>
   <div class="offline-bar-msg">Connexion perdue — modifications mises en file d'attente<span class="offline-bar-queue" id="offline-queue-label"></span></div>
 </div>
-<div class="app">
+<div class="app" style="visibility:hidden">
 
 <!-- ═══════════ SIDEBAR ═══════════ -->
 <aside class="sidebar">
@@ -339,8 +387,22 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Briefs journaliers
       <span class="nav-ext">↗</span>
     </a>
+    <div class="nav-sep"></div>
+    <div class="nav-item" id="nav-admin" onclick="navigate('admin')" style="display:none">
+      <svg class="nav-icon" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="11.5" cy="11.5" r="2" fill="currentColor" opacity=".7"/><path d="M11.5 10.5v1M11 11.5h1" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg>
+      Gestion comptes
+      <span class="nav-tag">Admin</span>
+    </div>
   </nav>
   <div class="sb-foot">
+    <div class="sb-user-block" id="sb-user-block">
+      <div class="sb-user-avatar" id="sb-user-avatar">?</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sb-user-name">—</div>
+        <div class="sb-user-role-lbl" id="sb-user-role-lbl">—</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" title="Se déconnecter">⏻</button>
+    </div>
     <button class="import-btn" onclick="openImportModal()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5v7M4.5 6.5L7 9l2.5-2.5" stroke="rgba(255,255,255,.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.65)" stroke-width="1.4" stroke-linecap="round"/></svg>
       Importer un fichier
@@ -532,6 +594,61 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       </div>
     </div>
 
+    <!-- ─── ADMINISTRATION ─── -->
+    <div class="page" id="page-admin">
+      <div class="admin-section">
+        <div class="admin-h">Utilisateurs</div>
+        <div class="admin-desc">Gérez les accès à l'application. Seuls les comptes listés ici peuvent se connecter.</div>
+        <div id="admin-users-list"><div style="font-size:12px;color:var(--muted);font-style:italic">Chargement...</div></div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-h">Créer un compte</div>
+        <div class="admin-desc">Le nouvel utilisateur pourra se connecter immédiatement avec le mot de passe défini ci-dessous.</div>
+        <div class="admin-create-form">
+          <div class="admin-form-grid">
+            <div class="admin-form-group">
+              <label>Prénom / Nom</label>
+              <input type="text" id="admin-new-name" placeholder="ex: Marie Dupont">
+            </div>
+            <div class="admin-form-group">
+              <label>Email</label>
+              <input type="email" id="admin-new-email" placeholder="prenom@accor.com">
+            </div>
+            <div class="admin-form-group">
+              <label>Mot de passe initial</label>
+              <input type="password" id="admin-new-password" placeholder="minimum 6 caractères">
+            </div>
+            <div class="admin-form-group">
+              <label>Rôle</label>
+              <select id="admin-new-role">
+                <option value="user">Utilisateur</option>
+                <option value="admin">Administrateur</option>
+              </select>
+            </div>
+          </div>
+          <button class="admin-create-btn" id="admin-create-btn" onclick="adminCreateUser()">Créer le compte</button>
+        </div>
+      </div>
+      <div class="admin-section" style="background:#FFFBEB;border-color:#FDE68A">
+        <div class="admin-h" style="color:#92400E">🔐 Règles Firebase à appliquer</div>
+        <div class="admin-desc" style="color:#78350F">Pour sécuriser votre base de données, copiez ces règles dans <strong>Firebase Console → Realtime Database → Règles</strong> :</div>
+        <pre id="firebase-rules-display" style="background:#1a1a2e;color:#a8e6cf;font-size:11px;padding:14px;border-radius:8px;overflow-x:auto;font-family:var(--mono);line-height:1.7">{
+  "rules": {
+    "app_users": {
+      ".read":  "auth != null",
+      ".write": "auth != null && (!data.exists() || root.child('app_users').child(auth.uid).child('role').val() === 'admin')"
+    },
+    "encours":        { ".read": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true", ".write": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true" },
+    "encoursFP":      { ".read": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true", ".write": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true" },
+    "dashboardData":  { ".read": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true", ".write": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true" },
+    "settings":       { ".read": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true", ".write": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true" },
+    "debiteurs_suivi":{ ".read": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true", ".write": "auth != null && root.child('app_users').child(auth.uid).child('disabled').val() !== true" }
+  }
+}</pre>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('firebase-rules-display').textContent).then(()=>showToast('Règles copiées !','green'))" style="margin-top:10px;background:#92400E;color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">Copier les règles</button>
+      </div>
+    </div>
+
     <!-- ─── PARAMÈTRES ─── -->
     <div class="page" id="page-settings">
       <div class="settings-section">
@@ -642,10 +759,13 @@ const MAIL_DEST   = {
   commerciaux:  {to:'h1103-sb@accor.com',  cc:'h1103-cc@accor.com,h1103-re2@accor.com', label:'Commerciaux'},
   comptabilite: {to:'h1103-gl@accor.com',  cc:'', label:'Comptabilité'},
 };
-const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers',settings:'Paramètres'};
+const PAGE_NAMES = {dashboard:'Tableau de bord',arrhes:'Encours — Arrhes',fp:'Factures Permanentes',debiteurs:'Débiteurs divers',settings:'Paramètres',admin:'Gestion des comptes'};
 
 // ═══════════════════════ STATE ═══════════════════════
 let db = null;
+let _mainAuth = null;
+let currentUser = null;
+let currentUserRole = null;
 let stateArrhes    = {};
 let stateFP        = {};
 let stateDashboard = null;
@@ -725,6 +845,200 @@ function ddClassifyNiveau(n){
 }
 
 function clientId(c,n){ return `${n}_${String(c).replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'')}`; }
+
+// ═══════════════════════ AUTH ═══════════════════════
+const SESSION_KEY  = 'novotel_session_v2';
+const SESSION_DAYS = 60;
+
+function checkSessionExpiry() {
+  const s = localStorage.getItem(SESSION_KEY);
+  if (!s) return false;
+  try { return (Date.now() - JSON.parse(s).ts) / 86400000 < SESSION_DAYS; }
+  catch(e) { return false; }
+}
+function storeSession(uid) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ uid, ts: Date.now() }));
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+function showLoginScreen(msg) {
+  const ov = document.getElementById('login-overlay');
+  if (ov) ov.style.display = 'flex';
+  document.querySelector('.app').style.visibility = 'hidden';
+  const btn = document.getElementById('login-btn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
+  if (msg) { const e = document.getElementById('login-error'); if(e) e.textContent = msg; }
+}
+function hideLoginScreen() {
+  const ov = document.getElementById('login-overlay');
+  if (ov) ov.style.display = 'none';
+  document.querySelector('.app').style.visibility = 'visible';
+}
+
+async function doLogin() {
+  const email    = (document.getElementById('login-email').value || '').trim();
+  const password = document.getElementById('login-password').value || '';
+  const btn      = document.getElementById('login-btn');
+  const errEl    = document.getElementById('login-error');
+  if (!email || !password) { errEl.textContent = 'Veuillez remplir tous les champs.'; return; }
+  btn.disabled = true; btn.textContent = 'Connexion…'; errEl.textContent = '';
+  try {
+    const { signInWithEmailAndPassword } = window._fbImports;
+    const cred = await signInWithEmailAndPassword(_mainAuth, email, password);
+    storeSession(cred.user.uid);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = 'Se connecter';
+    const msgs = {
+      'auth/wrong-password':     'Mot de passe incorrect.',
+      'auth/user-not-found':     'Aucun compte trouvé pour cet email.',
+      'auth/invalid-email':      'Adresse email invalide.',
+      'auth/too-many-requests':  'Trop de tentatives. Réessayez plus tard.',
+      'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+    };
+    errEl.textContent = msgs[e.code] || 'Erreur (' + e.code + ')';
+  }
+}
+
+async function doLogout() {
+  if (!confirm('Se déconnecter ?')) return;
+  const { signOut } = window._fbImports;
+  clearSession();
+  await signOut(_mainAuth);
+  currentUser = null; currentUserRole = null;
+  document.getElementById('sb-user-block').style.display = 'none';
+  document.getElementById('nav-admin').style.display = 'none';
+  showLoginScreen();
+}
+
+async function onUserAuthenticated(user) {
+  if (!checkSessionExpiry()) {
+    const { signOut } = window._fbImports;
+    clearSession(); await signOut(_mainAuth);
+    showLoginScreen('Session expirée (60 jours). Veuillez vous reconnecter.');
+    return;
+  }
+  currentUser = user;
+  const { ref, get, set } = window._fbImports;
+  const userRef = ref(db, 'app_users/' + user.uid);
+  try {
+    let snap = await get(userRef);
+    let userData = snap.val();
+    // Bootstrap : 1er compte = admin automatiquement
+    if (!userData) {
+      userData = { email: user.email, name: user.email.split('@')[0], role: 'admin', createdAt: Date.now(), disabled: false };
+      await set(userRef, userData);
+    }
+    if (userData.disabled) {
+      const { signOut } = window._fbImports;
+      clearSession(); await signOut(_mainAuth);
+      showLoginScreen('Compte désactivé. Contactez l\'administrateur.');
+      return;
+    }
+    currentUserRole = userData.role;
+    // Update sidebar user block
+    const avatarEl = document.getElementById('sb-user-avatar');
+    const nameEl   = document.getElementById('sb-user-name');
+    const roleEl   = document.getElementById('sb-user-role-lbl');
+    if (avatarEl) avatarEl.textContent = (userData.email||'?')[0].toUpperCase();
+    if (nameEl)   nameEl.textContent   = userData.name || userData.email.split('@')[0];
+    if (roleEl)   roleEl.textContent   = userData.role === 'admin' ? 'Administrateur' : 'Utilisateur';
+    document.getElementById('sb-user-block').style.display = 'flex';
+    // Show admin nav only for admin
+    const adminNav = document.getElementById('nav-admin');
+    if (adminNav) adminNav.style.display = userData.role === 'admin' ? 'flex' : 'none';
+    hideLoginScreen();
+    // Kick off data listeners
+    startFirebaseListeners();
+  } catch(e) {
+    showLoginScreen('Erreur lors de la vérification du compte. (' + e.message + ')');
+  }
+}
+
+// ─── ADMIN PANEL ───
+async function renderAdminPanel() {
+  const container = document.getElementById('admin-users-list');
+  if (!container) return;
+  container.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic">Chargement...</div>';
+  try {
+    const { ref, get } = window._fbImports;
+    const snap = await get(ref(db, 'app_users'));
+    const users = snap.val() || {};
+    const entries = Object.entries(users);
+    if (!entries.length) {
+      container.innerHTML = '<div style="font-size:12px;color:var(--muted);font-style:italic">Aucun utilisateur.</div>';
+      return;
+    }
+    container.innerHTML = entries.map(([uid, u]) => `
+      <div class="admin-user-row">
+        <div class="sb-user-avatar" style="width:30px;height:30px;font-size:12px">${(u.email||'?')[0].toUpperCase()}</div>
+        <div class="admin-user-email">${u.email}${u.name && u.name !== u.email.split('@')[0] ? ' <span style="color:var(--muted);font-weight:400">('+u.name+')</span>' : ''}</div>
+        <span class="admin-role-badge ${u.role==='admin'?'admin':''}">${u.role==='admin'?'Admin':'Utilisateur'}</span>
+        ${u.disabled ? '<span class="admin-disabled-badge">Désactivé</span>' : ''}
+        <span class="admin-date">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : '—'}</span>
+        ${uid !== currentUser?.uid ? `
+          <button class="admin-btn ${u.disabled?'success':'danger'}" onclick="toggleUserDisabled('${uid}',${!u.disabled})">${u.disabled?'Activer':'Désactiver'}</button>
+          <button class="admin-btn" onclick="adminResetPassword('${u.email}')">↺ MDP</button>
+        ` : '<span style="font-size:10px;color:var(--muted);font-style:italic">(votre compte)</span>'}
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--red)">Erreur : ' + e.message + '</div>';
+  }
+}
+
+async function toggleUserDisabled(uid, disable) {
+  const { ref, set } = window._fbImports;
+  try {
+    await set(ref(db, 'app_users/' + uid + '/disabled'), disable);
+    showToast(disable ? 'Utilisateur désactivé' : 'Utilisateur réactivé', disable ? 'amber' : 'green');
+    renderAdminPanel();
+  } catch(e) { showToast('Erreur : ' + e.message, 'red'); }
+}
+
+async function adminResetPassword(email) {
+  if (!confirm(`Envoyer un email de réinitialisation du mot de passe à :\n${email} ?`)) return;
+  const { sendPasswordResetEmail } = window._fbImports;
+  try {
+    await sendPasswordResetEmail(_mainAuth, email);
+    showToast('Email de réinitialisation envoyé à ' + email, 'green');
+  } catch(e) { showToast('Erreur : ' + e.message, 'red'); }
+}
+
+async function adminCreateUser() {
+  const email    = (document.getElementById('admin-new-email').value || '').trim();
+  const password = document.getElementById('admin-new-password').value || '';
+  const role     = document.getElementById('admin-new-role').value;
+  const name     = (document.getElementById('admin-new-name').value || '').trim();
+  if (!email || !password) { showToast('Email et mot de passe requis', 'red'); return; }
+  if (password.length < 6) { showToast('Mot de passe minimum 6 caractères', 'red'); return; }
+  const btn = document.getElementById('admin-create-btn');
+  btn.disabled = true; btn.textContent = 'Création…';
+  try {
+    const { createUserWithEmailAndPassword, signOut: fbSignOut, getAuth, initializeApp, getApps } = window._fbImports;
+    // Secondary app to preserve admin session
+    let secApp = getApps().find(a => a.name === 'novotel-secondary');
+    if (!secApp) secApp = initializeApp(window._fbConfigGlobal, 'novotel-secondary');
+    const secAuth = getAuth(secApp);
+    const cred = await createUserWithEmailAndPassword(secAuth, email, password);
+    await fbSignOut(secAuth);
+    const { ref, set } = window._fbImports;
+    await set(ref(db, 'app_users/' + cred.user.uid), {
+      email, name: name || email.split('@')[0], role,
+      createdAt: Date.now(), disabled: false
+    });
+    showToast('✓ Compte créé : ' + email, 'green');
+    document.getElementById('admin-new-email').value = '';
+    document.getElementById('admin-new-password').value = '';
+    document.getElementById('admin-new-name').value = '';
+    renderAdminPanel();
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Cet email est déjà utilisé.',
+      'auth/invalid-email':        'Adresse email invalide.',
+      'auth/weak-password':        'Mot de passe trop faible (min. 6 car.).',
+    };
+    showToast('Erreur : ' + (msgs[e.code] || e.message), 'red');
+  } finally { btn.disabled = false; btn.textContent = 'Créer le compte'; }
+}
 
 // ═══════════════════════ CONFIG GMAIL ═══════════════════════
 const GMAIL_CLIENT_ID = '810974037955-2j2is4jnuc89shkkvv8e6ieq5mpldit8.apps.googleusercontent.com';
@@ -910,6 +1224,7 @@ function navigate(view) {
   else if (view==='dashboard') renderDashboard();
   else if (view==='settings')  { renderSettingsPage(); renderSnapshotList(); }
   else if (view==='debiteurs') renderDDPage();
+  else if (view==='admin') { if(currentUserRole==='admin') renderAdminPanel(); }
 }
 
 // ═══════════════════════ IMPORT MODAL ═══════════════════════
@@ -921,10 +1236,31 @@ function triggerDDCSVImport() { closeImportModal(); document.getElementById('fil
 
 // ═══════════════════════ FIREBASE ═══════════════════════
 function connectFirebase(cfg) {
+  window._fbConfigGlobal = cfg;
   try {
-    const {initializeApp,getDatabase,ref,onValue} = window._fbImports;
+    const {initializeApp,getDatabase,ref,onValue,getAuth,onAuthStateChanged} = window._fbImports;
     const app = initializeApp(cfg,'pilotage-app');
     db = getDatabase(app);
+    _mainAuth = getAuth(app);
+
+    // Auth state listener — point d'entrée unique
+    onAuthStateChanged(_mainAuth, async (user) => {
+      if (user) {
+        await onUserAuthenticated(user);
+      } else {
+        showLoginScreen();
+      }
+    });
+  } catch(e) {
+    console.error(e);
+    setEl('live-label','Hors ligne');
+    document.getElementById('firebase-status').textContent='Erreur Firebase';
+  }
+}
+
+function startFirebaseListeners() {
+  try {
+    const {ref,onValue} = window._fbImports;
     onValue(ref(db,'encours'), s=>{
       if(s.val()){stateArrhes=s.val();if(currentView==='arrhes')renderArrhes();updateNavBadges();}
     });
@@ -2846,6 +3182,7 @@ window.addEventListener('load',()=>{
   const upd=()=>{const e=document.getElementById('topbar-date');if(e)e.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});};
   upd();setInterval(upd,60000);
   initOfflineDetection();
+  // Pre-load local cache silently (app still hidden behind login screen)
   loadLocal();
   updateNavBadges();
   updateDDNavBadge();
@@ -3052,5 +3389,33 @@ window.addEventListener('load',()=>{
 </div>
 
 <input type="file" id="dd-csv-hidden" accept=".csv" style="display:none">
+<!-- ═══════ ÉCRAN DE CONNEXION ═══════ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="9" width="14" height="9" rx="1" fill="rgba(255,255,255,.9)"/>
+          <polygon points="10,2.5 2,9 18,9" fill="rgba(255,255,255,.7)"/>
+        </svg>
+      </div>
+      <div class="login-wordmark">NOVOTEL</div>
+    </div>
+    <div class="login-subtitle">Outil de pilotage · Nice Centre</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()">
+    </div>
+    <div class="login-field">
+      <label>Mot de passe</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-submit" id="login-btn" onclick="doLogin()">Se connecter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
 </body>
 </html>
