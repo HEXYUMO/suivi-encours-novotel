@@ -105,16 +105,18 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .topbar-date{font-size:10.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
 
 /* ─── CONTENT ─── */
-.content{flex:1;overflow-y:auto;overflow-x:hidden}
-.content::-webkit-scrollbar{width:4px}
+.content{flex:1;overflow-y:scroll;overflow-x:hidden}
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-track{background:rgba(0,0,0,.04)}
 .content::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:4px}
+.content::-webkit-scrollbar-thumb:hover{background:#aaa}
 
 /* ─── BANNER ─── */
 .import-banner{background:var(--red);color:#fff;font-size:12px;font-weight:500;padding:9px 22px;display:none;align-items:center;gap:8px;flex-shrink:0}
 .import-banner.show{display:flex}
 
 /* ─── PAGES ─── */
-.page{display:none;padding:18px 22px}
+.page{display:none;padding:18px 22px 60px}
 .page.active{display:block}
 
 /* ─── DASHBOARD ─── */
