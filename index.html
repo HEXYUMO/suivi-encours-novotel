@@ -95,7 +95,8 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .snapshot-restore:hover{background:var(--navy)}
 
 /* ─── MAIN ─── */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:0}
+.topbar{flex-shrink:0}
 .topbar{height:var(--th);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0;gap:12px}
 .topbar-crumb{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .topbar-crumb span{color:var(--navy3);font-weight:600}
@@ -105,7 +106,7 @@ body{font-family:var(--font);font-size:13px;color:var(--text);background:var(--b
 .topbar-date{font-size:10.5px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
 
 /* ─── CONTENT ─── */
-.content{flex:1;overflow-y:scroll;overflow-x:hidden}
+.content{flex:1;min-height:0;overflow-y:scroll;overflow-x:hidden}
 .content::-webkit-scrollbar{width:6px}
 .content::-webkit-scrollbar-track{background:rgba(0,0,0,.04)}
 .content::-webkit-scrollbar-thumb{background:var(--muted2);border-radius:4px}
