@@ -889,9 +889,12 @@ async function onUserAuthenticated(user) {
   try {
     let snap = await get(userRef);
     let userData = snap.val();
-    // Bootstrap : 1er compte = admin automatiquement
+    // Bootstrap : si aucune entrée dans app_users, vérifier si c'est le tout 1er compte
     if (!userData) {
-      userData = { email: user.email, name: user.email.split('@')[0], role: 'admin', createdAt: Date.now(), disabled: false };
+      const { ref: fbRef, get: fbGet } = window._fbImports;
+      const allUsersSnap = await fbGet(fbRef(db, 'app_users'));
+      const isFirstUser = !allUsersSnap.exists();
+      userData = { email: user.email, name: user.email.split('@')[0], role: isFirstUser ? 'admin' : 'user', createdAt: Date.now(), disabled: false };
       await set(userRef, userData);
     }
     if (userData.disabled) {
