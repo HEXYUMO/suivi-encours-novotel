@@ -635,6 +635,21 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
           <button class="admin-create-btn" id="admin-create-btn" onclick="adminCreateUser()">Créer le compte</button>
         </div>
       </div>
+      <div class="admin-section" style="background:#F0F7FF;border-color:#BFDBFE">
+        <div class="admin-h" style="color:#1E40AF">🔑 Réinitialiser le mot de passe d'un utilisateur</div>
+        <div class="admin-desc" style="color:#1E3A8A">
+          Firebase ne permet pas de changer le mot de passe d'un autre utilisateur depuis l'application.<br><br>
+          <strong>Procédure si un utilisateur oublie son mot de passe :</strong><br>
+          1. Allez dans <strong>Firebase Console → Authentication → Utilisateurs</strong><br>
+          2. Cliquez sur les <strong>3 points</strong> à droite de l'email → <strong>"Modifier l'utilisateur"</strong><br>
+          3. Saisissez directement un nouveau mot de passe → Enregistrer<br>
+          4. Communiquez le nouveau mot de passe à l'utilisateur
+        </div>
+        <a href="https://console.firebase.google.com/project/suivi-encours-novotel/authentication/users" target="_blank" rel="noopener"
+          style="display:inline-flex;align-items:center;gap:6px;background:#1E40AF;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;font-family:var(--font)">
+          Ouvrir Firebase Authentication ↗
+        </a>
+      </div>
       </div>
     </div>
 
@@ -947,7 +962,7 @@ async function renderAdminPanel() {
         <span class="admin-date">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : '—'}</span>
         ${uid !== currentUser?.uid ? `
           <button class="admin-btn ${u.disabled?'success':'danger'}" onclick="toggleUserDisabled('${uid}',${!u.disabled})">${u.disabled?'Activer':'Désactiver'}</button>
-          <button class="admin-btn" onclick="adminChangePassword('${uid}','${u.email}')">🔑 MDP</button>
+          <button class="admin-btn" onclick="toggleUserRole('${uid}','${u.role}')" style="color:${u.role==='admin'?'var(--pur)':'var(--blue)'}">⇄ ${u.role==='admin'?'→ Utilisateur':'→ Admin'}</button>
           <button class="admin-btn danger" onclick="adminDeleteUser('${uid}','${u.email}')">🗑 Supprimer</button>
         ` : '<span style="font-size:10px;color:var(--muted);font-style:italic">(votre compte)</span>'}
       </div>`).join('');
@@ -965,12 +980,24 @@ async function toggleUserDisabled(uid, disable) {
   } catch(e) { showToast('Erreur : ' + e.message, 'red'); }
 }
 
+async function toggleUserRole(uid, currentRole) {
+  const newRole = currentRole === 'admin' ? 'user' : 'admin';
+  const label = newRole === 'admin' ? 'Administrateur' : 'Utilisateur';
+  if (!confirm(`Changer le rôle de cet utilisateur en "${label}" ?`)) return;
+  const { ref, set } = window._fbImports;
+  try {
+    await set(ref(db, 'app_users/' + uid + '/role'), newRole);
+    showToast('✓ Rôle mis à jour : ' + label, 'green');
+    renderAdminPanel();
+  } catch(e) { showToast('Erreur : ' + e.message, 'red'); }
+}
+
 async function adminDeleteUser(uid, email) {
-  if (!confirm(`Supprimer définitivement le compte :\n${email} ?\n\nCette action est irréversible.`)) return;
+  if (!confirm(`Supprimer le compte :\n${email} ?\n\n⚠️ Cela supprimera l'accès à l'application.\nVous devrez aussi supprimer le compte dans Firebase Console.`)) return;
   const { ref, set } = window._fbImports;
   try {
     await set(ref(db, 'app_users/' + uid), null);
-    showToast('✓ Compte supprimé : ' + email, 'green');
+    showToast('✓ Accès supprimé — supprimez aussi le compte dans Firebase Console pour pouvoir le recréer', 'amber');
     renderAdminPanel();
   } catch(e) { showToast('Erreur : ' + e.message, 'red'); }
 }
@@ -979,8 +1006,6 @@ async function adminChangePassword(uid, email) {
   const newPwd = prompt(`Nouveau mot de passe pour :\n${email}\n\n(minimum 6 caractères)`);
   if (!newPwd) return;
   if (newPwd.length < 6) { showToast('Mot de passe trop court (min. 6 caractères)', 'red'); return; }
-  // Pour changer le MDP d'un autre user, on recrée le compte avec le même email
-  // Firebase Admin SDK requis pour ça côté client — on informe l'admin
   showToast('Pour changer le MDP d\'un autre utilisateur, utilisez Firebase Console → Authentication → modifier l\'utilisateur', 'amber');
 }
 
