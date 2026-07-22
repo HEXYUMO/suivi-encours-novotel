@@ -418,7 +418,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.19</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.20</div>
   </div>
 </aside>
 
@@ -1200,7 +1200,7 @@ function startFirebaseListeners() {
   try {
     const {ref,onValue} = window._fbImports;
     onValue(ref(db,'encours'), s=>{
-      if(s.val()){stateArrhes=s.val();if(currentView==='arrhes')renderArrhes();updateNavBadges();}
+      if(s.val()){stateArrhes=s.val();migrateArrhesNotePrev();if(currentView==='arrhes')renderArrhes();updateNavBadges();}
     });
     onValue(ref(db,'encoursFP'), s=>{
       if(s.val()){stateFP=s.val();if(currentView==='fp')renderFP();updateNavBadges();}
@@ -1254,6 +1254,23 @@ function fbSet(path, data) {
   }
   const {ref,set} = window._fbImports;
   set(ref(db,path), data);
+}
+function migrateArrhesNotePrev() {
+  // Ancien modèle Encours : "notePrev" (Note précédente, lecture seule) + "commentaire" séparés.
+  // Nouveau modèle (aligné sur Factures perm.) : un seul champ "commentaire" éditable.
+  // On fusionne une bonne fois pour toutes le contenu de notePrev dans commentaire, puis on supprime notePrev.
+  let changed=false;
+  Object.values(stateArrhes).forEach(row=>{
+    if(row && Object.prototype.hasOwnProperty.call(row,'notePrev')){
+      const prev=(row.notePrev||'').trim();
+      if(prev){
+        row.commentaire=(row.commentaire&&row.commentaire.trim())?prev+' → '+row.commentaire.trim():prev;
+      }
+      delete row.notePrev;
+      changed=true;
+    }
+  });
+  if(changed) saveArrhesToFirebase();
 }
 function saveArrhesToFirebase() { fbSet('encours',stateArrhes); }
 function saveFPToFirebase()     { fbSet('encoursFP',stateFP); }
@@ -1420,8 +1437,8 @@ function parseArrhesRows(rows){
   Object.keys(stateArrhes).forEach(id=>{if(!ids.has(id))delete stateArrhes[id];});
   arr.forEach(r=>{
     const id=clientId(r.client,r.nc),ex=stateArrhes[id];
-    if(ex){const nn=ex.commentaire&&ex.commentaire.trim()?(ex.notePrev?ex.notePrev+' → '+ex.commentaire:ex.commentaire):ex.notePrev||'';stateArrhes[id]={...ex,client:r.client,montant:r.montant,notePrev:nn,isNew:false};}
-    else stateArrhes[id]={client:r.client,nc:r.nc,montant:r.montant,service:null,commentaire:'',action:'',echeance:'',statut:'En attente',notePrev:'',dateMaj:'',isNew:true};
+    if(ex)stateArrhes[id]={...ex,client:r.client,montant:r.montant,isNew:false};
+    else stateArrhes[id]={client:r.client,nc:r.nc,montant:r.montant,service:null,commentaire:'',action:'',echeance:'',statut:'En attente',dateMaj:'',isNew:true};
   });
 }
 
@@ -1805,7 +1822,7 @@ function buildSectionArrhes(svc,rows){
   const total=rows.reduce((s,[,r])=>s+(r.montant||0),0);
   const si=c=>sortArrhesCol===c?(sortArrhesDir==='asc'?' ▲':' ▼'):'';
   const div=document.createElement('div');div.className='section';
-  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:18%;cursor:pointer;user-select:none" onclick="sortArrhes('client')">Client${si('client')}</th><th style="width:9%;text-align:right;cursor:pointer;user-select:none" onclick="sortArrhes('montant')">Montant${si('montant')}</th><th style="width:14%">Note précédente</th><th style="width:20%">Commentaire</th><th style="width:14%">Action requise</th><th style="width:8%;cursor:pointer;user-select:none" onclick="sortArrhes('echeance')">Échéance${si('echeance')}</th><th style="width:10%;cursor:pointer;user-select:none" onclick="sortArrhes('statut')">Statut${si('statut')}</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-a-${svc}"></tbody></table></div>`;
+  div.innerHTML=`<div class="section-header"><span class="sbadge ${bc}">${(isU?'À attribuer':SVC_LABEL[svc]).toUpperCase()}</span><span class="smeta">${rows.length} ligne${rows.length>1?'s':''} · ${fmtAmt(total)} €</span></div><div class="table-wrap"><table><thead><tr><th style="width:18%;cursor:pointer;user-select:none" onclick="sortArrhes('client')">Client${si('client')}</th><th style="width:9%;text-align:right;cursor:pointer;user-select:none" onclick="sortArrhes('montant')">Montant${si('montant')}</th><th style="width:34%">Commentaire</th><th style="width:14%">Action requise</th><th style="width:8%;cursor:pointer;user-select:none" onclick="sortArrhes('echeance')">Échéance${si('echeance')}</th><th style="width:10%;cursor:pointer;user-select:none" onclick="sortArrhes('statut')">Statut${si('statut')}</th><th style="width:5%">MAJ</th><th style="width:36px"></th></tr></thead><tbody id="tbody-a-${svc}"></tbody></table></div>`;
   const tbody=div.querySelector(`#tbody-a-${svc}`);
   rows.forEach(([id,row])=>tbody.appendChild(buildRowArrhes(id,row,isU)));
   return div;
@@ -1813,7 +1830,7 @@ function buildSectionArrhes(svc,rows){
 function buildRowArrhes(id,row,isU){
   const tr=document.createElement('tr');tr.id='row-'+id;
   if(isU){tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span><span class="nbadge">NOUVEAU</span></td><td class="amount">${fmtAmt(row.montant)} €</td><td colspan="5" style="color:var(--muted2);font-style:italic;font-size:11px">— Attribuer un service pour débloquer l'édition</td><td></td><td><div class="assign-btns">${SERVICES.map(s=>`<button class="assign-btn" onclick="assignService('${id}','${s}','arrhes')">${SVC_LABEL[s]}</button>`).join('')}</div></td>`;return tr;}
-  tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td><td class="amount">${fmtAmt(row.montant)} €</td><td><div class="note-prev">${esc(row.notePrev||'—')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td><td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td><td><select class="status-sel ${getStatClass(row.statut)}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td><td class="date-mj">${row.dateMaj||'—'}</td><td><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></td>`;
+  tr.innerHTML=`<td><span class="cname">${esc(row.client)}</span>${row.isNew?'<span class="nbadge">NOUVEAU</span>':''}</td><td class="amount">${fmtAmt(row.montant)} €</td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="commentaire" data-view="arrhes" onblur="saveField(this)" placeholder="Commentaire...">${esc(row.commentaire||'')}</div></td><td><div class="editable" contenteditable="true" data-id="${id}" data-field="action" data-view="arrhes" onblur="saveField(this)" placeholder="Action...">${esc(row.action||'')}</div></td><td><input type="date" value="${row.echeance||''}" data-id="${id}" data-field="echeance" data-view="arrhes" onchange="saveField(this)"></td><td><select class="status-sel ${getStatClass(row.statut)}" data-id="${id}" data-field="statut" data-view="arrhes" onchange="saveField(this)">${statusOptions(row.statut)}</select></td><td class="date-mj">${row.dateMaj||'—'}</td><td><button class="btn-dots" onclick="openDots(event,'${id}','arrhes')">···</button></td>`;
   return tr;
 }
 
@@ -2425,11 +2442,14 @@ function ddBuildInvoices(rows, suivi) {
         niveau=1; cat='1ERE RELANCE';
       } else if(niveau===0){cat='NE PAS RELANCER';}
       else {
-        cat=ddClassifyNiveau(niveau);
         const last=hist[hist.length-1];
         if(!last||last.date!==DD_TSTR){
+          // Nouveau traitement mensuel pour une facture déjà relancée : on passe à l'étape suivante
+          niveau = Math.min(niveau+1, 5);
+          entry.niveau_actuel = niveau;
           entry.historique.push({niveau,type:niveau===1?'email':'courrier',date:DD_TSTR});
         }
+        cat=ddClassifyNiveau(niveau);
       }
     }
     const paiementPartiel=f.montantOriginal>0&&Math.abs(f.montantOriginal-f.solde)>0.01;
