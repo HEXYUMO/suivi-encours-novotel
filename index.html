@@ -418,7 +418,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.24</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.25</div>
   </div>
 </aside>
 
@@ -513,10 +513,16 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
             <div style="font-size:16px;font-weight:700;color:var(--navy3)">Débiteurs divers</div>
             <div style="font-size:11px;color:var(--muted)" id="dd-last-import-label">Aucune importation</div>
           </div>
-          <button onclick="triggerDDImport()" style="background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background .15s;" onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--navy3)'">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.7)" stroke-width="1.4" stroke-linecap="round"/></svg>
-            Démarrer le traitement mensuel DD
-          </button>
+          <div style="display:flex;gap:10px">
+            <button onclick="ddExportExplicationXLSX()" style="background:#fff;color:var(--navy3);border:1.5px solid var(--border);border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background .15s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='#fff'">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 1.5h10v11H2v-11z" stroke="var(--navy3)" stroke-width="1.2"/><path d="M2 5h10M5.5 5v7.5" stroke="var(--navy3)" stroke-width="1"/></svg>
+              Explication balance +60j (Excel)
+            </button>
+            <button onclick="triggerDDImport()" style="background:var(--navy3);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:8px;transition:background .15s;" onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--navy3)'">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v1.5A1.5 1.5 0 003.5 13h7A1.5 1.5 0 0012 11.5V10" stroke="rgba(255,255,255,.7)" stroke-width="1.4" stroke-linecap="round"/></svg>
+              Démarrer le traitement mensuel DD
+            </button>
+          </div>
         </div>
 
       <!-- Bandeau retard traitement -->
@@ -2836,6 +2842,65 @@ tfoot td{background:#1A3A8F;color:#fff;font-weight:600}
 ${emails.map(ddGenEmail).join('')}
 ${courriers.map(ddGenLettre).join('')}
 </body></html>`;
+}
+
+// ─── Export Excel "Explication balance DD +60j" ───
+function ddExportExplicationXLSX() {
+  if(typeof XLSX==='undefined'){ alert('Librairie XLSX non chargée.'); return; }
+  if(!stateDDSuivi || !stateDDSuivi.factures){ alert('Aucune donnée Débiteurs divers à exporter.'); return; }
+
+  const rows = Object.entries(stateDDSuivi.factures)
+    .filter(([,f]) => f.montant_original && f.montant_original > 0)
+    .map(([num,f]) => ({num, f, jours: ddJoursDepuis(f.date_facture)}))
+    .filter(r => r.jours!==null && r.jours>60)
+    .sort((a,b) => b.jours - a.jours);
+
+  if(!rows.length){
+    alert('Aucune facture de plus de 60 jours à exporter.');
+    return;
+  }
+
+  const totalMontant = rows.reduce((s,r)=>s+(r.f.montant_original||0),0);
+
+  const aoa = [];
+  aoa.push(['EXPLICATIONS BALANCE DD A + de 60 JOURS','','','','']);
+  aoa.push(['Montant total à justifier','',totalMontant,'',DD_TSTR]);
+  aoa.push(['Nom de la société','montant','date facture','nombre de jours débiteur','explications']);
+
+  rows.forEach(r=>{
+    const hist = Array.isArray(r.f.historique) ? r.f.historique : [];
+    let explication;
+    if(!hist.length){
+      explication = 'Relance à venir';
+    } else {
+      explication = hist.map(h=>{
+        const moyen = h.type==='email' ? 'mail' : 'courrier';
+        const label = h.niveau===1?'1ère relance':h.niveau===2?'2ème relance':h.niveau===3?'3ème relance':h.niveau===4?'Mise en demeure':`Niveau ${h.niveau}`;
+        const dateAff = h.date && h.date!=='inconnue' ? h.date : 'date inconnue';
+        return `${label} : ${moyen} du ${dateAff}`;
+      }).join('\n');
+    }
+    aoa.push([r.f.client||'', r.f.montant_original||0, r.f.date_facture||'', r.jours, explication]);
+  });
+
+  aoa.push(['TOTAL', totalMontant, '', '', '']);
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const lastRowIdx = aoa.length - 1; // 0-indexed row of TOTAL
+
+  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:4} }]; // titre fusionné sur toute la largeur
+  ws['!cols'] = [{wch:34},{wch:13},{wch:14},{wch:20},{wch:60}];
+
+  // Format monétaire sur la colonne "montant" (B) pour les lignes de données + total
+  const currencyFmt = '#,##0.00 €';
+  [1,...rows.map((_,i)=>i+3),lastRowIdx].forEach(r=>{
+    const addr = XLSX.utils.encode_cell({r, c:1});
+    if(ws[addr] && typeof ws[addr].v === 'number') ws[addr].z = currencyFmt;
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Explication');
+  XLSX.writeFile(wb, 'H1103_Explication_Balance_DD_'+DD_TSTR.replace(/\//g,'')+'.xlsx');
 }
 
 function ddSetStep(n) {
