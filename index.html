@@ -418,7 +418,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.22</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.24</div>
   </div>
 </aside>
 
@@ -2171,6 +2171,19 @@ function ddSilentUpdateSuivi(suivi, rows) {
   if(!suivi.factures_reglees) suivi.factures_reglees = {};
   const act = new Set(rows.filter(f=>f.valide).map(f=>f.facture));
   const prev = new Set(Object.keys(suivi.factures));
+
+  // 🛑 GARDE-FOU : voir ddUpdateSuivi — même protection contre un format de fichier inattendu.
+  if(prev.size > 0){
+    const matched = [...prev].filter(n=>act.has(n)).length;
+    const matchRate = matched/prev.size;
+    if(act.size===0 || matchRate < 0.3){
+      throw new Error(
+        `Import refusé : seulement ${matched}/${prev.size} facture(s) suivie(s) retrouvée(s) dans le fichier. `+
+        `Format de fichier probablement différent de celui attendu — aucune donnée n'a été modifiée.`
+      );
+    }
+  }
+
   // Factures disparues → réglées
   for(const n of prev) {
     if(!act.has(n)) {
@@ -2280,6 +2293,22 @@ function ddUpdateSuivi(suivi, rows) {
   const act = new Set(rows.filter(f=>f.valide).map(f=>f.facture));
   const prev = new Set(Object.keys(suivi.factures));
 
+  // 🛑 GARDE-FOU : si le fichier importé ne matche presque aucune facture suivie
+  // (ex. format de colonnes différent de ce qui est attendu), on refuse de tout
+  // marquer comme "réglé" — c'est le signe d'un problème de parsing, pas de vrais paiements.
+  if(prev.size > 0){
+    const matched = [...prev].filter(n=>act.has(n)).length;
+    const matchRate = matched/prev.size;
+    if(act.size===0 || matchRate < 0.3){
+      throw new Error(
+        `Import refusé : seulement ${matched}/${prev.size} facture(s) suivie(s) retrouvée(s) dans le fichier `+
+        `(${rows.filter(f=>f.valide).length} ligne(s) valide(s) au total). `+
+        `Cela ressemble à un format de fichier différent de celui attendu — aucune donnée n'a été modifiée. `+
+        `Vérifiez le fichier importé.`
+      );
+    }
+  }
+
   // Factures disparues du CSV → réglées
   for(const n of prev){
     if(!act.has(n)){
@@ -2352,20 +2381,25 @@ function ddAnalyzeDataDirect() {
 }
 
 function ddAnalyzeData() {
-  const rows = ddParseCSV(ddCsvData);
-  const eligible = rows.filter(f=>f.valide&&f.jours>60);
-  // Copie de travail temporaire
-  const workingCopy = stateDDSuivi ? JSON.parse(JSON.stringify(stateDDSuivi)) : null;
-  if(!workingCopy) {
-    const newSuivi = ddBuildSuivi(rows);
-    window._ddWorkingCopy = newSuivi;
-    if(eligible.length > 0) ddShowHistoriqueForm(rows, eligible);
-    else ddProcessAndShow(rows, false);
-  } else {
-    window._ddWorkingCopy = ddUpdateSuivi(workingCopy, rows);
-    ddProcessAndShow(rows, false);
+  try {
+    const rows = ddParseCSV(ddCsvData);
+    const eligible = rows.filter(f=>f.valide&&f.jours>60);
+    // Copie de travail temporaire
+    const workingCopy = stateDDSuivi ? JSON.parse(JSON.stringify(stateDDSuivi)) : null;
+    if(!workingCopy) {
+      const newSuivi = ddBuildSuivi(rows);
+      window._ddWorkingCopy = newSuivi;
+      if(eligible.length > 0) ddShowHistoriqueForm(rows, eligible);
+      else ddProcessAndShow(rows, false);
+    } else {
+      window._ddWorkingCopy = ddUpdateSuivi(workingCopy, rows);
+      ddProcessAndShow(rows, false);
+    }
+    document.getElementById('dd-import-overlay').classList.remove('open');
+  } catch(e) {
+    console.error('Erreur analyse DD :', e);
+    alert('❌ '+e.message);
   }
-  document.getElementById('dd-import-overlay').classList.remove('open');
 }
 
 // ─── Historique (premier lancement) ───
