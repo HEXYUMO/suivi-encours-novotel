@@ -418,7 +418,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       Paramètres
     </button>
     <div class="sb-live"><span class="live-dot"></span><span id="live-label">Connexion...</span></div>
-    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.21</div>
+    <div style="font-size:9px;color:rgba(255,255,255,.18);text-align:left;padding-left:2px;margin-top:3px;letter-spacing:.3px">v1.22</div>
   </div>
 </aside>
 
@@ -673,7 +673,7 @@ input[type=date]:focus{outline:none;border-color:var(--blue)}
       </div>
       <div class="settings-section">
         <div class="settings-h">Historique des imports — Restauration</div>
-        <div class="settings-desc">Les 5 derniers imports sont sauvegardés localement. Vous pouvez restaurer n'importe lequel en cas d'erreur d'importation.</div>
+        <div class="settings-desc">Les 10 derniers imports sont sauvegardés localement. Vous pouvez restaurer n'importe lequel en cas d'erreur d'importation.</div>
         <div id="snapshot-list-cont"><div style="font-size:12px;color:var(--muted);font-style:italic">Aucun import enregistré.</div></div>
       </div>
     </div>
@@ -1317,15 +1317,6 @@ function handleCSV(file) {
       setEl('last-import-label','Importé le '+data.lastImport);
       checkImportBanner();
       renderDashboard();
-      const diag=data._diag;
-      if(diag&&(Object.keys(diag.skippedSegments).length||diag.skippedDatesCount)){
-        const segList=Object.entries(diag.skippedSegments).map(([s,v])=>`${s} (${v.count} ligne${v.count>1?'s':''}, ${fmtAmt(v.ca)} €)`).join(', ');
-        let msg='⚠️ Import : des lignes A3 ont été ignorées';
-        if(segList) msg+=' — segments non reconnus : '+segList;
-        if(diag.skippedDatesCount) msg+=' — '+diag.skippedDatesCount+' date(s) illisible(s)';
-        showToast(msg,'amber');
-        console.warn('[Dashboard] Diagnostic import CA :', diag);
-      }
       document.getElementById('file-input-csv').value='';
     } catch(err){console.error(err);alert('Erreur parsing CSV : '+err.message);}
   };
@@ -1369,29 +1360,13 @@ function computeDashboardData(rows) {
   // Monthly CA from A3 Individual+Group+Crew
   const SEG=['Individual','Group','Crew'];
   const monthlyCA={};
-  // 🔎 Diagnostic : repérer les lignes A3 ignorées (segment non reconnu ou date illisible)
-  // pour retrouver facilement une source d'écart avec le tableau de bord hôtel.
-  const skippedSegments={}, skippedDates=[];
   rows.forEach(r=>{
-    if(r.typeline!=='A3') return;
-    if(!SEG.includes(r.slabel)){
-      const seg=r.slabel||'(vide)';
-      if(!skippedSegments[seg]) skippedSegments[seg]={count:0,ca:0};
-      skippedSegments[seg].count++; skippedSegments[seg].ca+=pN(r.room_revenue);
-      return;
-    }
-    const d=parseCSVDate(r.cdate);
-    if(!d){ skippedDates.push({cdate:r.cdate,ca:pN(r.room_revenue)}); return; }
+    if(r.typeline!=='A3'||!SEG.includes(r.slabel)) return;
+    const d=parseCSVDate(r.cdate); if(!d) return;
     const k=`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
     if(!monthlyCA[k]) monthlyCA[k]={rn:0,ca:0};
     monthlyCA[k].rn+=pN(r.room_qty); monthlyCA[k].ca+=pN(r.room_revenue);
   });
-  if(Object.keys(skippedSegments).length){
-    console.warn('[Dashboard] Segments A3 ignorés lors de l\'import (hors Individual/Group/Crew) :', skippedSegments);
-  }
-  if(skippedDates.length){
-    console.warn('[Dashboard] '+skippedDates.length+' ligne(s) A3 ignorée(s) — date illisible :', skippedDates);
-  }
 
   // Current month
   const ck=`${yr}-${pad(mo)}`;
@@ -1407,8 +1382,7 @@ function computeDashboardData(rows) {
     today: todayA2?{TO:pN(todayA2.occupancy_rate),RN:Math.round(pN(todayA2.room_qty)),PM:pN(todayA2.room_revenue_avg),RevPAR:pN(todayA2.REVPAR),CA:pN(todayA2.room_revenue),guests:Math.round(pN(todayA2.guests_nb))}:null,
     monthCumul: {month:mo,year:yr,TO:monthTO,RN:Math.round(md.rn),CA:md.ca,PM:monthPM,budget:monthBud},
     portfolio7d,
-    monthlyCA,
-    _diag: {skippedSegments, skippedDatesCount: skippedDates.length}
+    monthlyCA
   };
 }
 
